@@ -1,0 +1,358 @@
+\section{Statistical Properties of the OLS Estimator}
+We will define statistical properties for the objects in the linear regression model, $y=X \beta+\varepsilon$, or its alternative (and equivalent) version, $y_{i}=x_{i}^{\prime} \beta+\varepsilon_{i}$. From now on, $y$ and $\varepsilon$ will be random variables. We can look at $X$ in two different ways: as a deterministic variable, or as another random variable. If deterministic, in repeated sampling, all the entries in $X$ would not change and $X$ itself could be taken as given. For simplicity, we will assume $X$ to be deterministic.\footnotetext{All the results we will derive in this and the next sections would not change, if $X$ was random. However, if random, the notation would need to be adjusted and the derivations slightly modified.} In this new framework, the optimal $\beta$ for the linear approximation of the link between $y$ and $X$ is still $\widehat{\beta}=\left(X^{\prime} X\right)^{-1} X^{\prime} y$. This formula reflects the mathematical properties of the linear regression model within the OLS approach and does not depend on the statistical hypotheses we are going to make later. All this given, the so-called Gauss-Markov assumptions are to be imposed on the model to derive some nice statistical properties for $\widehat{\beta}$.
+
+\subsection{Gauss-Markov Assumptions}
+The Gauss-Markov assumptions (GMAs) can be stated in two ways, (a) and (b), depending on the notation we adopt to describe the linear regression model:
+\\
+\begin{itemize}
+    \begin{minipage}[t]{0.5\textwidth}
+        \item[(a)] $y_{i}=x_{i}^{\prime} \beta+\varepsilon_{i}$;
+        \item[(ia)] $E\left(\varepsilon_{i}\right)=0, \forall i$;
+        \item[(iia)] $\left\{\varepsilon_{i}\right\}_{i=1}^{N} \wedge\left\{x_{i}\right\}_{i=1}^{N}$
+        \item[(iiia)] $\operatorname{Var}\left(\varepsilon_{i}\right)=\sigma^{2}, \forall i$;
+        \item[(iva)] $\operatorname{Cov}\left(\varepsilon_{i}, \varepsilon_{j}\right)=0, \forall i \neq j$;
+    \end{minipage}
+    \begin{minipage}[t]{0.5\textwidth}
+        \item[(b)] $y=X \beta+\varepsilon$;
+        \item[(ib)] $E(\varepsilon)=0$;
+        \item[(iib)] $\operatorname{Var}(\varepsilon)=\sigma^{2} I_{N}$;
+        \item[(iiib)] $E(\varepsilon \mid X)=0$;
+        \item[(ivb)] $\operatorname{Var}(\varepsilon \mid X)=\sigma^{2} I_{N}$. 
+    \end{minipage}
+\end{itemize}    
+
+The expected value of a vector-valued random variable is a vector of the same length. In this case, a vector of $N$ zeros. The variance of a vector-valued random variable of $N$ entries is a $N \times N$ matrix, the so-called \textbf{variance-covariance matrix}. $I_{N}$ is the identity matrix with $N$ rows and $N$ columns. In this case, the elements along the main diagonal of $\sigma^{2} I_{N}$ are the variances (all equal to each other) of the corresponding terms in the $\varepsilon$ vector. All the other elements, those off the main diagonal, are covariances between indexed elements. Under this assumption, the matrix will then look like.
+
+$$
+\Sigma = \left[
+\begin{array}{ccccc}
+\sigma^{2} & 0 & 0 & \cdots & 0 \\
+0 & \sigma^{2} & 0 & \cdots & 0 \\
+0 & 0 & \sigma^{2} & \ddots & \vdots \\
+\vdots & \vdots & \cdots & \ddots & \vdots \\
+0 & 0 & \cdots & \cdots & \sigma^{2}
+\end{array}
+\right] = \sigma^2 I_N
+$$
+
+
+When, as in this case, the variance-covariance matrix of the random error term in the linear regression model is diagonal and all the elements along the main diagonal are equal to each other, we say that the model has \textbf{spherical disturbances}.\footnote{Because all of the off-diagonal values are zero, we know there is no correlation between the error terms for different observations (i.e., errors are uncorrelated). Moreover, since all the elements in the diagonal are equal, the variance is constant across observations (we call this homoskedasticity). We call it "spherical" because, geometrically, the error terms are distributed uniformly in all directions.}
+
+Assumption (iiia) is known as the homoskedasticity assumption. It states that along the sample, the variance of the error term is constant. Assumption (iva) is known as the no-autocorrelation assumption. Assumption (iib) incorporates assumptions (iiia) and (iva), assumptions (iiib) and (ivb) combine assumptions (ia)-(iva) all together. Assumptions (iia), (iiib), and (ivb) establish the orthogonality between the error term and the set of regressors, or the exogeneity of the set of regressors - i.e., the regressors are not correlated with the error term. Under the simplifying assumption that the set of regressors is deterministic, (iia), (iiib), and (ivb) follow as a direct consequence. Under the assumption of stochastic regressors, the property of unbiasedness that we prove in the next section needs (iia) or (iiib) and (ivb) to be verified.
+
+Given that the two models under the two notations are perfectly equivalent and that the Gauss-Markov assumptions can be indifferently stated in a way or another, depending on which notation we are using, whatever is proved under a given notation can be proved under the other. On a case-by-case basis, we will choose the most convenient notation to prove the statistical properties of $\widehat{\beta}$.
+
+Under the Gauss-Markov assumptions, and under the assumption that $y$ and $\varepsilon$ are random variables, $\widehat{\beta}$ is a random variable, too. To see this, just look at its formula, $\widehat{\beta}=\left(X^{\prime} X\right)^{-1} X^{\prime} y$, according to which the optimal $\beta$ is a linear function of $y$, a random variable. In other words, $\widehat{\beta}$ is the statistic - i.e., a function of the data, in this framework thought to be random - that, within the OLS approach, we use to estimate the true, unknown value of $\beta$. As such, it is an estimator of the population parameter of interest, $\beta$, the OLS estimator of $\beta$, for which we can analyze the statistical properties in small and large samples.
+
+\subsection{Small-Sample Properties}
+We will prove the property of unbiasedness of the OLS estimator of $\beta, \widehat{\beta}$, derive the formula of its variance, state the Gauss-Markov Theorem, and analyze its distributional properties in small samples under a small modification of the Gauss-Markov assumptions.
+
+\subsubsection{Unbiasedness}
+To prove that $\widehat{\beta}$ is unbiased for the true population parameter, $\beta$, we need to show that, under the Gauss-Markov assumptions, $E(\widehat{\beta})=\beta$ :
+
+$$
+\begin{aligned}
+E(\widehat{\beta}) & =E\left[\left(X^{\prime} X\right)^{-1} X^{\prime} y\right] \\
+& =E\left[\left(X^{\prime} X\right)^{-1} X^{\prime}(X \beta+\varepsilon)\right] \\
+& =E\left[\left(\left(X^{\prime} X\right)^{-1} X^{\prime} X \beta+\left(X^{\prime} X\right)^{-1} X^{\prime} \varepsilon\right]\right. \\
+& =E\left[\beta+\left(X^{\prime} X\right)^{-1} X^{\prime} \varepsilon\right]
+\end{aligned}
+$$
+
+$$
+\begin{aligned}
+& =\beta+E\left[\left(X^{\prime} X\right)^{-1} X^{\prime} \varepsilon\right] \\
+& =\beta+\left(X^{\prime} X\right)^{-1} X^{\prime} E(\varepsilon) \\
+& =\beta
+\end{aligned}
+$$
+
+keeping in mind that $X$ is deterministic (so the term $\left(X^{\prime} X\right)^{-1} X^{\prime}$ can be pulled out of the expectation operator), and utilizing the Gauss-Markov assumption that the expected value of $\varepsilon$ is zero. Hence, $\widehat{\beta}$ is unbiased for $\beta$. This is true with or without the assumptions of homoskedasticity or no-autocorrelation, which we did not use in the proof. \footnotetext{If, for the sake of exposition, we assume that $X$ is stochastic, the proof would not look like just described. The proof would require the application of the so-called law of iterated expectations and would look like
+
+$$
+\begin{aligned}
+E(\widehat{\beta} \mid X) & =\beta+E\left[\left(X^{\prime} X\right)^{-1} X^{\prime} \varepsilon \mid X\right] \\
+& =\beta+\left(X^{\prime} X\right)^{-1} X^{\prime} E(\varepsilon \mid X) \\
+& =\beta
+\end{aligned}
+$$
+
+and thus
+
+$$
+E(\widehat{\beta})=E[E(\widehat{\beta} \mid X)]=\beta
+$$
+
+The same logic would apply in the derivation of the variance of the OLS estimator, which follows in the next section, under the assumption of stochastic regressors.
+}
+
+\subsubsection{Variance}
+\href{https://web.stanford.edu/~mrosenfe/soc_meth_proj3/matrix_OLS_NYU_notes.pdf}{Stanford Proofs}
+
+To find the variance of the OLS estimator, $\widehat{\beta}$ :
+
+$$
+\begin{aligned}
+\operatorname{Var}(\widehat{\beta}) & =E\left[(\widehat{\beta}-\beta)(\widehat{\beta}-\beta)^{\prime}\right] \\
+& =E\left\{\left[\left(X^{\prime} X\right)^{-1} X^{\prime} \varepsilon+\not \beta-\not \beta\right]\left[\left(X^{\prime} X\right)^{-1} X^{\prime} \varepsilon+\not \beta-\not \beta\right]^{\prime}\right\} \\
+& =E\left[\left(X^{\prime} X\right)^{-1} X^{\prime} \varepsilon \varepsilon^{\prime} X\left(X^{\prime} X\right)^{-1}\right]
+\end{aligned}
+$$
+
+Note that $\left[\left(X^{\prime} X\right)^{-1}\right]^{\prime}=\left(X^{\prime} X\right)^{-1}$. Since $X$ is a non-stochastic, deterministic term, the only random variable in the expression above is $\varepsilon \varepsilon^{\prime}$. The expression can then be simplified as
+
+$$
+\begin{aligned}
+\operatorname{Var}(\widehat{\beta}) & =E\left[\left(X^{\prime} X\right)^{-1} X^{\prime} \varepsilon \varepsilon^{\prime} X\left(X^{\prime} X\right)^{-1}\right] \\
+& =\left(X^{\prime} X\right)^{-1} X^{\prime} E\left(\varepsilon \varepsilon^{\prime}\right) X\left(X^{\prime} X\right)^{-1}
+\end{aligned}
+$$
+
+In general, if $A$ is a vector-valued random variable, then $\operatorname{Var}(A)=E\left(A A^{\prime}\right)-$ $E(A)[E(A)]^{\prime}$. So,
+
+
+$$
+\operatorname{Var}(\varepsilon)=E\left(\varepsilon \varepsilon^{\prime}\right)-E(\varepsilon)[E(\varepsilon)]^{\prime}=E\left(\varepsilon \varepsilon^{\prime}\right)=\sigma^{2} I_{N},
+$$
+by the Gauss-Markov assumptions. It follows that\\
+\$\$
+
+\[
+\begin{aligned}
+\operatorname{Var}(\widehat{\beta}) & =\left(X^{\prime} X\right)^{-1} X^{\prime} E\left(\varepsilon \varepsilon^{\prime}\right) X\left(X^{\prime} X\right)^{-1} \\
+& =\left(X^{\prime} X\right)^{-1} X^{\prime} \sigma^{2} I_{N} X\left(X^{\prime} X\right)^{-1} \\
+& =\sigma^{2}\left(X^{\prime} X\right)^{-1} X^{\prime} X\left(X^{\prime} X\right)^{-1} \\
+& =\sigma^{2}\left(X^{\prime} X\right)^{-1}
+\end{aligned}
+\]
+
+$\sigma^{2}$ is the unknown variance of the error term, constant along the sample by assumption. As long as $\sigma^{2}$ remains unknown, $\operatorname{Var}(\widehat{\beta})$ remains unknown. How can we estimate $\sigma^{2}$, then? We can either use a biased, $\widehat{\sigma}_{B}^{2}$, or an unbiased, $\widehat{\sigma}_{U}^{2}$, estimator:
+
+\[
+\begin{gathered}
+\widehat{\sigma}_{B}^{2}=\frac{\sum_{i=1}^{N} \widehat{\varepsilon}_{i}^{2}}{N-1} \Longrightarrow E\left(\widehat{\sigma}_{B}^{2}\right) \neq \sigma^{2}, \\
+\widehat{\sigma}_{U}^{2}=\frac{\sum_{i=1}^{N} \widehat{\varepsilon}_{i}^{2}}{N-K} \Longrightarrow E\left(\widehat{\sigma}_{U}^{2}\right)=\sigma^{2} .
+\end{gathered}
+\]
+
+In large samples, we could use either one interchangeably (both would converge to the same value, as $N$ grows to infinity), but in a small samples it would be better to use the unbiased estimator.
+
+Given an unbiased estimate of $\sigma^{2}, \widehat{\sigma}_{U}^{2}$, can estimate the variance of the OLS estimator as
+
+$$
+\widehat{\operatorname{Var}(\widehat{\beta}})=\widehat{\sigma}_{U}^{2}\left(X^{\prime} X\right)^{-1}
+$$
+
+Note that $\widehat{\operatorname{Var}(\widehat{\beta})}$ is a $K \times K$ matrix. If we take the elements along its main diagonal, we can estimate the standard deviation of $\widehat{\beta}$ - i.e., the standard error of $\widehat{\beta}$ :
+
+$$
+S E(\widehat{\beta})=\widehat{S D(\widehat{\beta})}=\sqrt{\operatorname{diag}\left[\widehat{\sigma}_{U}^{2}\left(X^{\prime} X\right)^{-1}\right]}
+$$
+
+where $\operatorname{diag}(\cdot)$ is the diagonal operator, which takes the elements along the main diagonal of a square matrix and puts them into a column vector. $S E(\widehat{\beta})$ is a $K \times 1$ vector.
+
+\subsubsection{Gauss-Markov Theorem}
+Theorem (Gauss-Markov Theorem). Under the Gauss-Markov assumptions, the OLS estimator is the Best Linear Unbiased Estimator (BLUE).\\
+$\widehat{\beta}$ is a linear estimator (as argued earlier, this follows from its form - i.e., $\widehat{\beta}$ is linear with respect to $y$ ) and is unbiased, as we proved above. According to this theorem, which we will not prove, it is best in the sense that it has the lowest variance within the class of linear unbiased estimators. That is, given any other linear and unbiased estimator of $\beta, \tilde{\beta}, \operatorname{Var}(\tilde{\beta})-\operatorname{Var}(\widehat{\beta}) \geq 0$ - i.e., $\operatorname{Var}(\tilde{\beta})-\operatorname{Var}(\widehat{\beta})$ is a positive semi-definite matrix.
+
+\subsubsection{Normality}
+In small samples, we do not know the distribution of $\widehat{\beta}$, unless we impose an additional assumption on the error term. If we assume that $\varepsilon \sim \mathcal{N}\left(0, \sigma^{2} I_{N}\right)$, then $\widehat{\beta} \sim \mathcal{N}\left(\beta, \sigma^{2}\left(X^{\prime} X\right)^{-1}\right)$. In practice, we are extending the two Gauss-Markov assumptions (ib) and (iib) with an assumption of normality for the error term.
+
+In small samples, if $\varepsilon$ is not normal, then $\widehat{\beta}$ is not normal. Thus, if we do not make the normality assumption described above, the distribution of $\widehat{\beta}$ will remain unknown and statistical inference on the parameters of the linear regression model will not be possible.
+
+\subsection{Large-Sample (Asymptotic) Properties}
+If we relax the Gauss-Markov assumptions, the small-sample properties of the OLS estimator are typically unknown. If the error term in the linear regression model is not normal, then the OLS estimator is not normal in small samples. If $E(\varepsilon) \neq 0$, then $E(\widehat{\beta}) \neq \beta$, and $\widehat{\beta}$ is a biased estimator for $\beta$. When the small-sample properties of the OLS estimator are not "good", an alternative is to evaluate the quality of the OLS estimator based on asymptotic theory, that is, when the sample is large.
+
+\subsubsection{Chebyshev's Inequality}
+Theorem (Chebyshev's Inequality). Let $X$ be a random variable, with finite mean, $E(X)=\mu$, and $\operatorname{Var}(X)=\sigma^{2}<\infty$. Then:
+
+$$
+\operatorname{Prob}(|X-\mu| \geq k \sigma) \leq \frac{1}{k^{2}}, \quad \forall k>0
+$$
+
+If $k=\frac{\alpha}{\sigma}$, with $\alpha>0$, then $\operatorname{Prob}(|X-\mu| \geq \alpha) \leq \frac{\sigma^{2}}{\alpha^{2}}$.\\
+Proof. Let $W \geq 0$ be a weakly positive random variable and let $c \in \mathbb{R}^{+}$- i.e., $c>0$. The derivations that follow will be better understood if we consider an example probability density function for $W$, as in Figure 2.\\
+\includegraphics[max width=\textwidth, center]{2024_12_18_7e4f6c1c437f51a07b2bg-26}
+
+Figure 2: Example probability density function of a weakly positive random variable, $W \geq 0$.
+
+Since $W$ is weakly positive, the domain of it density function is the entire positive semi-axis plus zero. The strictly positive real number, $c$ lies somewhere in the positive semi-axis. Since $W$ is a random variable, we can calculate its expectation as a weighted average:
+
+$$
+\begin{aligned}
+E(W) & =\operatorname{Prob}(W \leq c) E(W \mid W \leq c)+\operatorname{Prob}(W \geq c) E(W \mid W \geq c) \\
+& \geq \operatorname{Prob}(W \geq c) E(W \mid W \geq c) \\
+& \geq \operatorname{Prob}(W \geq c) c
+\end{aligned}
+$$
+
+The last inequality holds since $E(W \mid W \geq c) \geq c$, as one can easily figure out from Figure 2. It follows that
+
+$$
+E(W) \geq \operatorname{Prob}(W \geq c) c
+$$
+
+which we can rearrange as
+
+$$
+\operatorname{Prob}(W \geq c) \leq \frac{E(W)}{c}
+$$
+
+Let $W=(X-\mu)^{2} \geq 0$ and $c=k^{2} \sigma^{2}$, with $k>0$. The last expression can then be rewritten as
+
+$$
+\begin{aligned}
+& \operatorname{Prob}\left[(X-\mu)^{2} \geq k^{2} \sigma^{2}\right] \leq \frac{E\left[(X-\mu)^{2}\right]}{k^{2} \sigma^{2}} \\
+& \Longrightarrow \operatorname{Prob}(|X-\mu| \geq k \sigma) \leq \frac{\sigma^{2}}{k^{2} \sigma^{2}}=\frac{1}{k^{2}}
+\end{aligned}
+$$
+
+\subsubsection{Weak Law of Large Numbers, Revisited}
+In an earlier section we made the proof of the Weak Law of Large Numbers easier by adding an unnecessary assumption of normality on the random variable, $X$.
+
+This time we will prove the law without the normality assumption, using instead Chebyshev's inequality.
+
+Theorem (Weak Law of Large Numbers, WLLN). Let $X_{1}, \cdots, X_{N}$ be i.i.d. random variables with finite mean, $E(X)=\mu$, and finite variance, $\operatorname{Var}(X)=$ $\sigma^{2}<\infty$. Then $\bar{X} \xrightarrow{p} E(X)$, or $\bar{X}=E(X)+o_{p}(1)$.
+
+Proof. Consider $\bar{X}=\frac{\sum_{i=1}^{N} X_{i}}{N \bar{X}}$. Then $E(\bar{X})=\mu$ and $\operatorname{Var}(\bar{X})=\frac{\sigma^{2}}{N}$. Using Chebyshev's inequality for $\bar{X}$ :
+
+$$
+\operatorname{Prob}\left(|\bar{X}-\mu| \geq k \frac{\sigma}{\sqrt{N}}\right) \leq \frac{1}{k^{2}}
+$$
+
+Let $k=\frac{\varepsilon \sqrt{N}}{\sigma}$, where $\varepsilon>0$. Then
+
+$$
+\operatorname{Prob}(|\bar{X}-\mu| \geq \varepsilon) \leq \frac{\sigma^{2}}{N \varepsilon^{2}}
+$$
+
+As $N \longrightarrow \infty$, the right-hand side of the above inequality converges to 0 . By the squeeze theorem we have that $\operatorname{Prob}(|\bar{X}-\mu| \geq \varepsilon) \longrightarrow 0$. That is, we derived the definition of convergence in probability for $\bar{X}$. So, $\operatorname{plim}(\bar{X})=\mu$, or $\bar{X} \xrightarrow{p}$ $E(X)$.
+
+\subsubsection{Consistency I}
+Let $k \in\{1, \ldots, K\}$. Consider $\beta_{k}$ - i.e, the $k$-th element in the vector of model parameters, $\beta-$ and its OLS estimator $\widehat{\beta}_{k}$. Since $\widehat{\beta}_{k}$ is a random variable, we can apply Chebyshev's inequality, provided that its mean and variance are finite. We know that $E\left(\widehat{\beta}_{k}\right)=\beta_{k}$ and $\operatorname{Var}\left(\widehat{\beta}_{k}\right)=\sigma^{2} c_{k k}$, where $c_{k k}$ is the $k$-th element along the main diagonal of $\left(X^{\prime} X\right)^{-1}$. Hence:
+
+$$
+\operatorname{Prob}\left(\left|\widehat{\beta}_{k}-\beta_{k}\right| \geq \alpha\right) \leq \frac{\operatorname{Var}\left(\widehat{\beta}_{k}\right)}{\alpha^{2}}=\frac{\sigma^{2} c_{k k}}{\alpha^{2}}
+$$
+
+If we fix $\alpha$, as $N$ increases to infinity, all the elements along the main diagonal of the matrix $X^{\prime} X$ will increase. As a result, the elements along the main diagonal of $\left(X^{\prime} X\right)^{-1}$ will be shrinking to zero, including $c_{k k}$. It follows that $\lim _{N \rightarrow \infty} \frac{\sigma^{2} c_{k k}}{\alpha^{2}}=0$. The implication is that $\lim _{N \rightarrow \infty} \operatorname{Prob}\left(\left|\widehat{\beta}_{k}-\beta_{k}\right|>\alpha\right)=0$, that is $\operatorname{plim}\left(\widehat{\beta}_{k}\right)=\beta_{k}$. In other words, $\widehat{\beta}_{k}$ is a consistent estimator of $\beta_{k}$.
+
+\subsubsection{Consistency II}
+To show the consistency of $\widehat{\beta}$, recall that
+
+$$
+\widehat{\beta}=\left(X^{\prime} X\right)^{-1} X^{\prime} y=\beta+\left(X^{\prime} X\right)^{-1} X^{\prime} \varepsilon \Longrightarrow \widehat{\beta}-\beta=\left(X^{\prime} X\right)^{-1} X^{\prime} \varepsilon
+$$
+
+from which
+
+$$
+\begin{aligned}
+\operatorname{plim}(\widehat{\beta}-\beta) & =\operatorname{plim}\left[\beta+\left(X^{\prime} X\right)^{-1} X^{\prime} \varepsilon-\beta\right] \\
+& =\operatorname{plim}\left[\left(X^{\prime} X\right)^{-1} X^{\prime} \varepsilon\right] \\
+& =p \operatorname{plim}\left[\left(\frac{X^{\prime} X}{N}\right)^{-1} \frac{X^{\prime} \varepsilon}{N}\right] .
+\end{aligned}
+$$
+
+Assume that $\frac{X^{\prime} X}{N}$ converges to some non-singular matrix, $\sum_{X X}$. Then
+
+$$
+\operatorname{plim}(\widehat{\beta}-\beta)=\sum_{X X}^{-1} p l i m \frac{X^{\prime} \varepsilon}{N} .
+$$
+
+Note that
+
+$$
+\operatorname{plim}(\widehat{\beta}-\beta)=\sum_{X X}^{-1} p \lim \frac{X^{\prime} \varepsilon}{N}=\sum_{X X}^{-1} E\left(X^{\prime} \varepsilon\right)=0 \Longleftrightarrow E\left(X^{\prime} \varepsilon\right)=0
+$$
+
+From the Gauss-Markov assumptions, $X$ and $\varepsilon$ are statistically independent. So we have that $E\left(X^{\prime} \varepsilon\right)=0$ and that $\widehat{\beta}$ is a consistent estimator for $\beta$, as long as we assume $\frac{X^{\prime} X}{N} \xrightarrow{p} \sum_{X X}$, where $\sum_{X X}$ is a non-singular matrix.
+
+\subsection{Statistical Inference}
+Under the Gauss-Markov assumptions, $E(\varepsilon)=E(\varepsilon \mid X)=0$ and $\operatorname{Var}(\varepsilon)=$ $\operatorname{Var}(\varepsilon \mid X)=\sigma^{2} I_{N}$. If we also have that $\frac{X^{\prime} X}{N} \xrightarrow{p} \sum_{X X}$, then, by the Central Limit Theorem,
+
+$$
+\sqrt{N}(\widehat{\beta}-\beta) \xrightarrow{d} \mathcal{N}\left(0, \sigma^{2} \sum_{X X}^{-1}\right) .
+$$
+
+Whereas in small samples, exact inference is only possible under the additional assumption of normally-distributed error term, in large samples inference is made possible by the central limit theorem and the weak law of large numbers. The way to check whether the Gauss-Markov assumptions and the normality assumption are satisfied in small samples is to analyze the residuals of the model, looking for normality and non-autocorrelation. If the model is good, the residuals, which are estimates of the error terms, will be non-autocorrelated and will exhibit a constant variance. In small samples, if the residuals are normally distributed, we can safely use the inference techniques we are going to see in the remaining part of this course. In large samples, we do not strictly need the residuals to be normal, since we can rely on the central limit theorem and the weak law of large numbers for inference purposes.
+
+\subsection{Application}
+We will derive the properties of the OLS estimator in the case of a linear regression model with one exogenous regressor and a constant term - i.e., $y_{i}=\beta_{0}+\beta_{1} x_{i}+\varepsilon_{i}$.
+
+\subsubsection{Unbiasedness}
+We already know that $\widehat{\beta}_{1}=\frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)\left(y_{i}-\bar{y}\right)}{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}}$ and that $\widehat{\beta}_{0}=\bar{y}-\widehat{\beta}_{1} \bar{x}$. To show that $\widehat{\beta}_{1}$ is an unbiased estimator:
+
+$$
+\begin{aligned}
+& E\left(\widehat{\beta}_{1}\right)=E\left[\frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)\left(y_{i}-\bar{y}\right)}{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}}\right] \\
+&=E\left[\frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right) y_{i}}{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}}\right] \\
+&=E\left[\frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)\left(\beta_{0}+\beta_{1} x_{i}+\varepsilon_{i}\right)}{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}}\right] \\
+&=E\left[\frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right) \beta_{0}}{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}}+\beta_{1} \frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right) x_{i}}{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}}+\frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right) \varepsilon_{i}}{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}}\right] \\
+&=E\left[\frac{\beta_{0}}{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)} \sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}\right. \\
+&\left.\beta_{1} \frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)\left(x_{i}-\bar{x}\right)}{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}}+\frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right) \varepsilon_{i}}{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}}\right] \\
+&=E\left[\beta_{1}+\frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right) \varepsilon_{i}}{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}}\right] \\
+&=\beta_{1}+\frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right) E\left(\varepsilon_{i}\right)}{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}} \\
+&=\beta_{1} .
+\end{aligned}
+$$
+
+We could bring all constant or deterministic terms - including the explanatory variable, $x_{i}$ - outside of the expectation operator. Since the expectation of $\varepsilon$ is zero, $\widehat{\beta_{1}}$ is an unbiased estimator for $\beta_{1}$.
+
+To show that $\widehat{\beta}_{0}$ is an unbiased estimator:
+
+$$
+\begin{aligned}
+E\left(\widehat{\beta}_{0}\right) & =E\left(\bar{y}-\widehat{\beta}_{1} \bar{x}\right) \\
+& =E\left[\frac{\sum_{i=1}^{N} y_{i}}{N}-\frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right) y_{i}}{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}} \frac{\sum_{i=1}^{N} x_{i}}{N}\right] \\
+& =E\left\{\frac{\sum_{i=1}^{N}\left(\beta_{0}+\beta_{1} x_{i}+\varepsilon_{i}\right)}{N}-\left[\beta_{1}+\frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right) \varepsilon_{i}}{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}}\right] \frac{\sum_{i=1}^{N} x_{i}}{N}\right\}
+\end{aligned}
+$$
+
+$$
+\begin{aligned}
+& =E\left[\beta_{0}+\frac{\beta_{1} \frac{\sum_{i=1}^{N} x_{i}}{N}}{N}+\frac{\sum_{i=1}^{N} \varepsilon_{i}}{N}-\frac{\beta_{1} \frac{\sum_{j=1}^{N} x_{i}}{N}}{N}-\frac{\sum_{i=1}^{N} x_{i}}{N} \frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right) \varepsilon_{i}}{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}}\right] \\
+& =\beta_{0}+\frac{\sum_{i=1}^{N} E\left(\varepsilon_{i}\right)}{N}-\frac{\sum_{i=1}^{N} x_{i}}{N} \frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right) E\left(\varepsilon_{i}\right)}{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}} \\
+& =\beta_{0} .
+\end{aligned}
+$$
+
+\subsubsection{Consistency}
+To show that $\widehat{\beta}_{1}$ is consistent:
+
+$$
+\begin{aligned}
+\operatorname{plim}\left(\widehat{\beta}_{1}\right) & =\operatorname{plim}\left[\frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right) y_{i}}{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}}\right] \\
+& =\operatorname{plim}\left[\beta_{1}+\frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right) \varepsilon_{i}}{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}}\right] \\
+& =\beta_{1}+\operatorname{plim}\left[\frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right) \varepsilon_{i}}{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}}\right] \\
+& =\beta_{1}+\operatorname{plim}\left[\frac{\frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right) \varepsilon_{i}}{N}}{\frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}}{N}}\right] \\
+& =\beta_{1}+\operatorname{plim}\left[\frac{\operatorname{Cov}\left(x_{i}, \varepsilon_{i}\right)}{\left.\widehat{\operatorname{Var}\left(x_{i}\right.}\right)}\right] \\
+& =\beta_{1}+\frac{\operatorname{Cov}\left(x_{i}, \varepsilon_{i}\right)}{\Lambda_{x x}} \\
+& =\beta_{1},
+\end{aligned}
+$$
+
+where we assumed that $\operatorname{plim} \frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}}{N}=\Lambda_{x x} \neq 0$, given that the elements $x_{i}$ are treated as deterministic. If the regressor is treated as a random variable, then we need to assume that $\operatorname{plim} \frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}}{N}=\operatorname{Var}\left(x_{i}\right) \neq 0$. Note that, by the usual Gauss-Markov assumptions, since $x_{i}$ and $\varepsilon_{i}$ are independent of each other, their covariance is zero.
+
+To prove the consistency property of $\widehat{\beta}_{0}$ :
+
+$$
+\begin{aligned}
+\operatorname{plim}\left(\widehat{\beta}_{0}\right) & =p \lim \left(\bar{y}-\widehat{\beta}_{1} \bar{x}\right) \\
+& =p \lim \left[\frac{\sum_{i=1}^{N} y_{i}}{N}-\left(\beta_{1}+\frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right) \varepsilon_{i}}{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}}\right) \frac{\sum_{i=1}^{N} x_{i}}{N}\right] \\
+& =p \lim \left[\frac{\sum_{i=1}^{N}\left(\beta_{0}+\beta_{1} x_{i}+\varepsilon\right)}{N}-\beta_{1} \frac{\sum_{i=1}^{N} x_{i}}{N}-\frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right) \varepsilon_{i}}{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}} \frac{\sum_{i=1}^{N} x_{i}}{N}\right]
+\end{aligned}
+$$
+
+$$
+\begin{aligned}
+& =p \lim \left[\beta_{0}+\frac{\beta_{1} \frac{\sum_{i=1}^{N} x_{i}}{N}}{N}+\frac{\sum_{i=1}^{N} \varepsilon_{i}}{N}-\beta_{1} \frac{\sum_{i=1}^{N} x_{i}}{N}-\frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right) \varepsilon_{i}}{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}} \frac{\sum_{i=1}^{N} x_{i}}{N}\right] \\
+& =\beta_{0}+\operatorname{plim}\left(\frac{\sum_{i=1}^{N} \varepsilon_{i}}{N}\right)-\operatorname{plim}\left(\frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right) \varepsilon_{i}}{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}} \frac{\sum_{i=1}^{N} x_{i}}{N}\right) \\
+& =\beta_{0}+E\left(\varepsilon_{i}\right)-\frac{\operatorname{Cov}\left(x_{i}, \varepsilon_{i}\right)}{\Lambda_{x x}} \Upsilon_{x} \\
+& =\beta_{0}
+\end{aligned}
+$$
+
+where we assumed that $\operatorname{plim} \frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}}{N}=\Lambda_{x x} \neq 0$ and plim $\frac{\sum_{i=1}^{N} x_{i}}{N}=\Upsilon_{x}$, given that the elements $x_{i}$ are treated as deterministic. If the regressor is treated as a random variable, then we need to assume that plim $\frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}}{N}=$ $\operatorname{Var}\left(x_{i}\right) \neq 0$ and $\operatorname{plim} \frac{\sum_{i=1}^{N} x_{i}}{N}=E\left(x_{i}\right)$. Note that, by the Gauss-Markov assumptions, $\operatorname{Cov}\left(x_{i}, \varepsilon_{i}\right)=0$ and $E\left(\varepsilon_{i}\right)=0$.
+
+Also note that, in order to prove unbiasedness of the OLS estimator, one needs strict exogeneity (orthogonality) between the error term and the set of regressors. To prove the consistency of $\widehat{\beta}_{1}$ and $\widehat{\beta}_{0}$, we need a weaker condition than orthogonality. We just need the regressor and the error term to be contemporaneously uncorrelated. A condition that, of course, is implied by orthogonality.

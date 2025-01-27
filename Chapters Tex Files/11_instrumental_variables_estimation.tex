@@ -1,0 +1,224 @@
+\section{Instrumental Variables (IV) Estimation}
+Under the Gauss-Markov assumptions, the OLS estimator is BLUE. To prove unbiasedness, we require that $\left\{x_{i}\right\}_{i=1}^{N}$ and $\left\{\varepsilon_{i}\right\}_{i=1}^{N}$ be independent of each other, or that $E(\varepsilon \mid X)=0$. If, rather than assuming orthogonality, we simply assume that the error term and the regressors are contemporaneously independent, that is $E\left(\varepsilon_{i} x_{i}\right)=0 \Longrightarrow \operatorname{Cov}\left(\varepsilon_{i}, x_{i}\right)=0$, we cannot prove unbiasedness, but we can still prove consistency. If we assume orthogonality, contemporaneous independence follows, but the opposite is not true. Sometimes, for economic reasons, we need to relax even the assumption of contemporaneous independence. If $E\left(\varepsilon_{i} x_{i}\right) \neq 0$, or otherwise $\operatorname{Cov}\left(x_{i}, \varepsilon_{i}\right) \neq 0$, then the OLS estimator is biased and inconsistent, and we need to use alternative estimators for the linear model. Within this framework, we necessarily need to treat the regressors as stochastic variables.
+
+We may have three situations in which $\operatorname{Cov}\left(x_{i}, \varepsilon_{i}\right) \neq 0$. In such cases, we say that the regressors that covary with the error term are endogenous:\\
+i Omitted variables;\\
+ii Measurement error in one or more regressors;\\
+iii Simultaneity and/or reverse causality of one or more regressors.\\
+In all of these cases, OLS cannot be used as it will produce biased and inconsistent estimators. The solution is to use instrumental variables.
+
+\subsection{Example of Endogeneity and IV Estimation}
+Suppose we want to estimate the demand function of a given good or service in a given market. We have a sample of data for the quantities and for the prices $\left(P_{i}\right)$. From economic theory, demand is defined as
+
+$$
+D_{i}=\gamma_{0}+\gamma_{1} P_{i}+u_{i}
+$$
+
+where $\gamma_{1}<0$, and supply is defined as
+
+$$
+S_{i}=\alpha_{0}+\alpha_{1} P_{i}+\alpha_{2} W_{i}+\varepsilon_{i}
+$$
+
+where $W_{i}$ is some exogenous variable which affects supply and $\alpha_{1}>0$. Our first instinct would be to use the dataset and OLS to estimate the demand function by regressing quantities on prices. However, we cannot use OLS in this context, because one of the regressors is endogenous to the system - i.e., it is not uncorrelated with the error term. So, we have a problem of endogeneity that should be addressed using proper instrumental variables.
+
+To see why we have endogeneity problems, consider the equilibrium in this market:
+
+$$
+\begin{aligned}
+D_{i}=S_{i} & \Longrightarrow \gamma_{0}+\gamma_{1} P_{i}+u_{i}=\alpha_{0}+\alpha_{1} P_{i}+\alpha_{2} W_{i}+\varepsilon_{i} \\
+& \Longrightarrow P_{i}=\frac{\alpha_{0}-\gamma_{0}}{\gamma_{1}-\alpha_{1}}+\frac{\alpha_{2}}{\gamma_{1}-\alpha_{1}} W_{i}+\frac{\varepsilon_{i}-u_{i}}{\gamma_{1}-\alpha_{1}}
+\end{aligned}
+$$
+
+That is, at equilibrium, $P_{i}$ is determined by $u_{i}$. According to the equilibrium expression for the price level, we have that $\operatorname{Cov}\left(P_{i}, u_{i}\right) \neq 0$. As such, if we try to estimate the demand function by OLS, we will obtain inconsistent and biased estimators for $\gamma_{0}$ and $\gamma_{1}$, since one of the Gauss-Markov assumptions (that the set of regressors and the error term should be independent of each other) is violated. $P_{i}$ is assumed to be a random variable.
+
+Suppose we use OLS to estimate $\gamma_{1}$. Then,
+
+$$
+\begin{aligned}
+\widehat{\gamma}_{1} & =\frac{\operatorname{Cov} \widehat{\left(P_{i}, D_{i}\right)}}{\widehat{\operatorname{Var}\left(P_{i}\right)}} \\
+& \xrightarrow{p} \frac{\operatorname{Cov}\left(P_{i}, D_{i}\right)}{\operatorname{Var}\left(P_{i}\right)} \\
+& =\frac{\operatorname{Cov}\left(P_{i}, \gamma_{0}+\gamma_{1} P_{i}+u_{i}\right)}{\operatorname{Var}\left(P_{i}\right)} \\
+& =\gamma_{1} \frac{\operatorname{Cov}\left(P_{i}, P_{i}\right)}{\operatorname{Var}\left(P_{i}\right)}+\frac{\operatorname{Cov}\left(P_{i}, u_{i}\right)}{\operatorname{Var}\left(P_{i}\right)} \\
+& =\gamma_{1}+\frac{\operatorname{Cov}\left(P_{i}, u_{i}\right)}{\operatorname{Var}\left(P_{i}\right)} \\
+& \neq \gamma_{1}
+\end{aligned}
+$$
+
+since $\frac{\operatorname{Cov}\left(P_{i}, u_{i}\right)}{\operatorname{Var}\left(P_{i}\right)} \neq 0$. So, we have an inconsistent estimator.\\
+If we follow the same steps for the OLS estimator of $\gamma_{0}$,
+
+$$
+\begin{aligned}
+\widehat{\gamma}_{0} & =\bar{D}-\widehat{\gamma}_{1} \bar{P} \\
+& =\gamma_{0}+\gamma_{1} \bar{P}-\widehat{\gamma}_{1} \bar{P}+\bar{u} \\
+& =\gamma_{0}+\left(\gamma_{1}-\widehat{\gamma}_{1}\right) \bar{P} \\
+& \stackrel{p}{\longrightarrow} \gamma_{0}+\left[\not \nVdash-\not 1-\frac{\operatorname{Cov}\left(P_{i}, u_{i}\right)}{\operatorname{Var}\left(P_{i}\right)}\right] E\left(P_{i}\right) \\
+& \neq \gamma_{0}
+\end{aligned}
+$$
+
+since, again, $\frac{\operatorname{Cov}\left(P_{i}, u_{i}\right)}{\operatorname{Var}\left(P_{i}\right)} \neq 0$.\\
+A solution to this estimation problem is the Two-Stage Least Squares, or 2SLS, estimator. This estimator is just one of the many instrumental variables estimators that could potentially be used. It is called in this way because it requires\\
+two stages to estimate a given equation. First of all, we need to identify the regressors which suffer from endogeneity. In this case, it is only $P_{i}$. Then we should regress them on the exogenous variables in the system. We should require these exogenous variables to be correlated with the endogenous variable. In the example, $P_{i}$ is endogenous, $W_{i}$ is exogenous, and, as it shows from the equilibrium expression, $W_{i}$ and $P_{i}$ are correlated. An instrument is a variable which satisfies the following two properties: (i) it is exogenous to the system (exogeneity), and (ii) it is correlated with the endogenous variable (relevance). If the instrument is exogenous and relevant, we say that the instrument is valid.
+
+Going back to the example, in the first stage of the procedure, we estimate the model
+
+$$
+P_{i}=\beta_{0}+\beta_{1} W_{i}+v_{i}
+$$
+
+to get $\widehat{\beta}_{0}, \widehat{\beta}_{1}$, and $\widehat{P}_{i}$. In the second stage, we consider the original model we would like to estimate and replace $P_{i}$ with the fitted values from the first stage, $\widehat{P}_{i}$. That is, we estimate the model
+
+$$
+D_{i}=\gamma_{0}+\gamma_{1}+\widehat{P}_{i}+u_{i}
+$$
+
+One can show that $\widehat{\gamma}_{0}$ and $\widehat{\gamma}_{1}$ are now consistent. In fact,
+
+$$
+\begin{aligned}
+\operatorname{Cov}\left(D_{i}, W_{i}\right) & =\operatorname{Cov}\left(W_{i}, \gamma_{0}+\gamma_{1} P_{i}+u_{i}\right) \\
+& =\gamma_{1} \operatorname{Cov}\left(W_{i}, P_{i}\right)+\operatorname{Cov}\left(W_{i}, u_{i}\right)
+\end{aligned}
+$$
+
+Since $W_{i}$ is a valid instrument, it must be exogenous and, hence, should not covary with error term in the system. As such,
+
+$$
+\operatorname{Cov}\left(D_{i}, W_{i}\right)=\gamma_{1} \operatorname{Cov}\left(W_{i}, P_{i}\right) \Longrightarrow \gamma_{1}=\frac{\operatorname{Cov}\left(D_{i}, W_{i}\right)}{\operatorname{Cov}\left(W_{i}, P_{i}\right)}
+$$
+
+Using some algebra,
+
+$$
+\begin{aligned}
+\widehat{\gamma}_{1} & =\frac{\operatorname{Cov} \widehat{\left(D_{i}, W_{i}\right)}}{\left.\operatorname{Cov} \widehat{\left(W_{i}\right.}, P_{i}\right)} \\
+& =\frac{\left.\operatorname{Cov} \widehat{\left(D_{i}\right.}, \widehat{P}_{i}\right)}{\widehat{\operatorname{Var}\left(\widehat{P}_{i}\right)}}
+\end{aligned}
+$$
+
+which represents the OLS estimator of the coefficients in the regression at the second stage. To prove consistency of $\widehat{\gamma}_{1}$ :
+
+$$
+\widehat{\gamma}_{1} \xrightarrow{p} \frac{\operatorname{Cov}\left(W_{i}, D_{i}\right)}{\operatorname{Cov}\left(W_{i}, P_{i}\right)}
+$$
+
+$$
+\begin{aligned}
+& =\frac{\operatorname{Cov}\left(W_{i}, \gamma_{0}+\gamma_{1} P_{i}+u_{i}\right)}{\operatorname{Cov}\left(W_{i}, P_{i}\right)} \\
+& =\gamma_{1} \frac{\operatorname{Cov}\left(W_{i}, P_{i}\right)}{\operatorname{Cov}\left(W_{i}, P_{i}\right)}+\frac{\operatorname{Cov}\left(W_{i}, u_{i}\right)}{\operatorname{Cov}\left(W_{i}, P_{i}\right)} \\
+& =\gamma_{1}+\frac{\operatorname{Cov}\left(W_{i}, u_{i}\right)}{\operatorname{Cov}\left(W_{i}, P_{i}\right)} \\
+& =\gamma_{1}
+\end{aligned}
+$$
+
+We can prove consistency if and only if $\operatorname{Cov}\left(W_{i}, u_{i}\right)=0$ - i.e., $W_{i}$ is exogenous - and $\operatorname{Cov}\left(W_{i}, P_{i}\right) \neq 0$ - i.e., $W_{i}$ is relevant. So, we can conclude that $\widehat{\gamma}_{1} \xrightarrow{p} \gamma_{1}$ - that is, $\widehat{\gamma}_{1}$ is consistent - if and only if $W_{i}$ is a valid instrument.
+
+\subsection{Two-Stage Least Squares Estimation}
+We use instrumental variables when the assumptions of orthogonality (i.e., statistical independence) and/or contemporaneous correlation between the regressors and the error term are violated. We first need to identify which variable(s) are endogenous in the equation we want to estimate. Once we have identified these variables, we need to find valid instruments, that is, variables which are exogenous and relevant at the same time. We can then use 2SLS techniques to perform estimation. In the first stage of 2SLS estimation, we regress each endogenous variable on the set of valid instruments and on the set of exogenous regressors in the original equation. Note that the constant term should be included in the first-stage regressions to avoid biased estimates. The number of instruments should be at least as large as the number of endogenous variables for the estimation to be feasible. At the second stage, we estimate the original equation after replacing the endogenous variables with their fitted values from the first-stage estimated equations. Consistency of the estimator is thus restored.
+
+\subsubsection{Properties of the Two-Stage Least Squares Estimator}
+When some of the regressors are endogenous and instrumental variables estimation is implemented, simple expressions for the moments of the estimator cannot, generally, be so obtained. Generally, instrumental variables estimators only have desirable asymptotic, not finite sample, properties, and inference is based on asymptotic approximations of the sampling distribution of the estimator. Even when the instruments are uncorrelated with the error in the equation of interest and when the instruments are not weak (i.e., they are strongly correlated with the endogenous regressors), the finite sample properties of the instrumental variables estimator may be poor or not defined at all.
+
+The two-stage least squares estimator is a biased estimator, but it is consistent. As such, one should only apply it when a large sample of data is available. In large samples, it is approximately normally distributed. This means that we\\
+can use this estimator and its sampling distribution to make inference on the parameters of the model in large samples. In small samples, the expression of the variance-covariance matrix of the 2SLS estimator is unknown. However, in large samples we have expressions that we can use as approximations. Finally, if we run the two stages using any statistical software, we will find that the standard errors which are computed at the second stage are wrong for the $2 S L S$ estimator. Consistent estimates for the parameter will be obtained, but the standard errors and the associated $t$ statistics cannot be used. Modern statistical packages, however, do have procedures that allow us to compute the correct standard errors and run the two stages in just a click.
+
+\subsection{The General Case: Multiple Endogenous Regressors with an Arbitrary Number of Instruments}
+Suppose we are given the model $y_{i}=x_{i}^{\prime} \beta+\varepsilon_{i}$. From the first-order conditions of OLS estimation, $\widehat{\beta}$ can be obtained by solving for $\beta$ the orthogonality condition
+
+$$
+\begin{aligned}
+\sum_{i=1}^{N} x_{i} \varepsilon_{i} & =0\left(K \text { equations, if } x_{i} \text { is } K \times 1\right) \\
+& \Longrightarrow \sum_{i=1}^{N} x_{i}\left(y_{i}-x_{i}^{\prime} \beta\right)=0 \\
+& \Longrightarrow \sum_{i=1}^{N} x_{i}\left(y_{i}-x_{i}^{\prime} \widehat{\beta}\right)=0 \\
+& \Longrightarrow \widehat{\beta}=\left(\sum_{i=1}^{N} x_{i} x_{i}^{\prime}\right)^{-1} \sum_{i=1}^{N} x_{i} y_{i}
+\end{aligned}
+$$
+
+$\sum_{i=1}^{N} x_{i} \widehat{\varepsilon}_{i}=0$, or $X^{\prime} \widehat{\varepsilon}=0$, is the sample moment condition which states orthogonality between the set of regressors and the residuals. The corresponding population moment condition is
+
+$$
+\left.E\left(x_{i} \varepsilon_{i}\right)=E\left[x_{i}\left(y_{i}-x_{i}^{\prime} \beta\right)\right]=0 \text { ( } K \text { equations, if } x_{i} \text { is } K \times 1\right)
+$$
+
+IV estimation is based on a similar idea. That the 2SLS estimator should be derived from a sample moment condition which states orthogonality between the residuals and a set of exogenous variables. Some of these exogenous variables may be included in the original linear regression model we are interested in (included instruments or included exogenous variables), some may be excluded (excluded instruments or excluded exogenous variables).
+
+Let $z_{i}$ be a vector of $R$ exogenous variables, which may overlap with $x_{i}$. The moment conditions are
+
+$$
+E\left(z_{i} \varepsilon_{i}\right)=E\left[z_{i}\left(y_{i}-x_{i}^{\prime} \beta\right)\right]=0\left(R \text { equations, if } z_{i} \text { is } R \times 1\right)
+$$
+
+If $R=K$, we have $R$ equations and $K=R$ unknowns, and the $R$ sample moment conditions are
+
+$$
+\begin{gathered}
+\frac{1}{N} \sum_{i=1}^{N} z_{i}\left(y_{i}-x_{i}^{\prime} \widehat{\beta}_{I V}\right)=0, \text { or } Z^{\prime} \widehat{\varepsilon}=0 \\
+\Longrightarrow \widehat{\beta}_{I V}=\left(\sum_{i=1}^{N} z_{i} x_{i}^{\prime}\right)^{-1} \sum_{i=1}^{N} z_{i} y_{i}
+\end{gathered}
+$$
+
+If the model is written as $y=X \beta+\varepsilon$ and $Z$ is a $N \times R$ matrix of instruments (which may contain the included exogenous regressors in $X$ and an intercept term), then
+
+$$
+\widehat{\beta}_{I V}=\left(Z^{\prime} X\right)^{-1} Z^{\prime} y
+$$
+
+If $R>K$, then there are more instruments than regressors and it is not possible to solve for $\beta$ using the sample counterpart of the population moment condition. In this case, we have a bigger number of equations than unknowns. Possible solutions to this issue are
+
+\begin{itemize}
+  \item to drop excluded instruments, but we would lose information and efficiency;
+  \item to choose $\beta$ such that the $R$ sample moments, $\frac{1}{N} \sum_{i=1}^{N} z_{i}\left(y_{i}-x_{i}^{\prime} \beta\right)$, are as close as possible to zero.
+\end{itemize}
+
+If the model is $y=X \beta+\varepsilon, Z$ is the matrix of instruments, and we want to follow the second proposed solution, we can minimize with respect to $\beta$ the quadratic form
+
+$$
+Q_{N}(\beta)=\left[\frac{1}{N} Z^{\prime}(y-X \beta)\right]^{\prime} W_{N}\left[\frac{1}{N} Z^{\prime}(y-X \beta)\right]
+$$
+
+where $W_{N} \in M(R, R)$ is a positive definite symmetric matrix. $W_{N}$ is a weighting matrix that tells us how much weight to attach to which linear combinations of the sample moments.
+
+If we solve for $\beta$,
+
+$$
+\widehat{\beta}_{I V}=\left(X^{\prime} Z W_{N} Z^{\prime} X\right)^{-1} X^{\prime} Z W_{N} Z^{\prime} y
+$$
+
+provided that $\operatorname{rank}\left(X^{\prime} Z\right)=K$, a necessary condition to invert $X^{\prime} Z W_{N} Z^{\prime} X$. If $R=K, \widehat{\beta}_{I V}=\left(Z^{\prime} X\right)^{-1} Z^{\prime} y$, since $Z^{\prime} X$ would be square and invertible, because $\operatorname{rank}\left(X^{\prime} Z\right)=K$ 。
+
+In general, if $R=K$, then $\beta$ is exactly identified. ${ }^{13}$ If $R>K$, then $\beta$ is overidentified, so $\widehat{\beta}_{I V}$ changes depending on the choice of the weighting matrix, $W_{N}$. If $R<K$, then $\beta$ is under-identified and cannot be estimated, since there are more unknowns than equations.
+
+In the case when $R>K$, as long as $W_{N} \xrightarrow{p} W$, where $W$ is positive definite and symmetric, $\widehat{\beta}_{I V}$ is consistent. But $\widehat{\beta}_{I V}$ will have generally different asymptotic variance-covariance matrices, depending on the choice of $W_{N}$. What is the optimal $W_{N}$, then - i.e., the weighting matrix that leads to the most efficient IV estimator? It can be proved that
+
+$$
+W_{N}^{O P T}=\left(\frac{1}{N} Z^{\prime} Z\right)^{-1}
+$$
+
+if $\varepsilon$ is homoskedastic. Then,
+
+$$
+\widehat{\beta}_{I V}=\left[X^{\prime} Z\left(Z^{\prime} Z\right)^{-1} Z^{\prime} X\right]^{-1} X^{\prime} Z\left(Z^{\prime} Z\right)^{-1} Z^{\prime} y
+$$
+
+This estimator is known as the Generalized Instrumental Variable Estimator, GIVE, for which we have
+
+$$
+\widehat{\operatorname{Var}\left(\widehat{\beta}_{I V}\right)}=\widehat{\sigma}^{2}\left[X^{\prime} Z\left(Z^{\prime} Z\right)^{-1} Z^{\prime} X\right]^{-1}
+$$
+
+with $\widehat{\sigma}^{2}=\frac{1}{N} \sum_{i=1}^{N} \widehat{\varepsilon}_{i}^{2}$. Hence, in large samples,
+
+$$
+\widehat{\beta}_{I V} \stackrel{a}{\sim} \mathcal{N}\left(\beta, \operatorname{Var}\left(\widehat{\beta}_{I V}\right)\right) .
+$$
+
+\subsection{Testing for Valid Instruments}
+The excluded instruments to be used for estimation should be, first of all, relevant. Running an F-test on the slope coefficients of all excluded exogenous variables in each first-stage regression may provide evidence of the relevance of the instruments. Practitioners usually use the rule of thumb that the F statistic should be bigger than 10 for the instruments to be relevant. Note that this rule does not have solid theoretical foundations. To be even more precise, this approach should be used only when the number of endogenous variables is one. With multiple endogenous variables, one should use an extension of the F-test to be applied on multiple first-stage regressions, based on a multi-dimensional analog of the first-stage F-test.
+
+Exogeneity is much harder to test. Usually, in applied work, one should propose intuitive, logical, theoretical reasons of why a set of instruments is exogenous.
+
+\footnotetext{${ }^{13}$ Even in the case of exactly identified models, instrumental variables approaches produce finite sample estimators with no moments, so the estimator can be said to be neither biased nor unbiased, the nominal size of test statistics may be substantially distorted, and the estimates may commonly be far away from the true value of the parameter.
+}More formally, one could use tests of over-identifying restrictions (for example, the Sargan test). The steps to follow to implement the Sargan test are: (i) take the residuals of the second-stage regression and regress them on an intercept term and the set of included and excluded exogenous variables; (ii) obtain the $R^{2}$ of the auxiliary regression and then compute the Sargan test statistic, $S=N R^{2}$; (iii) under the null that all instruments are exogenous (i.e., the slope coefficients associated with the excluded exogenous variables are jointly equal to zero), $S \sim \chi_{R-K}^{2}$. Of course, the null hypothesis is rejected for large values of $S$. Note that the Sargan test can be used only if the number of excluded instruments is bigger than the number of endogenous variables - i.e., if the equation is over-identified. If it is not, the Sargan test statistic will be equal to 0 and the corresponding $\chi^{2}$ distribution will have 0 degrees of freedom (so, it cannot be used).

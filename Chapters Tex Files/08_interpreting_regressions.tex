@@ -1,0 +1,119 @@
+\section{Interpreting the Linear Regression Model}
+We have thus far looked at how to estimate the linear regression model and how to make inference on the model parameters. We will now learn how to interpret the coefficients of the model and, later, what criteria should be considered to determine whether or not a model is "good".
+
+\subsection{Marginal Effects}
+Consider the usual linear model, $y=X \beta+\varepsilon$, written in matrix notation. Under the assumption that $E(\varepsilon \mid X)=0$, we can interpret the regression model as describing the expected value of $y$ conditional on the values of the explanatory variables in $X$. That is, under the condition that $\varepsilon$ and $X$ are orthogonal, $E(y \mid X)=E(X \beta+\varepsilon \mid X)=E(X \beta \mid X)+E(\varepsilon \mid X)=X \beta$. If we apply OLS (or any other estimation method), how do we interpret the elements in $\widehat{\beta}$ ?
+
+Consider the same linear regression model written in its alternative matrix notation, $y_{i}=x_{i}^{\prime} \beta+\varepsilon_{i}$. It is easy to see that the $k$-th element in $\beta, \beta_{k}$, measures the expected change in $y_{i}$ associated with a unit change in $x_{k i}$, when all the other variables in $x_{i}$ are kept fixed (ceteris paribus condition). More precisely,
+
+$$
+\beta_{k}=\frac{\partial}{\partial x_{k i}} E\left(y_{i} \mid x_{i}\right)=\frac{\triangle E\left(y_{i} \mid x_{i}\right)}{\triangle x_{k i}}
+$$
+
+In other words, $\beta_{k}$ represents the effect on the dependent variable of a marginal change in the $k$-th explanatory variable.
+
+Example. The ceteris paribus condition is not always satisfied. Consider the model
+
+$$
+y_{i}=\beta_{0}+\beta_{1} x_{1 i}+\beta_{2} x_{1 i}^{2}+\varepsilon_{i} .
+$$
+
+The model is still linear in the parameters even if it contains a squared regressor. In fact,
+
+$$
+X=\left[\begin{array}{ccc}
+1 & x_{11} & x_{11}^{2} \\
+1 & x_{12} & x_{12}^{2} \\
+\vdots & \vdots & \vdots \\
+1 & x_{1 N} & x_{1 N}^{2}
+\end{array}\right]
+$$
+
+and $y=X \beta+\varepsilon$ can still be estimated by OLS. However,
+
+$$
+\frac{\partial}{\partial x_{1 i}} E\left(y_{i} \mid x_{i}\right)=\beta_{1}+2 \beta_{2} x_{1 i} .
+$$
+
+That is, the expected change in $y_{i}$ associated with a change in $x_{1 i}$ also depends on the value of $x_{1 i}$ from which we start. Said in another way, the ceteris paribus condition does not hold in this case.
+
+Example. Now consider the model
+
+$$
+y_{i}=\beta_{0}+\beta_{1} x_{1 i}+\beta_{2} x_{1 i} x_{2 i}+\varepsilon_{i} .
+$$
+
+By the same argument seen above, this model is linear in the parameters and can be estimated by OLS. The term $x_{1 i} x_{2 i}$ is an interaction term between $x_{1 i}$ and $x_{2 i}$. To find the marginal effect of $x_{1}$ on $y$,
+
+$$
+\frac{\partial}{\partial x_{1 i}} E\left(y_{i} \mid x_{i}\right)=\beta_{1}+\beta_{2} x_{2 i}
+$$
+
+So, the marginal effect of $x_{1 i}$ on $y_{i}$ does depend on another regressor and the ceteris paribus condition does not hold again.
+
+\subsection{Elasticities}
+Definition (Elasticity). The expected relative change in the dependent variable, $y_{i}$, associated with a relative change in the $k$-th variable in $x_{i}, \frac{\triangle \% E\left(y_{i} \mid x_{i}\right)}{\Delta \% x_{k i}}$, is referred to as the elasticity of $y_{i}$ with respect to that variable. Said in another way, the elasticity of $y_{i}$ with respect $x_{k i}$ represents the percent change in $y_{i}$ associated with a percent change in $x_{k i}$.
+
+Suppose we have two variables, $y_{i}$ and $x_{k i}$. We would like to compute the elasticity of $y_{i}$ with respect to $x_{k i}$. To do so, we need to design a model such that, once we get the estimates of its coefficients, we can attach to each of them the meaning of elasticity. Specifically, we will use log-linear models. Consider
+
+$$
+\log y_{i}=\left[\log x_{i}\right]^{\prime} \gamma+\nu_{i},
+$$
+
+where $\log x_{i}=\left(\begin{array}{lllll}1 & \log x_{2 i} & \log x_{3 i} & \cdots & \log x_{K i}\end{array}\right)^{\prime}$ and $E\left(\nu_{i} \mid \log x_{i}\right)=0$. This model is linear in the parameters. The elasticity of $y_{i}$ with respect to $x_{k i}$ is of the form
+
+$$
+\frac{\partial}{\partial x_{k i}} E\left(y_{i} \mid x_{i}\right) \frac{x_{k i}}{E\left(y_{i} \mid x_{i}\right)} \approx \frac{\partial}{\partial \log x_{k i}} E\left(\log y_{i} \mid \log x_{i}\right)=\gamma_{k}
+$$
+
+In a log-linear model elasticities are constant, whereas in a linear model elasticities are not constant. In fact,
+
+$$
+\frac{\partial}{\partial x_{k i}} E\left(y_{i} \mid x_{i}\right) \frac{x_{k i}}{E\left(y_{i} \mid x_{i}\right)}=\frac{x_{k i}}{x_{i}^{\prime} \beta} \beta_{k} .
+$$
+
+That is, the elasticities vary with $x_{i}$.\\
+Example. Consider the model
+
+$$
+\log y_{i}=\beta_{1}+\beta_{2} \log x_{2 i}+\beta_{3} \log x_{3 i}+\varepsilon_{i}
+$$
+
+What is the meaning that should be given to, say, $\beta_{2}$ ? Let us take the total derivative of the model:
+
+$$
+\frac{1}{y_{i}} d y_{i}=\frac{\beta_{2}}{x_{2 i}} d x_{2 i}+\frac{\beta_{3}}{x_{3 i}} d x_{3 i}+d \varepsilon_{i} .
+$$
+
+Under the ceteris paribus condition, if we want to calculate the marginal effect of $x_{2 i}$ on $y_{i}, d x_{3 i}=d \varepsilon_{i}=0$ and:
+
+$$
+\frac{d y_{i}}{y_{i}} \frac{x_{2 i}}{d x_{2 i}}=\beta_{2} \Longrightarrow \beta_{2}=\frac{\triangle \% y_{i}}{\triangle \% x_{2 i}},
+$$
+
+which is clearly the elasticity of $y_{i}$ with respect to $x_{2 i}$.
+
+\subsection{When to Use the Log-Linear Model?}
+How should we choose between a linear model and a log-linear model? We should consider the following aspects:\\
+(i) The economic interpretation we would like to give to the model. Are we interested in absolute changes or elasticities?\\
+(ii) The log-linear model may help reduce heteroskedasticity problems by decreasing the variance of the dependent variable. ${ }^{10}$\\
+(iii) It is not always possible to take logs of variables, as the logarithmic function is only defined on a positive real domain.\\
+(iv) We can apply logs to some regressors and leave the others in levels.
+
+\subsection{Semi-Elasticities}
+Consider
+
+$$
+\log y_{i}=x_{i}^{\prime} \beta+\varepsilon_{i} .
+$$
+
+Then we can compute
+
+$$
+\beta_{k}=\frac{\Delta \% E\left(y_{i} \mid x_{i}\right)}{\Delta x_{k i}}=\frac{\partial}{\partial x_{k i}} E\left(\log y_{i} \mid x_{i}\right)=\frac{\partial}{\partial x_{k i}} E\left(y_{i} \mid x_{i}\right) \frac{1}{E\left(y_{i} \mid x_{i}\right)},
+$$
+
+which is the semi-elasticity of $y_{i}$ with respect to $x_{k i}$, representing the percent change in $y_{i}$ associated with a unit change in $x_{k i}$.
+
+\footnotetext{${ }^{10} \mathrm{We}$ will analyze the problem of heteroskedasticity later in this course.
+}

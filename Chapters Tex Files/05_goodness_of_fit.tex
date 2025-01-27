@@ -1,0 +1,67 @@
+\section{Goodness of Fit}
+How can we tell how well a linear regression model is describing the data? How well does the estimated regression line fit the data? To what extent is the variance of $y$ captured by the variance of the regressors in the linear model? In this section we will describe some of the many criteria that can be used to answer these questions.
+
+\subsection{Coefficient of Determination}
+A very common method to assess the goodness of fit of the linear regression model is the coefficient of determination, $R^{2}$.
+\begin{definition}[Coefficient of Determination]
+    The coefficient of determination represents the portion of the sample variance of $y_{i}$ that is explained by the model. It is defined as
+    
+    $$
+    \begin{aligned}
+    R^{2} & =\frac{\left.\widehat{\operatorname{Var}\left(\widehat{y}_{i}\right.}\right)}{\widehat{\operatorname{Var}\left(y_{i}\right)}} \\
+    & =\frac{\sum_{i=1}^{N}\left(\widehat{y}_{i}-\overline{\widehat{y}}\right)^{2}}{\sum_{i=1}^{N}\left(y_{i}-\bar{y}\right)^{2}} \\
+    & =\frac{\sum_{i=1}^{N}\left(\widehat{y}_{i}-\bar{y}\right)^{2}}{\sum_{i=1}^{N}\left(y_{i}-\bar{y}\right)^{2}} \\
+    & =\frac{E S S}{T S S} \\
+    & =\frac{\text { Explained Sum of Squares }}{\text { Total Sum of Squares }}
+    \end{aligned}
+    $$
+\end{definition}
+
+Note that $\overline{\widehat{y}}=\bar{y}$, when an intercept term is included in the model, a shortcut we took above. In fact,
+
+$$
+y_{i}=x_{i}^{\prime} \beta+\varepsilon_{i} \Longrightarrow y_{i}=\widehat{y}_{i}+\widehat{\varepsilon}_{i} \Longrightarrow \bar{y}=\overline{\widehat{y}}+\overline{\widehat{\varepsilon}}
+$$
+
+Since $\widehat{\widehat{\varepsilon}}=\frac{\sum_{i=1}^{N} \widehat{\varepsilon}_{i}}{N}=0$ from the first-order condition of a linear model including an intercept term, it follows that $\bar{y}=\overline{\widehat{y}}$.
+
+\subsubsection{Properties of the Coefficient of Determination}
+Consider $y_{i}=\widehat{y}_{i}+\widehat{\varepsilon}_{i}$, from which it can be proved that $\left.\widehat{\operatorname{Var}\left(y_{i}\right)}=\widehat{\operatorname{Var}\left(\widehat{y}_{i}\right.}\right)+$ $\widehat{\operatorname{Var}\left(\widehat{\varepsilon}_{i}\right)}$ if we have an intercept term in the model. So
+
+$$
+R^{2}=\frac{\widehat{\operatorname{Var}\left(\widehat{y}_{i}\right)}}{\widehat{\operatorname{Var}\left(y_{i}\right)}}
+$$
+
+$$
+\begin{aligned}
+& =\frac{\left.\left.\widehat{\operatorname{Var}\left(y_{i}\right.}\right)-\widehat{\operatorname{Var}\left(\widehat{\varepsilon}_{i}\right.}\right)}{\left.\widehat{\operatorname{Var}\left(y_{i}\right.}\right)} \\
+& =1-\frac{\left.\widehat{\operatorname{Var}\left(\widehat{\varepsilon}_{i}\right.}\right)}{\widehat{\operatorname{Var}\left(y_{i}\right)}} \\
+& =1-\frac{\sum_{i=1}^{N} \widehat{\varepsilon}_{i}^{2}}{\sum_{i=1}^{N}\left(y_{i}-\bar{y}\right)^{2}} \\
+& =1-\frac{R S S}{\operatorname{TSS}} \\
+& =1-\frac{\text { Residuals Sum of Squares }}{\text { Total Sum of Squares }} .
+\end{aligned}
+$$
+
+Note that $R^{2} \in[0,1]$. Assuming that the total sum of squares is strictly positive - i.e., the sample variance of the dependent variable is not equal to zero $$ R^{2}=1 \Longleftrightarrow RSS=0 \Longleftrightarrow \widehat{\varepsilon}_{i}=0, \forall i \Longrightarrow \widehat{\operatorname{Var}}(\widehat{\varepsilon}_{i})=0. $$ $$ R^{2}=0 \Longleftrightarrow \widehat{\operatorname{Var}}(\widehat{\varepsilon}_{i})=\widehat{\operatorname{Var}}(y_{i}) \Longleftrightarrow \widehat{\operatorname{Var}}(\widehat{y}_{i})=0 \Longleftrightarrow x_{i}^{\prime} \widehat{\beta}. $$ is constant - i.e., the model contains only an intercept term.
+
+If the model does not contain an intercept terms, we have that $\sum_{i=1}^{N} \widehat{\varepsilon}_{i} \neq 0$, which implies that $R^{2}$ can be negative, if computed as $R^{2}=1-\frac{\sum_{i=1}^{N} \hat{\varepsilon}_{i}^{2}}{\sum_{i=1}^{N}\left(y_{i}-\bar{y}\right)^{2}}$. To avoid this anomaly, always include an intercept term in your model.
+
+After a least squares regression with a constant plus a set of exogenous explanatory variables, $R^{2}$ equals the square of the correlation coefficient between the observed and modeled (fitted) data values - i.e., $R^{2}=\left[\operatorname{Corr}\left(y_{i}, \widehat{y}_{i}\right)\right]^{2}$.
+
+Now, let us consider the following two models and their corresponding $R^{2}$ 's:\\
+(i) $y_{i}=\beta_{0}+\beta_{1} x_{1 i}+\varepsilon_{i} \Longrightarrow R_{A}^{2}$;\\
+(ii) $y_{i}=\beta_{0}+\beta_{1} x_{1 i}+\beta_{2} x_{2 i}+\nu_{i} \Longrightarrow R_{B}^{2}$.
+
+It can be proved that $R_{B}^{2} \geq R_{A}^{2}$ and that adding other regressors to a model will weakly increase its coefficient of determination, even if those regressors are not necessary to correctly explain the dependent variable.
+
+Finally, $R^{2}$ does not tell whether: the independent variables are a true cause of the changes in the dependent variable, the correct regression was used, the most appropriate set of independent variables has been chosen, the model might be improved by using transformed versions of the existing set of independent variables.
+
+\begin{definition}[Adjusted $R^{2}$]
+    $$
+    \tilde{R}^{2}=1-\frac{\frac{1}{N-K} \sum_{i=1}^{N} \widehat{\varepsilon}_{i}^{2}}{\frac{1}{N-1} \sum_{i=1}^{N}\left(y_{i}-\bar{y}\right)^{2}},
+    $$
+    
+    where $K$ is the number of regressors.
+\end{definition}
+
+There is a negative relationship between the number of regressors and the adjusted $R^{2}$, which is just a modified version of the coefficient of determination. The adjusted $R^{2}$ introduces a penalty for the inclusion of additional explanatory variables. Also note that, generally, $\tilde{R}^{2}<R^{2}$. The two are equal if and only if the model contains only a constant term, which implies that both the $R^{2}$ and the adjusted $R^{2}$ are equal to 0 .

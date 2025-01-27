@@ -1,0 +1,248 @@
+\section{Basic Review of Statistics - Part II}
+In this section we will cover the basic theory behind statistical inference. The general frameworks of confidence intervals and hypothesis testing will be described, examples based on the linear regression model discussed.
+
+\subsection{Confidence Intervals}
+When we use OLS to estimate the linear regression model, $y_{i}=\beta_{1}+\beta_{2} x_{2 i}+$ $\beta_{3} x_{3 i}+\ldots+\beta_{K} x_{K i}+\varepsilon_{i}$, we obtain a set of point estimates, $\left\{\widehat{\beta}_{i}\right\}_{i=1}^{K}$, for the unknown model parameters. The generic $\widehat{\beta}_{i}$ is the estimator of the parameter $\beta_{i}$, a function of the sample of data, and, as such, a random variable. Sometimes, however, rather than just obtaining point estimates for the model parameters, we may want to construct interval estimates based on interval estimators.
+
+\subsubsection{Method of the Pivotal Quantity}
+Suppose $X$ is a random variable such that $X \sim f_{\theta}(x)$, where $\theta \in \Theta$ is a vector of parameter which completely describes the probability density function, $f{ }^{8}{ }^{\Theta}$ is the parameter space. Let us assume we have a random sample of $N$ observations for the random variable, $X,\left\{X_{i}\right\}_{i=1}^{N}$. Let us define $\alpha \in(0,1)$. Popular choices of $\alpha$ are $0.01,0.05$, and 0.10 . We would like to use the sample of data to estimate $\theta$ in the form of a confidence interval.
+
+Definition (Confidence Interval). Let $T_{1}$ and $T_{2}$ be two statistics. They are random variables since they are functions of the random sample, that is, $T_{1}=$ $T_{1}\left(X_{1}, \ldots, X_{N}\right)$ and $T_{2}=T_{2}\left(X_{1}, \ldots, X_{N}\right)$. If:\\
+(i) $T_{1} \leq T_{2}$ for any realization of the random sample, and\\
+(ii) $\operatorname{Prob}\left(T_{1} \leq \theta \leq T_{2}\right)=1-\alpha$,\\
+then the random interval $\left(T_{1}, T_{2}\right)$ is a confidence interval for $\theta$, with confidence level equal to $(1-\alpha)$.
+
+This means that, if we want to construct a confidence interval for $\theta$, we have to find two statistics with such characteristics.
+
+Definition (Pivotal Quantity). A pivotal quantity is a function $g\left(X_{1}, \ldots, X_{N} ; \theta\right)$, which\\
+(i) depends on the random sample and on the parameter(s) to be estimated (but not on other unknown parameters);\\
+(ii) has a distribution that depends neither on $\theta$ nor on other unknown parameters, and
+
+\footnotetext{${ }^{8}$ For example, if $X \sim \mathcal{N}\left(\mu, \sigma^{2}\right)$, then $\theta=(\mu, \sigma)$.
+}
+(iii) is continuous and invertible with respect to $\theta$.
+
+If we use this method to construct a confidence interval for $\theta$, we must find two numbers $a, b \in \mathbb{R}$ such that
+
+$$
+\operatorname{Prob}\left[a \leq g\left(X_{1}, \ldots, X_{N} ; \theta\right) \leq b\right]=1-\alpha, \quad \forall \theta
+$$
+
+Since $g$ is continuous and invertible with respect to $\theta$, we can solve for $\theta$ to have
+
+$$
+\operatorname{Prob}\left[T_{1}\left(X_{1}, \ldots, X_{N}\right) \leq \theta \leq T_{2}\left(X_{1}, \ldots, X_{N}\right)\right]=1-\alpha, \quad \forall \theta
+$$
+
+This is exactly the definition of confidence interval stated above. To sum up, if we can find a pivotal quantity for a given parameter, we can estimate a confidence interval for that parameter.
+
+\subsubsection{Application I}
+Consider a linear regression model with one regressor, $y_{i}=\beta_{0}+\beta_{1} x_{i}+\varepsilon_{i}$. We know that $\widehat{\beta}_{1}=\frac{\operatorname{Cov}\left(x_{i}, y_{i}\right)}{\sqrt[\operatorname{ar}\left(x_{i}\right)]{2}}$ and $\widehat{\beta}_{0}=\bar{y}-\widehat{\beta}_{1} \bar{x}$, which are the point estimates of the model parameters. This time we would like to estimate a confidence interval for $\beta_{1}$, i.e., find sample-based values for two suitable statistics, $T_{1}$ and $T_{2}$, such that $\operatorname{Prob}\left(T_{1}\left(x_{1}, \ldots, x_{N}\right) \leq \beta_{1} \leq T_{2}\left(x_{1}, \ldots, x_{N}\right)\right)=1-\alpha$, implying that $\left(T_{1}, T_{2}\right)$ is a $(1-\alpha)$-level confidence interval for $\beta_{1}$.
+
+Consider the expression
+
+$$
+t=\frac{\widehat{\beta}_{1}-\beta_{1}}{\sqrt{\frac{\widehat{\sigma}^{2}}{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}}}}=\frac{\widehat{\beta}_{1}-\beta_{1}}{S E\left(\widehat{\beta}_{1}\right)} .
+$$
+
+Is this a pivotal quantity for $\beta_{1}$ ? $t$ is a function of the random sample of data and of the parameter of interest, $\beta_{1}$. It does not depend on any other unknown parameters. So the first condition for $t$ to be a pivotal quantity is met.
+
+This function is the ratio between a normal random variable with mean equal to zero and the square root of a $\chi^{2}$-distributed random variable with $N-K$ degrees of freedom divided by $N-K$. It follows that
+
+$$
+t \sim T_{N-K},
+$$
+
+where $N-K$ is the number of degrees of freedom. A $T$ distribution is very similar to a normal distribution with mean zero. The key difference is that the $T$ has fatter tails than the standard normal. A nice property of the $T$ distribution is that, as the degrees of freedom increase to infinity, the fatter tails get thinner and the $T$ distribution approaches a standard normal distribution. As we have only one regressor and a constant term, $K=2$. The probability density function of $t$ is fully defined by the number of its degrees of freedom, which, in\\
+this case, is a known parameter. So, the second condition is met.\\
+Finally, $t$ is continuous and invertible with respect to the parameter $\beta_{1}$. In fact, it is linear, so it is one-to-one and onto. Thus, the third condition is also satisfied and $t$ is a pivotal quantity.
+
+At this point, let us write the condition
+
+$$
+\operatorname{Prob}\left[a \leq \frac{\widehat{\beta}_{1}-\beta}{S E\left(\widehat{\beta}_{1}\right)} \leq b\right]=1-\alpha \Longrightarrow \operatorname{Prob}\left(a \leq t_{N-2} \leq b\right)=1-\alpha
+$$
+
+where $t_{N-2}$ is a generic random variable with a $T_{N-2}$ distribution. We can use a plot of the $T_{N-2}$ distribution, as in Figure 3, to find values for $a$ and $b$ such that $\operatorname{Prob}\left(a \leq t_{N-2} \leq b\right)=1-\alpha$ is satisfied. If we want the confidence interval to be symmetric, $a+b=0$ is an additional condition that must be satisfied. We then have
+
+$$
+a=t_{N-2 ; \frac{\alpha}{2}} \text { and } b=t_{N-2 ; 1-\frac{\alpha}{2}},
+$$
+
+where $t_{N-2 ; \frac{\alpha}{2}}$ is the value in the support of a $T_{N-2}$ distribution, which leaves a probability mass equal to $\frac{\alpha}{2}$ on its left. Analogously, $t_{N-2 ; 1-\frac{\alpha}{2}}$ is the value in the support of a $T_{N-2}$ distribution, which leaves a probability mass equal to $1-\frac{\alpha}{2}$ on its left. In other words, $\operatorname{Prob}\left(t_{N-2} \leq t_{N-2 ; \frac{\alpha}{2}}\right)=\frac{\alpha}{2}$ and $\operatorname{Prob}\left(t_{N-2} \leq t_{N-2 ; 1-\frac{\alpha}{2}}\right)=$ $1-\frac{\alpha}{2}$. By symmetry, $t_{N-2 ; \frac{\alpha}{2}}=-t_{N-2 ; 1-\frac{\alpha}{2}}$.\\
+\includegraphics[max width=\textwidth, center]{2024_12_18_7e4f6c1c437f51a07b2bg-37}
+
+Figure 3: The $T_{N-2}$ distribution used to calculate $a$ and $b$. Each shaded area in the two tails contains a probability mass equal to $\frac{\alpha}{2}$.
+
+So the probability above becomes
+
+$$
+\operatorname{Prob}\left[-t_{N-2 ; 1-\frac{\alpha}{2}} \leq \frac{\widehat{\beta}_{1}-\beta_{1}}{S E\left(\widehat{\beta}_{1}\right)} \leq t_{N-2 ; 1-\frac{\alpha}{2}}\right]=1-\alpha
+$$
+
+By inverting the pivotal quantity in the probability with respect to $\beta_{1}$, we have
+
+$$
+\operatorname{Prob}\left[\widehat{\beta}_{1}-t_{N-2 ; 1-\frac{\alpha}{2}} \cdot S E\left(\widehat{\beta}_{1}\right) \leq \beta_{1} \leq \widehat{\beta}_{1}+t_{1-\frac{\alpha}{2}} \cdot S E\left(\widehat{\beta}_{1}\right)\right]=1-\alpha
+$$
+
+The $(1-\alpha)$-level confidence interval for $\beta_{1}$ is hence
+
+$$
+\left[\widehat{\beta}_{1}-t_{N-2 ; 1-\frac{\alpha}{2}} \cdot S E\left(\widehat{\beta}_{1}\right), \widehat{\beta}_{1}+t_{N-2 ; 1-\frac{\alpha}{2}} \cdot S E\left(\widehat{\beta}_{1}\right)\right] .
+$$
+
+If $N \longrightarrow \infty \Longrightarrow t \xrightarrow{d} \mathcal{N}(0,1)$ and $t_{N-2 ; 1-\frac{\alpha}{2}} \longrightarrow z_{1-\frac{\alpha}{2}}$, where $z_{1-\frac{\alpha}{2}}=$ $\Phi^{-1}\left(1-\frac{\alpha}{2}\right)$. The confidence interval for $\beta_{1}$ becomes
+
+$$
+\left[\widehat{\beta}_{1}-z_{1-\frac{\alpha}{2}} \cdot S E\left(\widehat{\beta}_{1}\right), \widehat{\beta}_{1}+z_{1-\frac{\alpha}{2}} \cdot S E\left(\widehat{\beta}_{1}\right)\right] .
+$$
+
+What is the interpretation of this confidence interval? Once we run a regression and construct (for example) a $95 \%$ confidence interval for $\beta_{1}$, this does not mean that the true value of $\beta_{1}$ is contained in this interval with a $95 \%$ probability. It merely means that in repeated sampling from the reference population, if we estimate the same linear regression model and construct a confidence interval for $\beta_{1}$ at each replication, the true value of $\beta_{1}$ will be contained in those confidence intervals $95 \%$ percent of the times. In other words, when we estimate a confidence interval based on the unique sample of data which is available, we may be just $95 \%$ confident that the true value of $\beta_{1}$ lies in the estimated interval.
+
+\subsection{Hypothesis Testing}
+We will describe the general framework of hypothesis testing and show how to apply the method of the pivotal quantity onto statistical tests in the frame of the linear regression model. The general formulation of a hypothesis testing problem requires:\\
+(i) a population with a known shape/form and an unknown parameter to be estimated, that is, a random variable, $X \sim f_{\theta}(x)$, where $\theta \in \Theta$ is the parameter of interest;\\
+(ii) two statistical hypotheses,
+
+$$
+\left\{\begin{array}{llr}
+H_{0}: & \theta \in \Theta_{0} & \text { (null hypothesis) } \\
+H_{1}: & \theta \in \Theta_{1} & \text { (alternative hypothesis) }
+\end{array}\right.
+$$
+
+where $\Theta_{1}$ and $\Theta_{0}$ represent a partition of the parameter space, $\Theta$. In other words, $\Theta_{0}, \Theta_{1} \subseteq \Theta$, such that $\Theta_{0} \cap \Theta_{1}=\emptyset$ and $\Theta_{0} \cup \Theta_{1}=\Theta$. A statistical hypothesis on $\theta$ is a claim on the value of $\theta$.\\
+(iii) a random sample, $\left\{X_{i}\right\}_{i=1}^{N}$.
+
+A test, relative to a generic hypothesis, is a procedure through which we decide whether to reject the null hypothesis, $H_{0}$, or not based on the information within the random sample. The test is defined completely by a two-way partition of the sample space $\left(\Theta_{s}\right.$ - i.e., the set of all possible values of $\left.\widehat{\theta}\right)$ into a rejection, or critical, region, $R$, and an acceptance region, $A$, such that $R \cup A=\Theta_{s}$, and $R \cap A=\emptyset$. If $\widehat{\theta} \in R$, then we reject the null hypothesis. If $\widehat{\theta} \in A$, then we do not reject the null hypothesis.
+
+Definition (Type I and Type II Errors). A Type I Error is the error we make if we reject $H_{0}$ and $H_{0}$ is true - i.e., when the true value of the parameter, $\theta$, lies in $\Theta_{0}$ (false positive). A Type II Error, conversely, is the error we make if we fail to reject $H_{0}$ and $H_{0}$ is false - i.e., the parameter, $\theta$, lies in $\Theta_{1}$ (false negative).
+
+Definition (Power Function). The power function of a given test with critical region, $R$, is a function $\pi_{R}: \Theta \longrightarrow[0,1]$ such that
+
+$$
+\underset{\theta \in \Theta}{\pi_{R}}(\theta)=\operatorname{Prob}(\widehat{\theta} \in R)=\text { Probability of rejecting } H_{0} \text { as } \theta \text { changes. }
+$$
+
+According to the definition above, the power function describes the probability of rejecting the null even when $H_{0}$ is true. In such a case, it provides the probability of Type I error:
+
+$$
+\underset{\theta \in \Theta_{0}}{\pi_{R}}(\theta)=\operatorname{Prob} \text { (Type I Error) }
+$$
+
+When $\theta \in \Theta_{1}$ - i.e., the null hypothesis is false - then the power function provides the probability of correctly rejecting $H_{0}$ when $H_{0}$ is false. Then,
+
+$$
+1-\underset{\theta \in \Theta_{1}}{\pi_{R}}(\theta)=\operatorname{Prob} \text { (Type II Error). }
+$$
+
+In general,
+
+$$
+1-\underset{\theta \in \Theta}{\pi_{R}}(\theta)=\operatorname{Prob}(\widehat{\theta} \in A)=\text { Probability of not rejecting } H_{0} \text { as } \theta \text { changes. }
+$$
+
+Finally, the power function changes as the test of interest changes.\\
+Definition (Size of a Test). The size of a test is defined as $\sup _{\theta \in \Theta_{0}} \pi_{R}(\theta)$. It represents the "maximum" probability of rejecting the null when the null is actually true, or, otherwise, the highest probability of Type I error.
+
+Definition (Power of a Test). The power of a test is defined as $\underset{\theta \in \Theta_{1}}{\pi_{R}}(\theta)$. It represents the probability of correctly rejecting the null. As the power of a test increases, the probability of Type II Error falls.
+
+\subsubsection{Neyman-Pearson Approach}
+According to the Neyman-Pearson approach to hypothesis testing, we first fix the size, $\alpha \in(0,1)$, of the test and then construct a test such that $\sup _{\theta \in \Theta_{0}} \pi_{R}(\theta) \leq$ $\alpha$. Thus, we can minimize the probability of a Type I error by controlling the size. While we have full control on this probability, we do not have any on the probability of Type II error. However within the class of tests satisfying the above condition, we can choose the one with the highest power. Such a test is known as uniformly most powerful test.
+
+\subsubsection{Application II}
+We will now use this approach to run statistical tests on the slope coefficient of the linear regression model $y_{i}=\beta_{0}+\beta_{1} x_{i}+\varepsilon_{i}$. We will execute the so-called two-sided $t$-test on $\beta_{1}$,
+
+$$
+\left\{\begin{array}{ll}
+H_{0}: & \beta_{1}=0 \\
+H_{1}: & \beta_{1} \neq 0
+\end{array} .\right.
+$$
+
+The first step is to construct a rejection region for this statistical test. We will make use of the method of the pivotal quantity. Intuitively, the rejection region, $R$, should be based on the solution of the following inequality, $\left|\widehat{\beta}_{1}\right|>h$. That is, we want to fix a value for $h$, such that, when the estimator, $\widehat{\beta}_{1}$, is large enough in absolute value, we will reject the null hypothesis. So,
+
+$$
+\begin{gathered}
+\widehat{\beta}_{1}<-h \quad \vee \widehat{\beta}_{1}>h \\
+\Longrightarrow \frac{\widehat{\beta}_{1}-\beta_{1}}{S E\left(\widehat{\beta}_{1}\right)}<\frac{-h-\beta_{1}}{S E\left(\widehat{\beta}_{1}\right)} \vee \frac{\widehat{\beta}_{1}-\beta_{1}}{S E\left(\widehat{\beta}_{1}\right)}>\frac{h-\beta_{1}}{S E\left(\widehat{\beta}_{1}\right)} .
+\end{gathered}
+$$
+
+Under the Neyman-Pearson approach, $\operatorname{Prob}_{\theta \in \Theta_{0}}(\widehat{\theta} \in R)=\alpha$. In this case, $\theta=\beta_{1}$, and $\Theta_{0}=\{0\}$. As such, under the null hypothesis, we have $\beta_{1}=0$, from which
+
+$$
+\operatorname{Prob}_{\beta_{1}=0}\left[\frac{\widehat{\beta}_{1}}{S E\left(\widehat{\beta}_{1}\right)}<\frac{-h}{S E\left(\widehat{\beta}_{1}\right)} \vee \frac{\widehat{\beta}_{1}}{S E\left(\widehat{\beta}_{1}\right)}>\frac{h}{S E\left(\widehat{\beta}_{1}\right)}\right]=\alpha
+$$
+
+From the section on confidence intervals, we know that $\frac{\widehat{\beta}_{1}}{S . E .\left(\widehat{\beta}_{1}\right)} \sim T_{N-K}$, with $K=2$ and $N$ given, is a pivotal quantity. The rejection region can then be derived from
+
+$$
+t_{N-2}<\frac{-h}{S E\left(\widehat{\beta}_{1}\right)} \quad \vee \quad t_{N-2}>\frac{h}{S E\left(\widehat{\beta}_{1}\right)}
+$$
+
+where $t_{N-2} \sim T_{N-2}$ is a generic $T$-distributed random variable with $N-2$ degrees of freedom.
+
+Since the distribution of $t_{N-2}$ and all its characteristics are known, see Figure 4 , we can solve the equation
+
+$$
+\operatorname{Prob}\left[t_{N-2}<\frac{-h}{S E\left(\widehat{\beta}_{1}\right)} \quad \vee \quad t_{N-2}>\frac{h}{S E\left(\widehat{\beta}_{1}\right)}\right]=\alpha
+$$
+
+for $h$, to see that
+
+$$
+\begin{gathered}
+t_{N-2 ; \frac{\alpha}{2}}=-t_{N-2 ; 1-\frac{\alpha}{2}}=-\frac{h}{S E\left(\widehat{\beta}_{1}\right)} \\
+\Longrightarrow h=-t_{N-2 ; \frac{\alpha}{2}} \cdot S E\left(\widehat{\beta}_{1}\right)=t_{N-2 ; 1-\frac{\alpha}{2}} \cdot S E\left(\widehat{\beta}_{1}\right) .
+\end{gathered}
+$$
+
+\begin{center}
+\includegraphics[max width=\textwidth]{2024_12_18_7e4f6c1c437f51a07b2bg-41}
+\end{center}
+
+Figure 4: Construction of the rejection region in the example t-test, given a $T_{N-K}$ distribution.
+
+So, after estimating the linear regression model, we will reject the null of the statistical test above if $\left|\widehat{\beta}_{1}\right|>t_{N-2 ; 1-\frac{\alpha}{2}} \cdot S E\left(\widehat{\beta}_{1}\right)$. If $N \longrightarrow \infty$, then we reject if $\left|\widehat{\beta}_{1}\right|>z_{1-\frac{\alpha}{2}} \cdot S E\left(\widehat{\beta}_{1}\right)$.
+
+\subsection*{6.2.3 Application III}
+This time, after estimating the same linear regression model as in the previous example, we want to test whether $\beta_{1}$ is greater than a particular value $\gamma$ or not (one-sided t-test):
+
+$$
+\begin{cases}H_{0}: & \beta_{1}>\gamma \\ H_{1}: & \beta_{1} \leq \gamma\end{cases}
+$$
+
+The construction of the rejection region for this test follows the same logic and intuition we saw in the previous example. The rejection region, $R$, will be defined over the portion of the sample space where $\widehat{\beta}_{1} \leq h$, with $h$ to be determined. According to the Neyman-Pearson approach,
+
+$$
+\begin{gathered}
+\operatorname{Prob}_{\beta_{1}>\gamma}\left(\widehat{\beta}_{1} \leq h\right)=\alpha \\
+\Longrightarrow \operatorname{Prob}_{\beta_{1}>\gamma}\left[\frac{\widehat{\beta}_{1}-\beta_{1}}{S E\left(\widehat{\beta}_{1}\right)} \leq \frac{h-\beta_{1}}{S E\left(\widehat{\beta}_{1}\right)}\right]=\alpha .
+\end{gathered}
+$$
+
+Under the null, we can replace $\beta_{1}$ with $\gamma$. We know that $\frac{\widehat{\beta}_{1}-\gamma}{S E\left(\widehat{\beta}_{1}\right)} \sim T_{N-K}$, with $K=2$, so we can impose the condition
+
+$$
+\operatorname{Prob}\left[t_{N-2} \leq \frac{h-\gamma}{S E\left(\widehat{\beta}_{1}\right)}\right]=\alpha
+$$
+
+to be solved with respect to $h$. It follows that
+
+$$
+\frac{h-\gamma}{S E\left(\widehat{\beta}_{1}\right)}=t_{N-2 ; \alpha} \Longrightarrow h=\gamma+t_{N-2 ; \alpha} \cdot S E\left(\widehat{\beta}_{1}\right) \text {. }
+$$
+
+We hence reject the null hypothesis if $\widehat{\beta}_{1} \leq \gamma+t_{N-2 ; \alpha} \cdot S E\left(\widehat{\beta}_{1}\right)$. If $N \longrightarrow \infty$, then we reject if $\widehat{\beta}_{1} \leq \gamma+z_{\alpha} \cdot S E\left(\widehat{\beta}_{1}\right)$.\\
+Of course, if the form of the test is
+
+$$
+\left\{\begin{array}{ll}
+H_{0}: & \beta_{1}<\gamma \\
+H_{1}: & \beta_{1} \geq \gamma
+\end{array},\right.
+$$
+
+following the same line of reasoning as above, we reject the null hypothesis if $\widehat{\beta}_{1} \geq \gamma+t_{N-2 ; 1-\alpha} \cdot S E\left(\widehat{\beta}_{1}\right)$. If $N \longrightarrow \infty$, then we reject if $\widehat{\beta}_{1} \geq \gamma+z_{1-\alpha}$. $S E\left(\widehat{\beta}_{1}\right)$.

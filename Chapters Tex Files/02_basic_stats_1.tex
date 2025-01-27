@@ -1,0 +1,279 @@
+\section{Basic Review of Statistics - Part I}
+
+\href{https://github.com/Bonorinoa/ECON-167/blob/main/Code/Basic_Stats_I.Rmd}{Basic Statistics I Rnotebook}
+
+In this section we will be reviewing some elementary properties of statistics that you should already know and master from previous courses. You are also required to review (or study) Appendices A and B in the textbook before we even start talking about serious econometrics.
+
+\subsection{Estimators}
+
+\begin{definition}[Estimator]
+    An estimator, $\widehat{\theta}$, is a statistic, a function of the random sample of data that we use to estimate the value of some unknown population parameter, $\theta$. Since it is a function of random variables, $\widehat{\theta}$ is a random variable. Note that both $\theta$ and $\widehat{\theta}$ may be vectors.
+\end{definition}
+
+Example. We may be interested in the average GPA, $\mu$, of the students at Pomona College and may want to use the sample mean of the GPA's, $X_{i}$, of $N$ randomly selected students to estimate it. The formula for the estimator of $\mu$, the population mean, would simply be
+
+$$
+\widehat{\mu}=\bar{X}=\frac{\sum_{i=1}^{N} X_{i}}{N}
+$$
+
+In this case, the sample mean, a statistic, is employed to estimate the population mean, the population parameter of interest.
+\\
+\textbf{Since an estimator is a random variable, it must have a distribution, which we can usually use to compute its moments.}
+
+\subsection{Expected Value, Variance, and Covariance}
+Let $X$ be a univariate random variable.
+
+\begin{definition}[Continuous Expected Value]
+    The expected value of a continuous random variable, $X$, distributed according to some probability density function, $f_{\theta}(x)$, depending on a vector of parameters, $\theta$ - i.e., $X \sim f_{\theta}(x)$ - is defined as
+    
+    $$
+    E(X)=\int_{-\infty}^{\infty} x f_{\theta}(x) d x
+    $$
+    
+    with $\int_{-\infty}^{\infty} f_{\theta}(x) d x=1$.
+\end{definition}
+
+\switchocg{ContinuousEV}{Click to show/hide example} % toggle layer visibility
+\begin{ocg}{My Layer}{ContinuousEV}{off}
+
+Suppose \( X \) is a continuous random variable uniformly distributed over the interval \([a, b]\). The probability density function \( f(x) \) is: 
+
+\[ f(x) = \begin{cases} \frac{1}{b-a} & \text{for } a \leq x \leq b \\ 0 & \text{otherwise} \end{cases} \] 
+
+The expected value \( E(X) \) is: \[ E(X) = \int_{a}^{b} x \frac{1}{b-a} \, dx = \frac{1}{b-a} \int_{a}^{b} x \, dx \] 
+
+Evaluating the integral: \[ E(X) = \frac{1}{b-a} \left[ \frac{x^2}{2} \right]_{a}^{b} = \frac{1}{b-a} \left( \frac{b^2}{2} - \frac{a^2}{2} \right) = \frac{b+a}{2} \] 
+
+So, the expected value of \( X \) is \( \frac{b+a}{2} \).
+\end{ocg}
+
+\begin{definition}[Discrete Expected Value]
+    The expected value of a discrete random variable, $X$, with range $\mathcal{X}$ is defined as
+    
+    $$
+    E(X)=\sum_{x \in \mathcal{X}} x p(x)
+    $$
+    
+    where $p(x)$ is the probability attached to the outcome $x$-i.e., $p(x)=\operatorname{Prob}(X=x)$, with $\sum_{x \in \mathcal{X}} p(x)=1$.
+\end{definition}
+ 
+\switchocg{DiscreteEV}{Click to hide/show example}
+\begin{ocg}{My Second Layer}{DiscreteEV}{off}
+
+    Suppose \( X \) is a discrete random variable representing the outcome of a fair six-sided die. The probability mass function \( p(x) \) is: 
+    
+    \[ p(x) = \begin{cases} \frac{1}{6} & \text{for } x \in \{1, 2, 3, 4, 5, 6\} \\ 0 & \text{otherwise} \end{cases} \] 
+    
+    The expected value \( E(X) \) is: \[ E(X) = \sum_{x=1}^{6} x \frac{1}{6} = \frac{1}{6} (1 + 2 + 3 + 4 + 5 + 6) \] 
+    
+    Evaluating the sum: \[ E(X) = \frac{1}{6} \times 21 = 3.5 \] 
+    
+    So, the expected value of \( X \) is \( 3.5 \)
+\end{ocg}
+
+\begin{definition}[Continuous Variance]
+    The variance of a continuous random variable, $X$, distributed according to some probability density function, $f_{\theta}(x)$, depending on a vector of parameters, $\theta$ - i.e., $X \sim f_{\theta}(x)$ - is defined as
+
+    $$
+    \operatorname{Var}(X)=\int_{-\infty}^{\infty}[x-E(X)]^{2} f_{\theta}(x) d x
+    $$
+    
+    with $\int_{-\infty}^{\infty} f_{\theta}(x) d x=1$.
+\end{definition}
+
+\switchocg{ContVar}{Click to hide/show example}
+\begin{ocg}{Continuous Variance Example}{ContVar}{off}
+    Consider a standard normal random variable \( X \sim N(0,1) \) with probability density function:
+    
+    \[ f(x) = \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}} \]
+    
+    For this distribution, we know \( E(X) = 0 \). The variance is:
+    
+    \[ \operatorname{Var}(X) = \int_{-\infty}^{\infty} [x-0]^2 \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}} dx = 1 \]
+
+    \[ \begin{aligned}
+    \operatorname{Var}(X) &= \frac{1}{\sqrt{2\pi}} \int_{-\infty}^{\infty} x^2 e^{-\frac{x^2}{2}} dx \\
+    &= \frac{1}{\sqrt{2\pi}} \left[ -x e^{-\frac{x^2}{2}} \bigg|_{-\infty}^{\infty} + \int_{-\infty}^{\infty} e^{-\frac{x^2}{2}} dx \right] \\
+    &= \frac{1}{\sqrt{2\pi}} \left[ 0 + \sqrt{2\pi} \right] \\
+    &= 1
+    \end{aligned} \]
+    
+    This result can be verified using the alternative formula:
+    \[ \operatorname{Var}(X) = E(X^2) - [E(X)]^2 = 1 - 0^2 = 1 \]
+\end{ocg}
+
+\begin{definition}[Discrete Variance]
+    The variance of a discrete random variable, $X$, with range $\mathcal{X}$ is defined as
+
+    $$
+    \operatorname{Var}(X)=\sum_{x \in \mathcal{X}}[x-E(X)]^{2} p(x),
+    $$
+    
+    where $p(x)$ is the probability attached to the outcome $x$-i.e., $p(x)=\operatorname{Prob}(X=x)$, with $\sum_{x \in \mathcal{X}} p(x)=1$.
+\end{definition}
+
+\switchocg{DiscreteVar}{Click to hide/show example}
+\begin{ocg}{Discrete Variance Example}{DiscreteVar}{off}
+    Let \( X \) be a discrete random variable representing the number of heads in two coin flips, with probability mass function:
+    
+    \[ p(x) = \begin{cases} 
+    \frac{1}{4} & \text{for } x = 0 \\
+    \frac{1}{2} & \text{for } x = 1 \\
+    \frac{1}{4} & \text{for } x = 2
+    \end{cases} \]
+    
+    First, we calculate \( E(X) \):
+    \[ E(X) = 0(\frac{1}{4}) + 1(\frac{1}{2}) + 2(\frac{1}{4}) = 1 \]
+    
+    Then, the variance:
+    \[ \begin{aligned}
+    \operatorname{Var}(X) &= \sum_{x \in \{0,1,2\}} [x-1]^2 p(x) \\
+    &= (0-1)^2(\frac{1}{4}) + (1-1)^2(\frac{1}{2}) + (2-1)^2(\frac{1}{4}) \\
+    &= 1(\frac{1}{4}) + 0(\frac{1}{2}) + 1(\frac{1}{4}) \\
+    &= \frac{1}{2}
+    \end{aligned} \]
+\end{ocg}
+
+\begin{definition}[Variance with $\mu=E(X)$ ]
+    The variance of a continuous or discrete random variable, $X$, with expected value $\mu=E[X]$, is defined as
+
+    $$
+    \begin{aligned}
+    \operatorname{Var}(X) & =E\left[(X-\mu)^{2}\right] \\
+    & =E\left(X^{2}\right)-[E(X)]^{2} \\
+    & =E\left(X^{2}\right)-\mu^{2}
+    \end{aligned}
+    $$
+\end{definition}
+
+\begin{definition}[Covariance]
+    The covariance of two continuous or discrete random variables, $X$ and $Y$, with expected values $\mu_{x}=E(X)$ and $\mu_{y}=E(Y)$, is defined as
+
+    $$
+    \begin{aligned}
+    \operatorname{Cov}(X, Y) & =E\left[\left(X-\mu_{x}\right)\left(Y-\mu_{y}\right)\right] \\
+    & =E(X Y)-E(X) E(Y) \\
+    & =E(X Y)-\mu_{x} \mu_{y} .
+    \end{aligned}
+    $$
+\end{definition}
+
+While the expectation is a linear operator, the variance and covariance are not. Let $X, Y, W$, and $Z$ be four generic random variables and let $a, b, c$, and $d$ be four constant real numbers. Then we have the following basic properties for the expectation, the variance, and the covariance operators:
+
+\begin{itemize}
+  \item $E(a X+b Y+c)=a E(X)+b E(Y)+c ;$
+  \item $\operatorname{Var}(a+b X)=b^{2} \operatorname{Var}(X)$;
+  \item $\operatorname{Var}(a X \pm b Y)=a^{2} \operatorname{Var}(X)+b^{2} \operatorname{Var}(Y) \pm 2 a b \operatorname{Cov}(X, Y)$;
+  \item $\operatorname{Cov}(a X+b Y, c W+d Z)=a c \operatorname{Cov}(X, W)+a d \operatorname{Cov}(X, Z)+b c \operatorname{Cov}(Y, W)+$ $b d \operatorname{Cov}(Y, Z)$.
+\end{itemize}
+
+\begin{proof}
+        Using the definition of variance and linearity of expectation:
+        \[ \begin{aligned}
+        \operatorname{Var}(a + bX) &= E[(a + bX - E(a + bX))^2] \\
+        &= E[(a + bX - (a + bE(X)))^2] \\
+        &= E[(bX - bE(X))^2] \\
+        &= E[b^2(X - E(X))^2] \\
+        &= b^2E[(X - E(X))^2] \\
+        &= b^2\operatorname{Var}(X)
+        \end{aligned} \]
+    \end{proof}
+
+\begin{proof}
+        Let's derive this step by step:
+        \[ \begin{aligned}
+        \operatorname{Var}(aX \pm bY) &= E[(aX \pm bY - E(aX \pm bY))^2] \\
+        &= E[(aX \pm bY - (aE(X) \pm bE(Y)))^2] \\
+        &= E[(a(X - E(X)) \pm b(Y - E(Y)))^2] \\
+        &= E[a^2(X - E(X))^2 + b^2(Y - E(Y))^2 \pm 2ab(X - E(X))(Y - E(Y))] \\
+        &= a^2E[(X - E(X))^2] + b^2E[(Y - E(Y))^2] \pm 2abE[(X - E(X))(Y - E(Y))] \\
+        &= a^2\operatorname{Var}(X) + b^2\operatorname{Var}(Y) \pm 2ab\operatorname{Cov}(X,Y)
+        \end{aligned} \]
+    \end{proof}
+
+\begin{proof}
+        Using the definition of covariance and linearity of expectation:
+        \[ \begin{aligned}
+        &\operatorname{Cov}(aX + bY, cW + dZ) \\
+        &= E[(aX + bY - E(aX + bY))(cW + dZ - E(cW + dZ))] \\
+        &= E[(a(X - E(X)) + b(Y - E(Y)))(c(W - E(W)) + d(Z - E(Z)))] \\
+        &= E[ac(X - E(X))(W - E(W)) + ad(X - E(X))(Z - E(Z)) \\
+        &\quad + bc(Y - E(Y))(W - E(W)) + bd(Y - E(Y))(Z - E(Z))] \\
+        &= acE[(X - E(X))(W - E(W))] + adE[(X - E(X))(Z - E(Z))] \\
+        &\quad + bcE[(Y - E(Y))(W - E(W))] + bdE[(Y - E(Y))(Z - E(Z))] \\
+        &= ac\operatorname{Cov}(X,W) + ad\operatorname{Cov}(X,Z) + bc\operatorname{Cov}(Y,W) + bd\operatorname{Cov}(Y,Z)
+        \end{aligned} \]
+    \end{proof}
+
+\subsection{Small-Sample and Large-Sample Properties}
+
+\begin{definition}[Unbiasedness]
+    An estimator $\widehat{\theta}$ is unbiased for a population parameter $\theta$ if $E(\widehat{\theta})=$ $\theta, \forall \theta$.
+\end{definition} 
+
+If two estimators are unbiased for the same population parameter, the one with the lower variance is said to be more efficient. In general, within the class of unbiased estimators, we look for the most efficient one.
+
+Hereafter, except cases of confusion, we will denote the generic estimator for the population parameter, $\theta$, as $\widehat{\theta}_{N}$, where $N$ is the size of the sample of data. The subscript in this piece of notation indicates that the estimator, as in the example on the sample mean described above, depends on (is a function of) the sample size.
+
+\begin{definition}[Convergence in Probability]
+     $\widehat{\theta}_{N}$ converges in probability to $\theta$ if, for any arbitrary $\varepsilon>0$,
+
+     $$
+    \lim _{N \rightarrow \infty} \operatorname{Prob}\left(\left|\widehat{\theta}_{N}-\theta\right|>\varepsilon\right)=0
+    $$
+    
+    or
+    
+    $$
+    \lim _{N \rightarrow \infty} \operatorname{Prob}\left(\left|\widehat{\theta}_{N}-\theta\right|<\varepsilon\right)=1
+    $$
+\end{definition}
+
+In other words, $\widehat{\theta}_{N}$ converges in probability to $\theta$ if, for any arbitrary $\varepsilon>0$ and $\eta>0$, there exists a natural number, $N_{0}$, such that, for any $N \geq N_{0}$, $\operatorname{Prob}\left(\left|\widehat{\theta}_{N}-\theta\right|>\varepsilon\right)<\eta$. Notation: plim $\widehat{\theta}_{N}=\theta$, or $\widehat{\theta}_{N} \xrightarrow{p} \theta$, or $\widehat{\theta}_{N}=$ $\theta+o_{p}(1) .{ }^{1}$
+
+\begin{definition}[Consistency]
+    An estimator $\widehat{\theta}_{N}$ is consistent for $\theta$ if it converges in probability to $\theta$.
+\end{definition}
+
+\textbf{Unbiasedness is a small sample property of an estimator. Consistency is an asymptotic property.} Unbiasedness means that, in repeated sampling from the population, the average value of an estimator equals the true unknown parameter we would like to estimate. Consistency means that, as the sample size increases, the value of the estimator will converge to the true population parameter. In other words, as the sample size increases, the distribution of the estimator becomes more and more concentrated around the true value of the parameter being estimated, so that the probability of the estimator being arbitrarily close to zero converges to one. Unbiasedness does not imply consistency and consistency does not imply unbiasedness. A sufficient condition for an unbiased estimator to be consistent is that its variance shrinks to zero as the sample size grows to infinity. Also note that a biased estimator may be consistent.
+
+\footnote{A random variable is said to be $o_{p}(1)$ if it converges in probability to 0 . In general, an $o_{p}(k)$ random variable is a variable, $X$, such that $\operatorname{plim} \frac{X}{k}=0$.
+}
+
+\begin{theorem}[Weak Law of Large Numbers]
+    Let $X_{1}, \cdots, X_{N}$ be independent and identically distributed (i.i.d.) random variables with finite mean, $E(X)=\mu$, and finite variance, $\operatorname{Var}(X)=\sigma^{2}<\infty$. Then $\bar{X} \xrightarrow{p} E(X)$, or $\bar{X}=E(X)+o_{p}(1)$.
+\end{theorem}
+
+\begin{proof}
+    Assume $X \sim \mathcal{N}\left(\mu, \sigma^{2}\right)$, then $\bar{X} \sim \mathcal{N}\left(\mu, \frac{\sigma^{2}}{N}\right) \cdot{ }^{2}$ Then \footnote{In step 3, we normalize the mean differences $\bar{X} - \mu$ using z-score normalization to ensure the random variable is distributed standard normally. That is, dividing by the standard deviation of, in this case, the sample mean. Since the variance is $\frac{\sigma^2}{N}$ we know the std. dev is $\sqrt{\frac{\sigma^2}{N}} = \frac{\sigma}{\sqrt{N}}$. Hence it results in $\frac{\sqrt{N} (\bar{X}-\mu)}{\sigma}$}
+
+    $$
+    \begin{aligned}
+    \operatorname{Prob}(|\bar{X}-\mu|>\varepsilon) & =\operatorname{Prob}(\bar{X}-\mu<-\varepsilon \vee \bar{X}-\mu>\varepsilon) \\
+    & =\operatorname{Prob}(\bar{X}-\mu<-\varepsilon)+1-\operatorname{Prob}(\bar{X}-\mu<\varepsilon) \\
+    & =\operatorname{Prob}\left(\frac{\sqrt{N}(\bar{X}-\mu)}{\sigma}<-\frac{\sqrt{N} \varepsilon}{\sigma}\right)+1+ \\
+    & -\operatorname{Prob}\left(\frac{\sqrt{N}(\bar{X}-\mu)}{\sigma}<\frac{\sqrt{N} \varepsilon}{\sigma}\right) \\
+    & =1+\Phi\left(-\frac{\sqrt{N} \varepsilon}{\sigma}\right)-\Phi\left(\frac{\sqrt{N} \varepsilon}{\sigma}\right) \longrightarrow 0 \text { as } N \longrightarrow \infty
+    \end{aligned}
+    $$
+    
+    where $\Phi(\cdot)$ is the cumulative probability density function $(C D F)$ of a standard normal random variable \footnote{The standard normal CDF, $\Phi(x)$, is defined as $\Phi(x) = \int_{-\infty}^{x} \frac{1}{\sqrt{2\pi}} e^{-\frac{t^2}{2}} \, dt$.}.
+
+    Note that $\frac{\sqrt{N}(\bar{X}-\mu)}{\sigma} \sim \mathcal{N}(0,1), \Phi\left(\frac{\sqrt{N} \varepsilon}{\sigma}\right) \longrightarrow 1$, and $\Phi\left(-\frac{\sqrt{N} \varepsilon}{\sigma}\right) \longrightarrow 0$ as $N \longrightarrow \infty$. This implies that $\operatorname{Prob}(|\bar{X}-\mu|>\varepsilon) \longrightarrow 0$ as $N \longrightarrow \infty$.
+\end{proof}
+
+\href{https://www.statlect.com/asymptotic-theory/law-of-large-numbers}{Visualization}
+
+\textbf{Example}. In order to show that unbiasedness does not imply consistency, consider the estimator $\widehat{\mu}=\bar{X}+\varepsilon$, where $X_{1}, \cdots, X_{N}$ are independent and identically distributed (i.i.d.) random variables with finite mean, $\mu$, and finite
+\footnotetext{${ }^{2}$ The assumption of normality is not actually needed, but simplifies the steps in the proof. This proof will be revisited later, without the normality assumption, after the explanation of the Chebyshev inequality.
+}variance, $\sigma^{2}$. Epsilon, $\varepsilon$, is a random variable such that $E(\varepsilon)=0$. The estimator of the population mean $\widehat{\mu}$ is unbiased. In fact, $E(\widehat{\mu})=E(\bar{X}+\varepsilon)=E(\bar{X})+E(\varepsilon)=\mu$. However, $\mu$ is not consistent: $\operatorname{plim}(\widehat{\mu})=\operatorname{plim}(\bar{X}+\varepsilon)=\operatorname{plim}(\bar{X})+\operatorname{plim}(\varepsilon)=\mu+\operatorname{plim}(\varepsilon)$. Unfortunately, $\operatorname{plim}(\varepsilon)$ does not exist under our assumptions.
+
+\begin{theorem}[Central Limit Theorem]
+    Let $X_{1}, \cdots, X_{N}$ be independent and identically distributed (i.i.d.) random variables with finite variance, $\operatorname{Var}(X)=$ $\sigma^{2}<\infty$, and finite mean, $E(X)=\mu$. Then $\sqrt{N}(\bar{X}-\mu) \xrightarrow{d} \mathcal{N}\left(0, \sigma^{2}\right)$.
+\end{theorem}
+ 
+
+In other words, $\frac{\sqrt{N}(\bar{X}-\mu)}{\sigma}=z+o_{p}(1)$ and $\bar{X}=\mu+\frac{\sigma}{\sqrt{N}} z+o_{p}\left(\frac{1}{\sqrt{N}}\right)$, where $z$ is the realization of a random variable with a standard normal distribution. To see this, let $W=\frac{\sqrt{N}(\bar{X}-\mu)}{\sigma}$. Since $\sigma W \xrightarrow{d} \mathcal{N}\left(0, \sigma^{2}\right)$ by the $C L T$, then $W \xrightarrow{d} \mathcal{N}(0,1)$. So $W=z+o_{p}(1)$, and, therefore, $\bar{X}=\mu+\frac{\sigma}{\sqrt{N}} z+o_{p}\left(\frac{1}{\sqrt{N}}\right)$.
+\\
+
+The central limit theorem intuitively states that, as the sample size increases, the distribution of a particular transformation of i.i.d. random variables with finite mean and finite variance converges to the distribution of a standard normal random variable.

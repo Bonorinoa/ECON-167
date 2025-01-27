@@ -1,0 +1,429 @@
+\section{Mathematical Properties of the Linear Regression Model}
+In this section we will describe the linear regression model and its mathematical properties. We will start from the simplest case of a model with one explanatory variable (or regressor) and an intercept term, then we will continue with the more general case of a model with multiple explanatory variables and an intercept term.
+
+\href{https://github.com/Bonorinoa/ECON-167/blob/main/Code/Linear_Regression.Rmd}{Linear Regression Rnotebook}
+
+\subsection{Linear Model with One Regressor and One Intercept Term}
+In our first incarnation of the linear regression model, we will study the case of a linear model with one regressor and one intercept term.
+
+Let $y$ and $x$ be two variables. Consider a sample of $N$ observations for each of them, $\left\{y_{i}\right\}_{i=1}^{N}$ and $\left\{x_{i}\right\}_{i=1}^{N}$ - i.e., our data. To make the framework more realistic, we can think about the following scenario. We have 1000 individuals, randomly drawn from a reference population (for instance, from the entire population in the USA). For each of these individuals we have data on income and consumption. Let the variable $y$ be consumption, the variable $x$ personal income, and $N=100$. Looking at the scatter plot of these two variables may give us a picture of the approximate relationship existing between them. For example, this relationship may be roughly linear\footnote{In this case, I have simulated the values of y based on the equation $y=2x+\epsilon$ to ensure a linear trend. We would denote this the "true" equation for the dependent variable, one we can never know in the real world. Simulations are great for testing properties of a model because we engineer the ground truth, and we will use them throughout the course.}. Figure 1 provides a clearer graphical and intuitive representation.  Income and consumption appear to be linked by a positive linear relationship.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{images/regression_ex.png}
+    \caption{Simple Linear Regression example}
+    \label{fig:reg-ex}
+\end{figure}
+
+If we want to define the characteristics of this relationship, we need to draw the straight line through the clouds of points in Figure 1 that best approximates the cloud of points. In principle, we could draw many lines, but we are actually looking for the best one. Assume that the one already plotted in Figure 1 is the line we are looking for, the one which best represents the relationship between personal income and consumption, here thought to be linear. \textbf{In plain English, this would imply that, in the sample of individuals surveyed, when income goes up then consumption, on average, goes up too.} From Figure 1 and from the plotted straight line, we can also notice that increases in personal income are associated, on average, with smaller (and \textbf{constant}) increases in consumption - i.e., the marginal propensity to consume out of income is constant, positive, and less than one.
+
+To draw that line, the word \textbf{\textit{"best" should be defined in some way}} - i.e., according to some criterion that could be quantitatively established. For example, among the many, we may want to choose the line that minimizes a suitable \textbf{objective (or loss) function}. To be even more specific, the objective function may depend on the approximation errors. Very loosely speaking, by drawing that line, our purpose is to minimize the approximation errors, that is the errors that we make when we try to approximate the cloud of points using a straight line. Why not minimize a function of those errors, then?
+
+If this is our ultimate goal, we may want to approximate the relationship between $y$ and $x$ using a model of the form $y_{i}=\alpha+\beta x_{i}+\varepsilon_{i}$, where $\varepsilon_{i}$ is an error term - i.e., the error we make when we approximate the $i$-th observation of $y$, $y_{i}$, with a linear function of the $i$-th observation of $x, x_{i}$. Given that the sample size is equal to $N$, we have $N$ approximation errors, one for each observation. At this point, We need to establish a criterion that will allow us to minimize, in some way, the approximation errors and to attach values to $\alpha$ and $\beta$ in the linear relationship that we think describes the link between the two variables under investigation.
+
+\subsubsection{Unconstrained Optimization}\footnote{Notes adapted from Mathematics for Economists by Carl Simon and Lawrence Blume, Chapter 17.}
+
+The problem of unconstrained optimization involves finding the values of variables that minimize or maximize some objective function when there are no restrictions on the values these variables can take. Consider a scalar-valued objective function \(f: \mathbb{R}^n \rightarrow \mathbb{R}\) that is at least twice continuously differentiable. Note that while the function can take multiple inputs (n-dimensional vector), it must return a single real number (scalar).
+
+The unconstrained optimization problem can be written as either:
+
+\[ \min_{x \in \mathbb{R}^n} f(x) \quad \text{or} \quad \max_{x \in \mathbb{R}^n} f(x) \]
+
+\paragraph{First-Order Necessary Conditions}
+At any local extremum (minimum or maximum) \(x^*\), the first derivative (in the scalar case) or gradient (in the vector case) must equal zero. This gives us the first-order necessary condition:
+
+\textbf{Scalar Case} (\(n=1\)): For a function \(f: \mathbb{R} \rightarrow \mathbb{R}\),
+\[ \frac{d f(x^*)}{dx} = 0 \]
+
+\textbf{Vector Case} (\(n>1\)): For a function \(f: \mathbb{R}^n \rightarrow \mathbb{R}\),
+\[ \nabla f(x^*) = \begin{pmatrix} 
+\frac{\partial f(x^*)}{\partial x_1} \\
+\vdots \\
+\frac{\partial f(x^*)}{\partial x_n}
+\end{pmatrix} = \mathbf{0} \]
+
+This condition is necessary but not sufficient for a local extremum. A point satisfying this condition is called a critical point or stationary point.
+
+\paragraph{The Hessian Matrix}
+The Hessian matrix, denoted as \(H(x)\), is a square matrix of second-order partial derivatives. For a function \(f: \mathbb{R}^n \rightarrow \mathbb{R}\), it is an \(n \times n\) matrix constructed as follows:
+
+\[ H(x) = \begin{bmatrix}
+\frac{\partial^2 f}{\partial x_1^2} & \frac{\partial^2 f}{\partial x_1 \partial x_2} & \cdots & \frac{\partial^2 f}{\partial x_1 \partial x_n} \\
+\frac{\partial^2 f}{\partial x_2 \partial x_1} & \frac{\partial^2 f}{\partial x_2^2} & \cdots & \frac{\partial^2 f}{\partial x_2 \partial x_n} \\
+\vdots & \vdots & \ddots & \vdots \\
+\frac{\partial^2 f}{\partial x_n \partial x_1} & \frac{\partial^2 f}{\partial x_n \partial x_2} & \cdots & \frac{\partial^2 f}{\partial x_n^2}
+\end{bmatrix} \]
+
+The Hessian is symmetric when \(f\) is twice continuously differentiable (by Young's theorem), meaning \(\frac{\partial^2 f}{\partial x_i \partial x_j} = \frac{\partial^2 f}{\partial x_j \partial x_i}\).
+
+\paragraph{Second-Order Conditions}
+The second-order conditions help distinguish between minima, maxima, and saddle points:
+\\\\
+\textbf{Scalar Case} (\(n=1\)):
+\begin{itemize}
+    \item For a local minimum:
+        \begin{itemize}
+            \item Necessary: \(\frac{d^2 f(x^*)}{dx^2} \geq 0\)
+            \item Sufficient: \(\frac{d^2 f(x^*)}{dx^2} > 0\)
+        \end{itemize}
+    \item For a local maximum:
+        \begin{itemize}
+            \item Necessary: \(\frac{d^2 f(x^*)}{dx^2} \leq 0\)
+            \item Sufficient: \(\frac{d^2 f(x^*)}{dx^2} < 0\)
+        \end{itemize}
+\end{itemize}
+\\
+\textbf{Vector Case} (\(n>1\)):
+\begin{itemize}
+    \item For a local minimum:
+        \begin{itemize}
+            \item Necessary: \(H(x^*)\) is positive semidefinite
+            \item Sufficient: \(H(x^*)\) is positive definite
+        \end{itemize}
+    \item For a local maximum:
+        \begin{itemize}
+            \item Necessary: \(H(x^*)\) is negative semidefinite
+            \item Sufficient: \(H(x^*)\) is negative definite
+        \end{itemize}
+\end{itemize}
+
+\paragraph{Local vs. Global Extrema}
+A point \(x^*\) is a local minimum (maximum) if there exists some neighborhood \(N\) around \(x^*\) such that \(f(x^*) \leq f(x)\) (\(f(x^*) \geq f(x)\)) for all \(x \in N\). If this holds for all \(x \in \mathbb{R}^n\), then \(x^*\) is a global minimum (maximum).
+
+For strictly convex functions (where the Hessian is positive definite everywhere), any local minimum is also a global minimum. Conversely, for strictly concave functions (where the Hessian is negative definite everywhere), any local maximum is also a global maximum. These properties will be particularly relevant when we examine the least squares estimation problem in the next section.
+
+\subsubsection{Least Squares Minimization}
+
+Ordinary Least Squares (OLS) is the approach we will use in this course to determine the best values of $\alpha$ and $\beta$. Graphically, by using OLS, we will be able to draw the straight line passing through the cloud of points in the scatter plot. The OLS approach is based on the minimization of a particular objective function, the sum of the so-called squared residuals. The $i$-th residual is the difference between the true value of the dependent variable, $y_{i}$, which is associated with $x_{i}$, and the value of the linear relationship to be estimated calculated at $x_{i}$. Note that there will be as many residuals as many observations we have in the dataset and that OLS is just one of the many approaches that can be adopted to approximate the relationship described by the points in the cloud. As mentioned earlier, "best" should be defined according to some arbitrary criterion. If the criterion - i.e., the loss function - changes, the straight line we draw will change as a consequence.
+
+Formally, let us start from the model above, $y_{i}=\alpha+\beta x_{i}+\varepsilon_{i}$, which we can rewrite in terms of the error term as $\varepsilon_{i}=y_{i}-\alpha-\beta x_{i}$. Then, $\varepsilon_{i}^{2}=$\\
+$\left(y_{i}-\alpha-\beta x_{i}\right)^{2}$. According to the OLS approach, we need to minimize $\sum_{i=1}^{N} \varepsilon_{i}^{2}$, the sum of the squared errors, with respect to $\alpha$ and $\beta$ :
+
+$$
+\min _{\alpha, \beta} \sum_{i=1}^{N} \varepsilon_{i}^{2}=\min _{\alpha, \beta} \sum_{i=1}^{N}\left(y_{i}-\alpha-\beta x_{i}\right)^{2}=\min _{\alpha, \beta} S(\alpha, \beta) .
+$$
+
+In practice, we need to choose the values of $\alpha$ and $\beta$ that minimize a very specific loss function. Let us take the first-order conditions of this optimization problem by setting the partial derivatives of $S(\alpha, \beta)$ with respect to $\alpha$ and $\beta$ equal to zero, $\frac{\partial}{\partial \alpha} S(\alpha, \beta)=0$ and $\frac{\partial}{\partial \beta} S(\alpha, \beta)=0$ :
+
+$$
+\begin{aligned}
+\frac{\partial}{\partial \alpha} S(\alpha, \beta)= & -2 \sum_{i=1}^{N}\left(y_{i}-\alpha-\beta x_{i}\right)=0 \\
+& \Longrightarrow \sum_{i=1}^{N}\left(y_{i}-\alpha-\beta x_{i}\right)=0 \\
+& \Longrightarrow \sum_{i=1}^{N} y_{i}-N \alpha-\beta \sum_{i=1}^{N} x_{i}=0 \\
+& \Longrightarrow \widehat{\alpha}=\frac{\sum_{i=1}^{N} y_{i}}{N}-\beta \frac{\sum_{i=1}^{N} x_{i}}{N} \\
+& =\bar{y}-\beta \bar{x}
+\end{aligned}
+$$
+
+and
+
+$$
+\begin{aligned}
+\frac{\partial}{\partial \beta} \beta S(\alpha, \beta) & =-2 \sum_{i=1}^{N}\left(y_{i}-\alpha-\beta x_{i}\right) x_{i}=0 \\
+\Longrightarrow \widehat{\beta} & =\frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)\left(y_{i}-\bar{y}\right)}{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}} \\
+& =\frac{\frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)\left(y_{i}-\bar{y}\right)}{N-1}}{\frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}}{N-1}} \\
+& =\frac{\widehat{\operatorname{Cov}(x, y)}}{\widehat{\operatorname{Var}(x)}}
+\end{aligned}
+$$
+
+For $\widehat{\beta}$ to exist, we need that $\widehat{\operatorname{Var}(x)} \neq 0$. This is the equivalent, in the case of a linear regression model with one intercept term and one regressor, of what we will call later no-multicollinearity condition.
+
+Note that
+
+$$
+\begin{aligned}
+\widehat{\beta} & =\frac{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right) y_{i}}{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}} \\
+& =\frac{\sum_{i=1}^{N}\left(y_{i}-\bar{y}\right) x_{i}}{\sum_{i=1}^{N}\left(x_{i}-\bar{x}\right)^{2}} .
+\end{aligned}
+$$
+
+We can then replace $\beta$ in the expression of $\widehat{\alpha}$ with $\widehat{\beta}$ to compute
+
+$$
+\widehat{\alpha}=\bar{y}-\widehat{\beta} \bar{x}
+$$
+
+The two values of $\alpha$ and $\beta, \widehat{\alpha}$ and $\widehat{\beta}$ respectively, optimize the loss function. To be sure that $\widehat{\alpha}$ and $\widehat{\beta}$ minimize $S(\alpha, \beta)$, we need to show that the Hessian matrix
+
+$$
+H=\left[\begin{array}{cc}
+\frac{\partial^{2}}{(\partial \alpha)^{2}} S(\widehat{\alpha}, \widehat{\beta}) & \frac{\partial^{2}}{\partial \alpha \partial \beta} S(\widehat{\alpha}, \widehat{\beta}) \\
+\frac{\partial^{2}}{\partial \alpha \partial \beta} S(\widehat{\alpha}, \widehat{\beta}) & \frac{\partial^{2}}{(\partial \beta)^{2}} S(\widehat{\alpha}, \widehat{\beta})
+\end{array}\right]
+$$
+
+is positive definite.
+
+\begin{definition}[Positive Definite matrix]
+A $n \times n$ matrix, $H$, is positive definite if the quadratic form $v^{\prime} H v>$ $0, \forall v \in \mathbb{R}^{n}, v \neq 0$.
+\end{definition}
+
+In our case, $\frac{\partial^{2}}{(\partial \alpha)^{2}} S(\alpha, \beta)=2 N>0, \frac{\partial^{2}}{\partial \alpha \partial \beta} S(\alpha, \beta)=2 \sum_{i=1}^{N} x_{i}$, and $\frac{\partial^{2}}{(\partial \beta)^{2}}=$ $2 \sum_{i=1}^{N} x_{i}^{2}>0$. We would need to prove that $v^{\prime} H v>0$ for any $v \in \mathbb{R}^{2}$ and such that $v \neq 0$. That is, $2 N v_{1}^{2}+4 v_{1} v_{2} \sum_{i=1}^{N} x_{i}+2 v_{2}^{2} \sum_{i=1}^{N} x_{i}^{2}>0$, where $v=\left[\begin{array}{l}v_{1} \\ v_{2}\end{array}\right] \neq 0$. For a matrix to be positive definite, $\operatorname{det}(H)>0$ is a necessary condition. However, it is not sufficient.
+
+The two values of $\widehat{\alpha}$ and $\widehat{\beta}$ represent the intercept and the slope of the straight line approximating the cloud of points we started from.\\
+Definition. The $i$-th residual, $\widehat{\varepsilon}_{i}=y_{i}-\widehat{y}_{i}=y_{i}-\widehat{\alpha}-\widehat{\beta} x_{i}$, is the error left from the approximation straight line for the $i$-th observation in the sample of data.
+
+We can then write
+
+$$
+y_{i}=\widehat{\alpha}+\widehat{\beta} x_{i}+\widehat{\varepsilon}_{i}=\widehat{y}_{i}+\widehat{\varepsilon}_{i},
+$$
+
+where $\widehat{y}_{i}=\widehat{\alpha}+\widehat{\beta} x_{i}$ is the so-called fitted value of $y_{i}$. So the difference between $y_{i}$ and $\widehat{y}_{i}$ - i.e., the residual, which can be either positive or negative, or even equal to zero - is the approximation error that we make when we use the OLS approach to fit the cloud of points that we plotted based on the dataset.
+
+\subsection{Linear Model with Multiple Regressors and One Intercept Term}
+We can apply the same logic to the case of many regressors in the linear regression model. For example, we may think that the relationship of interest is not just between consumption and personal income, but that, to correctly describe individual consumption, we need to consider other variables, in addition to personal income, on the right-hand side of the linear model we want to use. In other words, this time, we have one dependent variable, $y$, and multiple, $K-1$, independent variables, $x_{2}, x_{3}, \ldots, x_{K}$. For each of them, a sample of size $N$. We would like to approximate the link between $y$ and these regressors using the linear model
+
+$$
+y_{i}=\beta_{1}+\beta_{2} x_{2 i}+\beta_{3} x_{3 i}+\ldots+\beta_{K} x_{K i}+\varepsilon_{i} .
+$$
+
+First of all, one should notice that, unlike the previous case with one regressor and one intercept term, this new framework cannot be represented graphically. Given the $K-1$ regressors, we would need a $K$-dimensional space to plot the corresponding cloud of points. This time, we could not approximate the $K$-dimensional cloud of points with a straight line, but we would need a $K$ dimensional hyperplane. The algebra we employed above to find the values of the intercept term and the slope term that minimize the OLS objective function would become much more complicated. At the end of the day, we would find that the expressions to derive are so complicated and hard to intuitively understand, or even impossible to determine, that we would need to find a solution to this issue. This is where linear algebra and matrix notation become useful and step in. In this course we will make use of two different matrix notations to describe the same model. We will switch back and forth between one and the other depending on the situation and convenience. We should always remember, though, that the two are perfectly equivalent and interchangeable and whatever can be said using one notation can be said using the alternative.
+
+\subsubsection{Matrix Notation I}
+Define the vectors
+
+$$
+x_{i}=\left(\begin{array}{lllll}
+1 & x_{2 i} & x_{3 i} & \cdots & x_{K i}
+\end{array}\right)^{\prime}
+$$
+
+and
+
+$$
+\beta=\left(\begin{array}{llll}
+\beta_{1} & \beta_{2} & \cdots & \beta_{K}
+\end{array}\right)^{\prime} .
+$$
+
+The first vector contains the $i$-th observations of each regressors. The second contains all the parameters (intercept term and slope coefficients) in the linear regression model. Note that $x_{1 i}=1$ for all $i$ and that $x_{i} \in M(K, 1)$ - i.e., $x_{i}$ belongs to the class of matrices of dimensions $K$ and 1 , that is, with $K$ rows and 1 column - and $\beta \in M(K, 1)$. The linear model can then be rewritten as
+
+$$
+y_{i}=x_{i}^{\prime} \beta+\varepsilon_{i},
+$$
+
+which implies that $\varepsilon_{i}=y_{i}-x_{i}^{\prime} \beta$. It follows that the objective function to be minimized to implement the OLS approach is
+
+$$
+S(\beta)=\sum_{i=1}^{N}\left(y_{i}-x_{i}^{\prime} \beta\right)^{2}
+$$
+
+The minimization problem to be solved to obtain the optimal $\widehat{\beta}$ is then $\min _{\beta} S(\beta)$. The first-order condition is
+
+$$
+\begin{aligned}
+\frac{\partial}{\partial \beta} S(\beta)= & -2 \sum_{i=1}^{N} x_{i}\left(y_{i}-x_{i}^{\prime} \beta\right)=0 \\
+& \Longrightarrow\left(\sum_{i=1}^{N} x_{i} x_{i}^{\prime}\right) \beta=\sum_{i=1}^{N} x_{i} y_{i} \\
+& \Longrightarrow \widehat{\beta}=\left(\sum_{i=1}^{N} x_{i} x_{i}^{\prime}\right)^{-1} \sum_{i=1}^{N} x_{i} y_{i}
+\end{aligned}
+$$
+
+To calculate $\widehat{\beta}$, we had to invert $\sum_{i=1}^{N} x_{i} x_{i}^{\prime} . \sum_{i=1}^{N} x_{i} x_{i}^{\prime}$ is a $K \times K$ matrix. For $\left(\sum_{i=1}^{N} x_{i} x_{i}^{\prime}\right)^{-1}$ to exist, $\sum_{i=1}^{N} x_{i} x_{i}^{\prime}$ needs to be invertible - i.e., none of the regressors is a linear combination of the other regressors. This condition, that each regressor is linearly independent of the other regressors in the model, is known as the no-multicollinearity condition.
+
+Once the minimization problem is solved and $\widehat{\beta}$ is found, the best linear approximation for $y_{i}$ will be $\widehat{y}_{i}=x_{i}^{\prime} \widehat{\beta}$, which implies that $y_{i}=\widehat{y}_{i}+\widehat{\varepsilon}_{i}$. The residuals are hence $\widehat{\varepsilon}_{i}=y_{i}-\widehat{y}_{i}$.
+
+From the first-order condition, $\sum_{i=1}^{N} x_{i}\left(y_{i}-x_{i}^{\prime} \beta\right)=0$ when $\beta=\widehat{\beta}$. This means that
+
+$$
+\sum_{i=1}^{N} x_{i}\left(y_{i}-x_{i}^{\prime} \widehat{\beta}\right)=\sum_{i=1}^{N} x_{i} \widehat{\varepsilon}_{i}=0
+$$
+
+Thus, $x_{i}$ and $\widehat{\varepsilon}_{i}$ are orthogonal, that is they are independent of each other, or perpendicular in the $N$-space. If an intercept term, say $\beta_{1}$, is included in the model, then $\sum_{i=1}^{N} \widehat{\varepsilon}_{i}=0$, since $x_{1 i}=1, \forall i$.
+
+\subsubsection{Matrix Notation II}
+Define the $N \times K$ matrix of independent explanatory variables, $X$, and the $N \times 1$ matrix representing the dependent variable, $y$, as
+
+$$
+X=\left[\begin{array}{cccc}
+1 & x_{21} & \cdots & x_{K 1} \\
+1 & x_{22} & \cdots & x_{K 2} \\
+\vdots & \vdots & \ddots & \vdots \\
+1 & x_{2 N} & \cdots & x_{K N}
+\end{array}\right]=\left[\begin{array}{c}
+x_{1}^{\prime} \\
+x_{2}^{\prime} \\
+\cdots \\
+x_{N}^{\prime}
+\end{array}\right] \quad y=\left[\begin{array}{c}
+y_{1} \\
+y_{2} \\
+\vdots \\
+y_{N}
+\end{array}\right]
+$$
+
+The first object, $X$, is a matrix collecting all the $N$ observations (rows) in the $K$ regressors (columns). The second object, $y$, is the vector of $N$ observations in the independent variable. We next define
+
+$$
+\varepsilon=\left[\begin{array}{c}
+\varepsilon_{1} \\
+\vdots \\
+\varepsilon_{N}
+\end{array}\right] \quad \beta=\left[\begin{array}{c}
+\beta_{1} \\
+\vdots \\
+\beta_{K}
+\end{array}\right]
+$$
+
+$\varepsilon$ is the $N \times 1$ vector of error terms, $\beta$ is the $K \times 1$ vector of parameters in the linear model. We can hence rewrite the linear regression model as
+
+$$
+y=X \beta+\varepsilon
+$$
+
+from which, $\varepsilon=y-X \beta$.\\
+Note that
+
+$$
+S(\beta)=\sum_{i=1}^{N} \varepsilon_{i}^{2}=\varepsilon^{\prime} \varepsilon=(y-X \beta)^{\prime}(y-X \beta)=y^{\prime} y-2 y^{\prime} X \beta+\beta^{\prime} X^{\prime} X \beta
+$$
+
+The optimization problem for the implementation of the OLS approach is again $\min _{\beta} S(\beta)$. The first-order condition is
+
+$$
+\begin{aligned}
+\frac{\partial}{\partial \beta} S(\beta)=0 & \Longrightarrow-2\left(X^{\prime} y-X^{\prime} X \beta\right)=0 \\
+& \Longrightarrow \widehat{\beta}=\left(X^{\prime} X\right)^{-1} X^{\prime} y .
+\end{aligned}
+$$
+
+This $\widehat{\beta}$ is identical to the $\widehat{\beta}$ derived in the previous section. That is, $\widehat{\beta}=$ $\left(X^{\prime} X\right)^{-1} X^{\prime} y=\left(\sum_{i=1}^{N} x_{i} x_{i}^{\prime}\right)^{-1} \sum_{i=1}^{N} x_{i} y_{i}$. The only difference is notation, since we initially defined the same model in two different ways.
+
+To obtain $\widehat{\beta}$ we need again to assume no-multicollinearity. This time, the corresponding condition is that $\left(X^{\prime} X\right)$, a $K \times K$ matrix, is invertible. A necessary and sufficient condition for $\left(X^{\prime} X\right)$ to be invertible is that $\operatorname{det}\left(X^{\prime} X\right) \neq 0$. Note that, for $\left(X^{\prime} X\right)$ to be invertible, $\operatorname{rank}\left(X^{\prime} X\right)=K$, a necessary condition of which is that $N \geq K$ - i.e., the number of observations in the dataset is bigger than or equal to the number of regressors including the intercept term.
+
+From all above, it follows that $\widehat{y}=X \widehat{\beta}$ and $y-\widehat{y}=\widehat{\varepsilon}$, which implies that $y=X \widehat{\beta}+\widehat{\varepsilon}$. Looking again at the first-order condition,
+
+$$
+X^{\prime} y-X^{\prime} X \beta=0 \Longrightarrow X^{\prime}(y-X \beta)=0
+$$
+
+This condition should hold at $\widehat{\beta}$, implying that
+
+$$
+X^{\prime}(y-X \widehat{\beta})=0 \Longrightarrow X^{\prime} \widehat{\varepsilon}=0
+$$
+
+which means that the set of regressors and the residuals are orthogonal to each other. This is the same property of orthogonality we saw in the previous section.
+
+\subsection{Matrix Algebra and Calculus Review}
+
+Before proceeding, let us review key concepts from matrix algebra that will be essential throughout this course.
+
+\paragraph{Basic Definitions and Notation}
+A matrix \(A\) of dimension \(m \times n\) has \(m\) rows and \(n\) columns:
+\[ A = [a_{ij}]_{m \times n} = \begin{bmatrix} 
+a_{11} & a_{12} & \cdots & a_{1n} \\
+a_{21} & a_{22} & \cdots & a_{2n} \\
+\vdots & \vdots & \ddots & \vdots \\
+a_{m1} & a_{m2} & \cdots & a_{mn}
+\end{bmatrix} \]
+
+Special matrices include:
+\begin{itemize}
+    \item Vector: A matrix with either one row (row vector) or one column (column vector)
+    \item Square matrix: \(m = n\)
+    \item Diagonal matrix: Square matrix where \(a_{ij} = 0\) for all \(i \neq j\)
+    \item Identity matrix (\(I_n\)): Diagonal matrix with ones on the main diagonal
+\end{itemize}
+
+\paragraph{Matrix Operations}
+\begin{enumerate}
+    \item Transpose: \(A'\) or \(A^T\) flips matrix over its diagonal
+        \[ (A')_{ij} = A_{ji} \]
+    
+    \item Matrix Addition (\(A + B\)): Requires same dimensions
+        \[ (A + B)_{ij} = A_{ij} + B_{ij} \]
+    
+    \item Matrix Multiplication (\(AB\)): Requires columns of \(A\) match rows of \(B\)
+        \[ (AB)_{ij} = \sum_{k=1}^n a_{ik}b_{kj} \]
+    
+    \item Scalar Multiplication (\(cA\)): \((cA)_{ij} = c \cdot a_{ij}\)
+\end{enumerate}
+
+\paragraph{Important Properties}
+For matrices of compatible dimensions:
+\begin{enumerate}
+    \item Transpose properties:
+        \begin{itemize}
+            \item \((A')' = A\)
+            \item \((AB)' = B'A'\)
+            \item \((A + B)' = A' + B'\)
+        \end{itemize}
+    
+    \item Multiplication properties:
+        \begin{itemize}
+            \item \(AB \neq BA\) generally (not commutative)
+            \item \(A(BC) = (AB)C\) (associative)
+            \item \(A(B + C) = AB + AC\) (distributive)
+        \end{itemize}
+\end{enumerate}
+
+\paragraph{Matrix Invertibility}
+For a square matrix \(A\):
+\begin{itemize}
+    \item \(A\) is invertible if there exists \(A^{-1}\) such that \(AA^{-1} = A^{-1}A = I\)
+    \item Properties of invertible matrices:
+        \begin{itemize}
+            \item \((A^{-1})^{-1} = A\)
+            \item \((AB)^{-1} = B^{-1}A^{-1}\)
+            \item \((A')^{-1} = (A^{-1})'\)
+        \end{itemize}
+    \item A matrix is invertible if and only if:
+        \begin{itemize}
+            \item Its determinant is non-zero: \(\det(A) \neq 0\)\footnote{The determinant of a matrix can be computed in several ways. For a 2×2 matrix \(A = \begin{bmatrix} a & b \\ c & d \end{bmatrix}\), \(\det(A) = ad - bc\). For larger matrices, we can use: (1) cofactor expansion along any row or column, (2) row reduction to triangular form, or (3) the product of eigenvalues. In econometrics, we often encounter the determinant when checking if \(X'X\) is invertible, which is crucial for the existence of the OLS estimator.}
+            \item It has full rank: \(\text{rank}(A) = n\)
+            \item Its columns (rows) are linearly independent\footnote{In the context of OLS, linear independence of the columns of \(X\) means no perfect multicollinearity among regressors. This has an important economic interpretation: each regressor must provide some unique information about the dependent variable that cannot be derived from a linear combination of other regressors.}
+        \end{itemize}
+\end{itemize}
+
+\paragraph{Quadratic Forms}
+For a vector \(x\) and symmetric matrix \(A\), the quadratic form \(x'Ax\) is scalar-valued:
+\[ x'Ax = \sum_{i=1}^n \sum_{j=1}^n x_i a_{ij} x_j \]
+
+Properties of symmetric matrices:
+\begin{itemize}
+    \item Positive definite: \(x'Ax > 0\) for all \(x \neq 0\)
+    \item Positive semidefinite: \(x'Ax \geq 0\) for all \(x\)
+    \item All eigenvalues of a positive definite matrix are positive\footnote{Eigenvalues \(\lambda\) and eigenvectors \(v\) satisfy \(Av = \lambda v\). For symmetric matrices like \(X'X\), all eigenvalues are real, and positive definiteness means all eigenvalues are positive. The condition number (ratio of largest to smallest eigenvalue) of \(X'X\) indicates the severity of multicollinearity in regression analysis. A large condition number suggests near multicollinearity and potential numerical instability in computing \((X'X)^{-1}\).}
+\end{itemize}
+
+\paragraph{Matrix Calculus}
+Key derivatives for optimization:
+\begin{itemize}
+   \item \(\frac{\partial(x'a)}{\partial x} = a\) where \(a\) is a constant vector
+   \item \(\frac{\partial(a'x)}{\partial x} = a\) where \(a\) is a constant vector
+   \item \(\frac{\partial(x'Ax)}{\partial x} = (A + A')x\)
+   \item If \(A\) is symmetric, \(\frac{\partial(x'Ax)}{\partial x} = 2Ax\) \footnote{This result is central to deriving the OLS estimator, where we minimize the quadratic form \((y-X\beta)'(y-X\beta)\).}
+   \item \(\frac{\partial(b'x)}{\partial x} = b\) where \(b\) is a constant vector
+   \item \(\frac{\partial(x'x)}{\partial x} = 2x\) \footnote{This derivative appears when minimizing sum of squared residuals and in ridge regression where we add a penalty term \(\lambda\beta'\beta\) to the objective function.}
+   \item \(\frac{\partial \text{tr}(AX)}{\partial X} = A'\) where tr denotes the trace \footnote{Trace derivatives are particularly useful in panel data models and when working with variance-covariance matrices.}
+   \item \(\frac{\partial \text{tr}(XA)}{\partial X} = A\)
+   \item \(\frac{\partial \text{tr}(AXB)}{\partial X} = A'B'\)
+   \item \(\frac{\partial \ln|X|}{\partial X} = (X')^{-1}\) \footnote{This derivative is essential in maximum likelihood estimation of multivariate models, such as Vector Autoregressions (VARs) and multivariate GARCH models. It also appears in the estimation of covariance matrices in Seemingly Unrelated Regression (SUR) models.}
+\end{itemize}
+
+Some useful second derivatives:
+\begin{itemize}
+   \item \(\frac{\partial^2(x'Ax)}{\partial x\partial x'} = A + A'\)
+   \item If \(A\) is symmetric, \(\frac{\partial^2(x'Ax)}{\partial x\partial x'} = 2A\) \footnote{Second derivatives are crucial for verifying the conditions for consistent estimation in nonlinear models and for computing standard errors using the Hessian matrix. In maximum likelihood estimation, the negative of the expected Hessian gives us the Information matrix, which is key for hypothesis testing and efficiency analysis.}
+\end{itemize}
+
+Remember that in econometric applications, these derivatives often appear in combination. For example, the normal equations in OLS combine several of these rules:
+\[ \frac{\partial(y-X\beta)'(y-X\beta)}{\partial\beta} = -2X'y + 2X'X\beta = 0 \]
+
+These concepts will be particularly important when:
+\begin{itemize}
+    \item Expressing the linear regression model in matrix form
+    \item Deriving the OLS estimator through optimization
+    \item Understanding the properties of variance-covariance matrices
+    \item Analyzing the precision of our estimates
+\end{itemize}
+
+\subsubsection{Notable Matrices}
+Recall that $\widehat{y}=X \widehat{\beta}$, from which $\widehat{y}=X\left(X^{\prime} X\right)^{-1} X^{\prime} y=P_{x} y$. The matrix $P_{x}=X\left(X^{\prime} X\right)^{-1} X^{\prime}$ known as the projection matrix. Now consider $\widehat{\varepsilon}=y-\widehat{y}=$ $y-X \widehat{\beta}=y-P_{x} y=\left(I-P_{x}\right) y=M_{x} y . M_{x}=\left(I-P_{x}\right)$ is another important matrix, known as the annihilator matrix.
+
+Both matrices are idempotent - i.e., $\left(P_{x}\right)^{J}=P_{x}$ and $\left(M_{x}\right)^{J}=M_{x}, \forall J$. Also note that, if $K=N$, then $\widehat{y}=P_{x} y=X\left(X^{\prime} X\right)^{-1} X^{\prime} y=X X^{-1}\left(X^{\prime}\right)^{-1} X^{\prime} y=y$ and $\widehat{\varepsilon}=0$.
+
+These two matrices will be useful later in the course.

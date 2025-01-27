@@ -1,0 +1,396 @@
+\section{Model Selection and Multicollinearity}
+In the process of determining what makes a "good" model, we are interested in how one goes about selecting the regressors to include and the potential problems with poor selection. We will see that, when a relevant variable is excluded from the model, we have bias in the OLS estimator; and that, when an irrelevant variable is included in the model, then the OLS estimator is unbiased but no longer efficient - i.e., it does not exhibit anymore the lowest variance. Both situations represent a violation of the Gauss-Markov assumptions. Generally speaking, if the Gauss-Markov assumptions are violated, then the OLS estimator is not BLUE.
+
+Consider a scenario where we have two competing models, $(A) y=X \beta+Z \gamma+\varepsilon$ and $(B) y=X \beta+\nu$, where $X$ is an $N \times K$ matrix and $Z$ has dimension $N \times W$ (that is, in model $A$ we have $W$ additional regressors, each with $N$ observations). $\beta$ is $K \times 1, \gamma$ is $W \times 1 . y$ and $\varepsilon$ are both $N \times 1$. Finally, assume that $\operatorname{Var}\left(\varepsilon_{i}\right)=\operatorname{Var}\left(\nu_{i}\right)=\sigma^{2}$. We need to decide which model is best and should be used for estimation.
+
+\subsection{Under-Specified Models: Omitted Variable Bias}
+Let us assume that model $A$ is the "correct" or "true" model. That is, if we want to correctly explain $y$, we need to include the regressors in both $X$ and $Z$. However, rather than estimating model $A$, we estimate model $B$. The question is: what happens to the OLS estimator, $\widehat{\beta}$ ? We will show that if we make this kind of mistake in the estimation procedure - that is, we estimate an underspecified model - then $\widehat{\beta}$ is biased for $\beta$.
+
+Under model $B$,
+
+$$
+\widehat{\beta}_{B}=\left(X^{\prime} X\right)^{-1} X^{\prime} y,
+$$
+
+in which formula we can plug the expression for $y$ from the true model, $A$. Whence we see that
+
+$$
+\begin{aligned}
+\widehat{\beta}_{B} & =\left(X^{\prime} X\right)^{-1} X^{\prime}(X \beta+Z \gamma+\varepsilon) \\
+& =\left(X^{\prime} X\right)^{-1} X^{\prime} X \beta+\left(X^{\prime} X\right)^{-1} X^{\prime} Z \gamma+\left(X^{\prime} X\right)^{-1} X^{\prime} \varepsilon \\
+& =\beta+\left(X^{\prime} X\right)^{-1} X^{\prime} Z \gamma+\left(X^{\prime} X\right)^{-1} X^{\prime} \varepsilon
+\end{aligned}
+$$
+
+To show that $\widehat{\beta}_{B}$ is biased:
+
+$$
+\begin{aligned}
+E\left(\widehat{\beta}_{B}\right) & =E\left[\beta+\left(X^{\prime} X\right)^{-1} X^{\prime} Z \gamma+\left(X^{\prime} X\right)^{-1} X^{\prime} \varepsilon\right] \\
+& =\beta+\left(X^{\prime} X\right)^{-1} X^{\prime} Z \gamma+\left(X^{\prime} X\right)^{-1} X^{\prime} E(\varepsilon)
+\end{aligned}
+$$
+
+$$
+=\beta+\left(X^{\prime} X\right)^{-1} X^{\prime} Z \gamma,
+$$
+
+under the assumption that $X$ and $Z$ are deterministic. If $\left(X^{\prime} X\right)^{-1} X^{\prime} Z \gamma \neq 0$, $\widehat{\beta}$ is biased for $\beta$. It follows that
+
+$$
+E(\widehat{\beta})=\beta \Longleftrightarrow\left(X^{\prime} X\right)^{-1} X^{\prime} Z \gamma=0 \Longleftrightarrow X^{\prime} Z=0 \text { and/or } \gamma=0
+$$
+
+If $X^{\prime} Z=0$, then there is no covariance between $X$ and $Z$. If $\gamma=0$, there is no "true" relationship between $Z$ and $y$ and the set of regressors in $Z$ are not necessary in the model. In empirical applications, $X^{\prime} Z$ will almost always be different from zero. So, if we exclude (omit) a relevant variable from the model - i.e., $\gamma \neq 0$ - we will get a biased estimator for $\beta$.
+
+The sign of the bias, $E(\widehat{\beta})-\beta=\left(X^{\prime} X\right)^{-1} X^{\prime} Z \gamma$, is important. The bias is positive if and only if $X^{\prime} Z>0$ and $\gamma>0$, or $X^{\prime} Z<0$ and $\gamma<0$. Otherwise, the bias is negative.
+
+The Gauss-Markov assumption we have violated in this case, which leads to bias in the OLS estimator, is the assumption that $E(\nu \mid X)=0$. In fact, if $A$ is the true model, then $\nu=Z \gamma+\varepsilon$, and $E(\nu \mid X)=E\left(Z_{\gamma} \mid X\right)+E(\varepsilon \mid X)=\gamma E(Z \mid X)$, which is different from zero if $\gamma \neq 0$ and $E(Z \mid X) \neq 0$.
+
+Example. Suppose student $k$ in this class comes to my office the day before the final exam and asks me to be excused from it. I tell her she can skip the test, but I also propose to her a way to give her a grade for the final test, so that I will be later able to compute a final grade for the course. I tell her that, using the grades of her classmates, I will run the regression:
+
+$$
+\text { final }_{i}=\beta_{0}+\beta_{1} \text { midterm }_{i}+\beta_{2} \text { midterm }_{i}+\beta_{3} \text { homework }_{i}+\nu_{i},
+$$
+
+and predict her grade on the final based on the coefficient estimates from the regression above and her actual grades on the midterms and the homework assignments.
+
+However, the grade a student gets on the final will also depend on the effort she puts into it. That is, in the regression above I am omitting some term $\beta_{4}$ effort $_{i}$, which might helpful for the explanation of the dependent variable. A regression with such an explanatory variable cannot be run, though, since I have no way to reliably measure effort. So, the $\widehat{\beta}$ estimates in the regression I can run will be biased, since I am excluding at least one relevant regressor from the model. In the setup of this example, $Z$ contains the omitted regressor, effort. $\beta_{4}$ is the $\gamma$ coefficient we defined in the theoretical paragraph above.
+
+Assume that $\beta_{4}>0$ - i.e., that effort and the grade on final are positively related. Also assume that the covariance between effort and scores in prior tests\\
+and assignments is positive as well. Usually a student that put a lot of effort in the previous tests will do the same for the preparation of the final. Since, under these assumptions, $X^{\prime} Z>0$ and $\gamma>0$, then bias will be positive and the expected performance of student $k$ is likely to be overestimated. So, if I apply this approach to give her a grade for the final, at least on average, I am really doing her a favor! In reality, we have no way of knowing what the true sign of the covariance between effort on the final and previous performance in the course is. In fact, it may be the case that the effort for the final will be lower if students already got good grades in the previous tests and the homework assignments, and viceversa. If this is what happens in reality, then bias will be negative and the expected performance of student $k$ is likely to be underestimated.
+
+\subsection{Over-Specified Models: Inefficient OLS Estimator}
+Assume that model $B$ is the correct model, but we estimate model $A$. We will find that $\widehat{\beta}_{A}$ is unbiased for $\beta$, but also that $\widehat{\beta}_{A}$ is not BLUE, that is, it will not be an efficient estimator (it will exhibit higher variance).
+
+\subsubsection{Unbiasedness of the OLS Estimator in the Over-Specified Model}
+What follows is an informal explanation of the reason why including unnecessary regressors in a linear regression model does not lead to a biased OLS estimator. Consider model $A, y=X \beta+Z \gamma+\varepsilon$. If we estimate this model, $\widehat{\beta}_{A}$ and $\widehat{\gamma}_{A}$ are the estimators for $\beta$ and $\gamma$, respectively. We can rewrite the model more compactly. Define the objects
+
+$$
+\tilde{\beta}=\left[\begin{array}{l}
+\beta \\
+\gamma
+\end{array}\right] \quad \tilde{X}=\left[\begin{array}{ll}
+X & Z
+\end{array}\right]
+$$
+
+of dimensions $(K+W) \times 1$ and $N \times(K+W)$, respectively. Under this new notation, model $A$ is equivalent to $y=\tilde{X} \tilde{\beta}+\varepsilon$. The estimator $\widehat{\tilde{\beta}}$, which will include the two estimators of the coefficients associated with $X$ and $Z$, is then given by
+
+$$
+\widehat{\tilde{\beta}}=\left(\tilde{X}^{\prime} \tilde{X}\right)^{-1} \tilde{X}^{\prime} y
+$$
+
+Since the correct model is $B$, we can replace $y$ with it true expression in $B$ :
+
+$$
+\begin{aligned}
+\widehat{\tilde{\beta}} & =\left(\tilde{X}^{\prime} \tilde{X}\right)^{-1} \tilde{X}^{\prime}(X \beta+\nu) \\
+& =\left(\tilde{X}^{\prime} \tilde{X}\right)^{-1} \tilde{X}^{\prime} X \beta+\left(\tilde{X}^{\prime} \tilde{X}\right)^{-1} \tilde{X}^{\prime} \nu
+\end{aligned}
+$$
+
+What is $\left(\tilde{X}^{\prime} \tilde{X}\right)^{-1} \tilde{X}^{\prime} X$ ? It is the estimator matrix, $\widehat{\delta}$ (of dimensions $(K+W) \times$ $K$ ), of a regression of $X$ on $\tilde{X}$ :
+
+$$
+X=\tilde{X} \delta+\eta=\left[\begin{array}{ll}
+X & Z
+\end{array}\right] \delta+\eta=X \delta_{1}+Z \delta_{2}+\eta
+$$
+
+where $\delta=\left[\begin{array}{l}\delta_{1} \\ \delta_{2}\end{array}\right]$, with $\delta_{1} \in M(K, K)$ and $\delta_{2} \in M(W, K)$. It follows that $\widehat{\delta}=\left(\tilde{X}^{\prime} \tilde{X}\right)^{-1} \tilde{X}^{\prime} X$.
+
+If we run the regression above, since model $B$ is correct and does not include $Z$ to explain $y$, we should get
+
+$$
+\widehat{\delta}=\left[\begin{array}{l}
+\widehat{\delta}_{1} \\
+\widehat{\delta}_{2}
+\end{array}\right]=\left(\tilde{X}^{\prime} \tilde{X}\right)^{-1} \tilde{X}^{\prime} X=\left[\begin{array}{c}
+I_{K} \\
+0
+\end{array}\right]
+$$
+
+Then we have
+
+$$
+\begin{aligned}
+\widehat{\tilde{\beta}} & =\left(\tilde{X}^{\prime} \tilde{X}\right)^{-1} \tilde{X}^{\prime} X \beta+\left(\tilde{X}^{\prime} \tilde{X}\right)^{-1} \tilde{X}^{\prime} \nu \\
+& =\widehat{\delta} \beta+\left(\tilde{X}^{\prime} \tilde{X}\right)^{-1} \tilde{X}^{\prime} \nu \\
+& =\left[\begin{array}{c}
+I_{K} \\
+0
+\end{array}\right] \beta+\left(\tilde{X}^{\prime} \tilde{X}\right)^{-1} \tilde{X}^{\prime} \nu
+\end{aligned}
+$$
+
+If we compute the expected value of this estimator,
+
+$$
+\begin{aligned}
+E(\widehat{\tilde{\beta}}) & =E\left\{\left[\begin{array}{c}
+\widehat{\beta}_{A} \\
+\widehat{\gamma}_{A}
+\end{array}\right]\right\} \\
+& =E\left\{\left[\begin{array}{c}
+I_{K} \\
+0
+\end{array}\right] \beta+\left(\tilde{X}^{\prime} \tilde{X}\right)^{-1} \tilde{X}^{\prime} \nu\right\} \\
+& =\left[\begin{array}{c}
+\beta \\
+0
+\end{array}\right]+0 \\
+& =\left[\begin{array}{c}
+\beta \\
+0
+\end{array}\right]
+\end{aligned}
+$$
+
+where we have assumed that $\tilde{X}$ is exogenous and $E(\nu)=0$. This shows that, if we use a set of irrelevant variables in a linear regression model, the OLS estimator is still unbiased.
+
+For a more formal proof of the unbiasedness of the OLS estimator, consider again model $A, y=X \beta+Z \gamma+\varepsilon$, and its estimated version, $y=X \widehat{\beta}_{A}+Z \widehat{\gamma}_{A}+\widehat{\varepsilon}$. From the section on notable matrices in Chapter 3, define $P_{Z}=Z\left(Z^{\prime} Z\right)^{-1} Z^{\prime}$ and $M_{Z}=I_{N}-P_{Z}=I_{N}-Z\left(Z^{\prime} Z\right)^{-1} Z^{\prime}$. Then, pre-multiply both sides of the estimated version of model $A$ by $X^{\prime} M_{Z}$ :
+
+\begin{align}
+    X^{\prime} M_{Z} y &= X^{\prime} M_{Z} X \widehat{\beta}_{A}+X^{\prime} M_{Z} Z \widehat{\gamma}_{A}+X^{\prime} M_{Z} \widehat{\varepsilon} \\
+    &=X^{\prime} M_{Z} X \widehat{\beta}_{A}+X^{\prime}\left[Z-Z\left(Z^{\prime} Z\right)^{-1} Z^{\prime} Z\right] \widehat{\gamma}_{A}+X^{\prime} \widehat{\varepsilon}-X^{\prime} Z\left(Z^{\prime} Z\right)^{-1} Z^{\prime} \widehat{\varepsilon}
+\end{align}
+
+Note that $X^{\prime}\left[Z-Z\left(Z^{\prime} Z\right)^{-1} Z^{\prime} Z\right] \widehat{\gamma}_{A} = 0$, and that $X^{\prime} \widehat{\varepsilon}=Z^{\prime} \widehat{\varepsilon}=0$ by the orthogonality property derived from the first-order conditions. Then we have
+
+$$X^{\prime} M_{Z} y=X^{\prime} M_{Z} X \widehat{\beta}_{A}$$
+
+\begin{aligned}
+\Longrightarrow \widehat{\beta}_{A} &= \left(X^{\prime} M_{Z} X\right)^{-1} X^{\prime} M_{Z} y \\
+&=\left(X^{\prime} M_{Z} X\right)^{-1} X^{\prime} M_{Z}(X \beta+\nu), \\
+&=\left(X^{\prime} M_{Z} X\right)^{-1} X^{\prime} M_{Z} X \beta+\left(X^{\prime} M_{Z} X\right)^{-1} X^{\prime} M_{Z} \nu \\
+&=\beta+\left(X^{\prime} M_{Z} X\right)^{-1} X^{\prime} M_{Z} \nu,
+\end{aligned}
+
+since we are assuming model $B$ to be true. The unbiasedness of $\widehat{\beta}_{A}$ can finally be proved:
+
+\begin{aligned}
+E\left(\widehat{\beta}_{A}\right) & =E\left[\beta+\left(X^{\prime} M_{Z} X\right)^{-1} X^{\prime} M_{Z} \nu\right] \\
+& =\beta+\left(X^{\prime} M_{Z} X\right)^{-1} X^{\prime} M_{Z} E(\nu) \\
+& =\beta .
+\end{aligned}
+
+\subsubsection{Inefficiency of the OLS Estimator in the Over-Specified Model}
+
+To calculate the variance of $\widehat{\beta}_{A}$ :
+
+\begin{aligned}
+\operatorname{Var}\left(\widehat{\beta}_{A}\right) & =\operatorname{Var}\left[\beta+\left(X^{\prime} M_{Z} X\right)^{-1} X^{\prime} M_{Z} \nu\right] \\
+& =\operatorname{Var}\left[\left(X^{\prime} M_{Z} X\right)^{-1} X^{\prime} M_{Z} \nu\right] \\
+& =\left(X^{\prime} M_{Z} X\right)^{-1} X^{\prime} M_{Z} \operatorname{Var}(\nu) M_{Z}^{\prime} X\left[\left(X^{\prime} M_{Z} X\right)^{-1}\right]^{\prime} \\
+& =\sigma^{2}\left(X^{\prime} M_{Z} X\right)^{-1} X^{\prime} M_{Z} M_{Z}^{\prime} X\left[\left(X^{\prime} M_{Z} X\right)^{-1}\right]^{\prime} \\
+& =\sigma^{2}\left(X^{\prime} M_{Z} X\right)^{-1} X^{\prime} M_{Z} X\left[\left(X^{\prime} M_{Z} X\right)^{-1}\right]^{+} \\
+& =\sigma^{2}\left(X^{\prime} M_{Z} X\right)^{-1},
+\end{aligned}
+
+since $M_{Z}$ is idempotent. If we estimated the correct model, $B, \operatorname{Var}\left(\widehat{\beta}_{B}\right)=\sigma^{2}\left(X^{\prime} X\right)^{-1}$. It turns out that $\sigma^{2}\left(X^{\prime} M_{Z} X\right)^{-1} \geq \sigma^{2}\left(X^{\prime} X\right)^{-1}$, since the matrix $X^{\prime} M_{Z} X-X^{\prime} X$ is negative semi-definite, or, otherwise $X^{\prime} M_{Z} X-X^{\prime} X \leq 0$, which finally reduces to $-X^{\prime} Z\left(Z^{\prime} Z\right)^{-1} Z^{\prime} X \leq 0$. This inequality holds true because $X^{\prime} Z\left(Z^{\prime} Z\right)^{-1} Z^{\prime} X$ is positive definite. Also, $\operatorname{Var}\left(\widehat{\beta}_{A}\right)=\operatorname{Var}\left(\widehat{\beta}_{B}\right) \Longleftrightarrow X^{\prime} Z=0$.
+
+The bottom line is that, if we estimate a liner regression model with superfluous regressors, the OLS estimator will be inefficient - i.e., its variance will be higher than it should. It follows that the usual $t$-tests would provide us with lower $t$ statistics, since the standard errors will be bigger. Thus we would be overaccepting the null.
+
+\subsection{Model Selection Criteria}
+We have a variety of metrics we can use to assess how good a selection of regressors is, typically by comparing two models with the same (or similar) dependent variable.
+
+\subsubsection{Coefficient of Determination}
+The $R^{2}$, or coefficient of determination, represents the proportion of the variance of the dependent variable which is explained by the model:
+
+$$
+R^{2}=1-\frac{\sum_{i=1}^{N} \widehat{\varepsilon}_{i}^{2}}{\sum_{i=1}^{N}\left(y_{i}-\bar{y}\right)^{2}}
+$$
+
+In principle the model better fits the data, and explains the variance of the dependent variable, as the $R^{2}$ increases. However, we also know that whenever we add regressors to the model, regardless of whether they are relevant or not, the $R^{2}$ will go up. As such, it only makes sense to compare the coefficient of determination of alternative models when these models are non-nested models, that is, pairs of models where the set of regressors of one does not contain the full set of regressors of the other - i.e., you cannot obtain one of these two models by imposing zero-restrictions on a subset of the regressors of the other.
+
+When we add more regressors, one way to test whether the change in the $R^{2}$ we observe is statistically significant is to $F$-test (or Wald test) the hypothesis that the coefficients associated with the newly-added variables are jointly equal to zero. Of course, if you just add one regressor, a simple $t$-test is sufficient.
+
+\subsubsection{Adjusted $R^{2}$}
+A criterion which can be look at both for nested and non-nested models is the adjusted $R^{2}$,
+
+$$
+\tilde{R}^{2}=1-\frac{\frac{1}{N-K} \sum_{i=1}^{N} \widehat{\varepsilon}_{i}^{2}}{\frac{1}{N-1} \sum_{i=1}^{N}\left(y_{i}-\bar{y}\right)^{2}},
+$$
+
+which is a function of the number of regressors, $K$. As described earlier in this course, the use of the adjusted $R^{2}$ alleviates the problem associated with the\\
+$R^{2}$, which is weakly monotonic in the number of regressors in nested models, by introducing a penalty for the addition of explanatory variables.
+
+\subsubsection{Information Criteria}
+Two additional ways to select regressors in nested or non-nested models (with the same dependent variable) are the Akaike Information Criterion,
+
+$$
+A I C=\log \left(\frac{1}{N} \sum_{i=1}^{N} \widehat{\varepsilon}_{i}^{2}\right)+\frac{2 K}{N}
+$$
+
+and the Schwarz Criterion (or Bayesian Information Criterion),
+
+$$
+B I C=\log \left(\frac{1}{N} \sum_{i=1}^{N} \widehat{\varepsilon}_{i}^{2}\right)+\frac{K}{N} \log N
+$$
+
+In model selection, we should minimize one of these two indicators, as both involve the sum of squared residuals, $\sum_{i=1}^{N} \widehat{\varepsilon}_{i}^{2}$, and a penalty term for the number of regressors $K$. Noting that $\frac{K}{N} \log N>\frac{2 K}{N}$ if $N \geq 8$, the BIC will usually favor more parsimonious models - i.e., with less regressors. In the end, it is our choice whether we look at the AIC or the BIC for model selection purposes, as long as we make it explicit and we are consistent in an empirical work.
+
+\subsubsection{Non-Nested Models}
+Consider two non-nested models, (A) $y_{i}=x_{i}^{\prime} \beta+\varepsilon_{i}$ and (B) $y_{i}=z_{i}^{\prime} \gamma+\nu_{i}$, where $z_{i} \nsubseteq x_{i}$ and $x_{i} \nsubseteq z_{i}$. We can use $R^{2}, \tilde{R}^{2}, A I C$, or $B I C$ to select the best model. An alternative approach would be to use an encompassing test, in the form of a non-nested $F$-test. The intuition is as follows: if model $A$ is correct, it must be able to encompass model $B$, or, in other words, explain model $B$ 's results. If it is unable to do so, model $A$ should be rejected.
+
+Let us rewrite the set of regressors in $x_{i}$ as $x_{i}^{\prime}=\left(\begin{array}{cc}x_{1 i}^{\prime} & x_{2 i}^{\prime}\end{array}\right)$, with $x_{1 i} \subseteq z_{i}$ and $x_{2 i} \cap z_{i}=\emptyset$. We can then run the auxiliary regression containing all regressors of models $A$ and $B$,
+
+$$
+y_{i}=x_{2 i}^{\prime} \delta_{A}+z_{i}^{\prime} \gamma+\eta_{i}
+$$
+
+Then we run an $F$-test on the hypotheses
+
+$$
+\left\{\begin{array}{ll}
+H_{0}: & \delta_{A}=0 \\
+H_{1}: & \delta_{A} \neq 0
+\end{array} .\right.
+$$
+
+If we reject the null, $\delta_{A} \neq 0$, and hence there is evidence that elements in model $A$ are relevant for explaining the variance of $y$. So a rejection is equivalent to a rejection of model B. This is not enough evidence in favor of model $A$, though. We also need to run the same test the other way around.
+
+We will now rewrite $z_{i}$ as $z_{i}^{\prime}=\left(\begin{array}{cc}z_{1 i}^{\prime} \quad z_{2 i}^{\prime}\end{array}\right)$, where $z_{1 i} \subseteq x_{i}$ and $z_{2 i} \cap x_{i}=\emptyset$. We then run the same auxiliary regression as before, this time written as
+
+$$
+y_{i}=x_{i}^{\prime} \beta+z_{2 i}^{\prime} \delta_{B}+\eta_{i} .
+$$
+
+The $F$-test will be
+
+$$
+\left\{\begin{array}{ll}
+H_{0}: & \delta_{B}=0 \\
+H_{1}: & \delta_{B} \neq 0
+\end{array} .\right.
+$$
+
+Again, rejecting the null in this second test is equivalent to rejecting model $A$, but it is not evidence in favor of model $B$. It may very well be that we reject in both cases, in which case we should consider a different model specification. If we reject only one or the other, we have come closer to finding a better set of regressors. In some cases, we may be unable to reject neither of the two models.
+
+\subsubsection{Box-Cox Transformation}
+Sometimes we may want to compare a linear model with a log-linear model. ${ }^{11}$ Suppose we are trying to decide between $(A) y_{i}=x_{i}^{\prime} \beta+\varepsilon_{i}$ and $(B) \log y_{i}=$ $\left(\log x_{i}\right)^{\prime} \gamma+\nu_{i}$. In this situation, we cannot use $R^{2}, B I C$, or $A I C$ for selection purposes, since these two models have different dependent variables. What we can do, instead, is to use the Box-Cox Transformation.
+
+First estimate $\widehat{y}_{i}$ and $\log \tilde{y}_{i}$, which are the fitted values for the two models. Then test the linear model against its log-linear alternative by running the regression
+
+$$
+y_{i}=x_{i}^{\prime} \beta+\delta\left(\log \widehat{y}_{i}-\log \tilde{y}_{i}\right)+u_{i}
+$$
+
+and the test
+
+$$
+\left\{\begin{array}{ll}
+H_{0}: & \delta=0 \\
+H_{1}: & \delta \neq 0
+\end{array} .\right.
+$$
+
+If we reject the null hypothesis, we have some evidence against model $A$, which only has $x_{i}$ as a set of regressors. But exactly as in the case of encompassing tests, we need to test the converse transformation. This time, we run
+
+$$
+\log y_{i}=\left(\log x_{i}\right)^{\prime} \gamma+\delta\left(\widehat{y}_{i}-e^{\log \tilde{y}_{i}}\right)+u_{i}
+$$
+
+and test
+
+$$
+\begin{cases}H_{0}: & \delta=0 \\ H_{1}: & \delta \neq 0\end{cases}
+$$
+
+to find evidence against model $B$. If we reject, we have evidence against model $B$. If we reject in both cases, then neither of the two models appear to be appropriate and we should consider a different, more general, model specification.
+
+\footnotetext{${ }^{11}$ The log-linear case involves a model which is still linear in the parameters, but non-linear in the regressors.
+}
+
+\subsection{Misspecifying the Functional Form}
+Linearity in the parameters of the relationship between the dependent variable and the set of regressors is a very restrictive assumption. Misspecification may occur when the true relationship is not linear. In such a situation, we would have to use non-linear least-squares (NLS) as opposed to the usual OLS approach. There are two types of non-linearity:\\
+(i) Non-linearity in the regressors. For example, $y_{i}=\beta_{0}+\beta_{1} \log x_{i}+\varepsilon_{i}$ or $y_{i}=$ $\beta_{0}+\beta_{1} x_{i}^{2}+\varepsilon_{i}$.\\
+(ii) Non-linearity in the parameters. For example, $y_{i}=g\left(x_{i}^{\prime} ; \beta\right)+\varepsilon_{i}$. Suppose we would like to estimate a Cobb-Douglas production function, $y_{i}=$ $A K_{i}^{\alpha} L_{i}^{\beta}+\varepsilon_{i}$. This expression can be linearized by logging its left-hand and right-hand sides, but is not linear in its current form. We would need to use non-linear least squares if we wanted to estimate the model as it is.
+
+\subsubsection{Non-Linear Least Squares}
+When we have a linear model, $y_{i}=x_{i}^{\prime} \beta+\varepsilon_{i}$, we minimize $\sum_{i=1}^{N} \varepsilon_{i}^{2}$ with respect to $\beta$ to derive the OLS estimator, $\widehat{\beta}$. when we have a non-linear model, the concept is exactly the same. If we want to estimate the vector of parameters, $\beta$, in the model
+
+$$
+y_{i}=g\left(x_{i}^{\prime} ; \beta\right)+\varepsilon_{i},
+$$
+
+the NLS estimator would be
+
+$$
+\widehat{\beta}=\arg \min _{\beta} \sum_{i=1}^{N} \varepsilon_{i}^{2}=\arg \min _{\beta} \sum_{i=1}^{N}\left[y_{i}-g\left(x_{i}^{\prime} ; \beta\right)\right]^{2}=\arg \min _{\beta} S(\beta)
+$$
+
+This time the problem is that we will not always be able to find a nice closedform expression for $\widehat{\beta}$, since it will depend on the shape of the function $g$. Most of the times, when we are not able to solve for $\beta$ analytically, we need to adopt numerical procedures. However, even then, it might happen that a unique solution for the optimization problem cannot be found, or is hard to find. ${ }^{12} \mathrm{~A}$ necessary condition for the consistency of $\widehat{\beta}$, if it exists, is that the objective function $\sum_{i=1}^{N}\left[y_{i}-g\left(x_{i}^{\prime} ; \beta\right)\right]^{2}$ has a unique global minimum.
+
+\subsubsection{Testing the Functional Form}
+The way to test whether a linear model is appropriate or we should consider nonlinearities (of any kind) in the model specification is the RESET test, Regression Equation Specification Error Test. The RESET test tells us whether a linear model is appropriate or not, but will not tell us what alternative non-linear
+
+\footnotetext{${ }^{12}$ For example, think of a situation in which the objective function has multiple local minima, or multiple global minima.
+}
+model would be better. After estimating the usual linear model, we run the auxiliary regression
+$$
+y_{i}=x_{i}^{\prime} \beta+\alpha_{2} \widehat{y}_{i}^{2}+\alpha_{3} \widehat{y}_{i}^{3}+\cdots+\alpha_{Q} \widehat{y}_{i}^{Q}+\omega_{i}
+$$
+where $Q \geq 2$. We then run the test\\
+\$\$
+
+\[
+\begin{cases}H_{0}: & \alpha_{2}=\alpha_{3}=\cdots=\alpha_{Q}=0 \\ H_{1}: & H_{0} \text { not true }\end{cases}
+\]
+
+\$\$\\
+such that the number of restrictions is $Q-1$. To test the restrictions, we can use an $F$-test based on an $F_{Q-1 ; N-K-Q+1}$ distribution or we can run a Wald test based on a $\chi_{Q-1}^{2}$ distribution. If we reject the null, we should look at non-linear models, but if we do not reject the null, that doesn't mean that non-linearities should be ruled out completely.
+
+\subsection{Multicollinearity}
+Multicollinearity is a statistical phenomenon in which two or more regressors in a multiple regression model are highly correlated. With multicollinearity the coefficient estimates may change erratically in response to small changes in the model or the data. Multicollinearity does not reduce the reliability of the model as a whole. That is, a multiple regression model with correlated explanatory variables can still indicate how well the entire set of regressors explains the variance of the dependent variable, but it may not give valid results about any individual regressor, or about which regressors are redundant with others.
+
+Two variables are collinear if there exists an exact linear relationship between them. Multicollinearity refers to a situation in which two or more explanatory variables in a multiple regression model are highly correlated. We have perfect multicollinearity if the correlation between two independent variables is equal to 1 or -1 , that is, if a regressor is a linear combination of other explanatory variables. In practice, we rarely face perfect multicollinearity in a data set. More commonly, multicollinearity arises when there is a high degree of correlation (either positive or negative) between two or more independent variables.
+
+Multicollinearity may be present in a model if (i) large changes in the estimated regression coefficients are observed when a variable is added or deleted, or (ii) if there are statistically insignificant coefficients for the affected variables in a multiple regression, but an F-Test is able to reject the hypothesis that those coefficients are jointly insignificant.
+
+In the presence of multicollinearity, the estimate of one variable's impact on the dependent variable while controlling for the other regressors tends to be less precise than if regressors were uncorrelated with one another. Under multicollinearity the standard errors of the affected coefficients tend to be large. As such, the test of the hypothesis that the coefficient is equal to zero against\\
+the alternative that it is not equal to zero leads to a failure to reject the null hypothesis. However, if a simple linear regression of the dependent variable on this explanatory variable is estimated, the coefficient will be found to be significant. Specifically, the analyst will reject the hypothesis that the coefficient is not significant and might falsely conclude that there is no linear relationship between that independent variable and the dependent one.
+
+Multicollinearity does not actually bias results, it just produces large standard errors in the related independent variables. With enough data, these errors will be reduced. However, if other problems could cause bias in the regression estimates, multicollinearity could amplify that bias. Some common remedies to multicollinearity are: (i) Drop one of the variables. An explanatory variable may be dropped to produce a model with significant coefficients. In this way, however, we may lose information. Furthermore, omission of a relevant variable results in biased coefficient estimates for the remaining explanatory variables. (ii) Obtain more data. This is the preferred solution. More data can produce more precise parameter estimates, that is, with lower standard errors.
+
+Example. In order to understand what happens under perfect multicollinearity, consider the following situation. We have a model with multiple regressors. For simplicity, assume that the model contains two exogenous regressors. One of the two is a linear combination of the other regressor - that is, it can be written as a linear transformation of the other independent variable (from which it follows that the absolute value of the correlation between the two regressors is 1). Formally,
+
+$$
+y_{i}=\beta_{1}+\beta_{2} x_{2 i}+\beta_{3} x_{3 i}+\varepsilon_{i}
+$$
+
+s.t. $x_{3 i}=\delta+\gamma x_{2 i}$. Assume that the two parameters $\delta$ and $\gamma$ are known. Our objective is to estimate the model coefficients $\beta_{1}, \beta_{2}$, and $\beta_{3}$ using sample information. The consequence of perfect multicollinearity can be described in the following terms:
+
+$$
+\begin{aligned}
+y_{i} & =\beta_{1}+\beta_{2} x_{2 i}+\beta_{3}\left(\delta+\gamma x_{2 i}\right)+\varepsilon_{i} \\
+& =\left(\beta_{1}+\beta_{3} \delta\right)+\left(\beta_{2}+\beta_{3} \gamma\right) x_{2 i}+\varepsilon_{i} \\
+& =\omega_{1}+\omega_{2} x_{2 i}+\varepsilon_{i}
+\end{aligned}
+$$
+
+where $\omega_{1}=\beta_{1}+\beta_{3} \delta$ and $\omega_{2}=\beta_{2}+\beta_{3} \gamma$.\\
+By OLS we can obtain $\widehat{\omega}_{1}$ and $\widehat{\omega}_{2}$,
+
+$$
+\widehat{\omega}_{2}=\frac{\sum_{i=1}^{N}\left(x_{2 i}-\bar{x}_{2}\right)\left(y_{i}-\bar{y}\right)}{\sum_{i=1}^{N}\left(x_{2 i}-\bar{x}_{2}\right)^{2}}
+$$
+
+$$
+\widehat{\omega}_{1}=\bar{y}-\widehat{\omega}_{2} \bar{x}_{2} .
+$$
+
+To determine $\beta_{1}, \beta_{2}$, and $\beta_{3}$, we need to solve the following system of linear equations,
+
+$$
+\left\{\begin{array}{l}
+\widehat{\omega}_{1}=\beta_{1}+\beta_{3} \delta \\
+\widehat{\omega}_{2}=\beta_{2}+\beta_{3} \gamma
+\end{array} .\right.
+$$
+
+However, the system has two equations and three unknowns. Thus, $\beta_{1}, \beta_{2}$, and $\beta_{3}$ cannot be unambiguously identified. The practical implication of this example is that one should always make sure that no regressor is a linear combination of the other regressors before OLS can be safely applied on a linear regression model.
+
+Example. Suppose that we decide to build a model of the profits of tire stores in a given city and we include annual sales of tires (in dollars) at each store and the annual sales tax paid by each store as independent variables. We would expect to estimate a positive relationship between profits and annual sales and a negative relationship between profits and taxes. However, since the tire stores are all in the same city, they all pay the same percentage sales tax. It follows that the sales tax paid will be a constant percentage of their total sales (in dollars). Thus sales tax will be a perfect linear function of sales, and we will have perfect multicollinearity.

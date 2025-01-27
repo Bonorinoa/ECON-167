@@ -1,0 +1,39 @@
+\section{What is Econometrics?}
+Economic theory typically makes statements and hypotheses that are primarily qualitative in nature. In its most quantitative version, economics expresses theory in mathematical form, with little regard to empirical verification. Economic statistics provides methods to collect, process, and present economic data, but is not concerned with using the data to test theory. Econometrics develops tools and special methods to analyze observational (as opposed to experimental) data - i.e., data coming from uncontrolled environments, which is often the case in the social sciences. This lack of control often creates special problems when the researcher tries to establish causal relationships between variables.
+
+More specifically, economics cannot be a proper experimental science (contrary to physics and natural sciences, for example, economists cannot and will not conduct large-scale experiments on economies). If we have any hope for it ever to become a proper "science" rather than a set of opinions, we need to be able to refute and reject wrong theories. This is the purpose of econometrics and econometricians: we develop tools to judge economic theories by their empirical relevance. The lack of experimentation implies that we have to resort to historical data and see what laws and principles are permanent and hidden. This is in fact a form of data sciences developed specifically with social sciences in mind.
+
+\subsection{Basic Methodology}
+Two are the primary purposes of an econometric model: (i) to empirically verify qualitative economic theory, using observed data, and (ii) to discover and develop new economic theory, by exploring the characteristics of the data.
+
+To achieve these goals, an econometrician generally follows these lines:\\
+\begin{itemize}
+    \item [i] States the economic theory to be tested;
+    \item [ii] Specifies the mathematical model of the theory;
+    \item [iii] Specifies the econometric model of the theory;
+    \item [iv] Obtains the data;
+    \item [v] Estimates the parameters of the econometric model;
+    \item [vi] Tests hypotheses suggested by economic theory and concerning the econometric model parameters;
+    \item [vii] Forecasts and predicts;
+    \item [viii] Uses the econometric model for control and/or policy purposes.
+\end{itemize}
+
+An important tool of econometrics is regression analysis, the study of the dependence of one variable (the dependent variable, or regressand) on one or more other variables (the explanatory variables, or regressors). \textbf{The ultimate goal is to estimate or predict the population mean of the dependent variable using a combination of explanatory variables}.
+
+\subsection{Important Concepts}
+The aspiring econometrician must pay attention to several key distinctions:
+
+\begin{itemize}
+  \item \textbf{\textit{Statistical vs. Deterministic Relationships}}: In regression analysis, we deal with random variables with probability distributions and are interested in the statistical relationships among them, as opposed to the deterministic relationships among non-random (non-stochastic) variables.
+  \item \textbf{\textit{Correlation vs. Causation}}: Correlation is a pure mathematical relationship between variables that is inferable from the data. Causation refers to a behavior mechanism between two variables, a more stringent condition according to which the behavior of one variable is caused by another one. We must not mistake correlation for causation. Although variables with a causal relationship are bound to be correlated, the correlation between two variables does not imply that one of the two causes the other.
+  \item \textbf{\textit{Regression vs. Causation}}: Regression analysis tries to describe the dependence of one variable on other variables but will not imply causation. To seek evidence of causation, we must look at outside statistics and formal theory.
+  \item \textbf{\textit{Regression vs. Correlation}}: Whereas correlation analysis is concerned primarily with a linear relationship between two variables (the correlation coefficient), regression analysis attempts to predict the average value of one variable from an array of other exogenous factors. In regression analysis, we treat the explanatory and dependent variables as fundamentally different. The dependent variables are assumed to be stochastic, the explanatory variables are assumed to be nonrandom - i.e., fixed in repeated sampling. In correlation analysis, any two variables are treated symmetrically as random variables.
+\end{itemize}
+
+\subsection{Types of Data}
+Econometrics uses three fundamentally different types of data:
+\begin{itemize}
+    \item [i] \textbf{Time Series Data}: A list of observations on values that a variable, concerning the same individual, takes at different points in time. For example, GDP in the USA from 1990 to 2010. The use of such variables in econometrics introduces problems of autocorrelation and non-stationarity.
+    \item [ii] \textbf{Cross-Section Data}: Data on variables collected repeatedly at the same point in time for a number of individuals. For example, GDP in all European countries in 2010. The use of such variables in econometrics can introduce problems of heterogeneity and heteroskedasticity.
+    \item [iii] \textbf{Pooled (panel) Data}: Data which are elements of both time series and cross-sectional data. A specific subset of pooled data is represented by panel data, in which the same cross-sectional units (families, individuals, firms) are surveyed over time. For example, GDP in all European countries from 1990 to 2010.
+\end{itemize}

@@ -1,0 +1,294 @@
+\section{Heteroskedasticity and Autocorrelation}
+Consider again a linear model, $y=X \beta+\varepsilon$, under the Gauss-Markov assumptions, $E(\varepsilon)=E(\varepsilon \mid X)=0$ and $\operatorname{Var}(\varepsilon)=\operatorname{Var}(\varepsilon \mid X)=\sigma^{2} I_{N}$. The variance of the error term is constant along the sample and the error term is not autocorrelated, as it shows from its diagonal variance-covariance matrix, $\sigma^{2} I_{N}$. Written in another way, $\operatorname{Var}\left(\varepsilon_{i}\right)=\sigma^{2}, \forall i$ (homoskedasticity assumption), and $\operatorname{Cov}\left(\varepsilon_{i}, \varepsilon_{j}\right)=0, \forall i \neq j$ (no-autocorrelation assumption). If the error term satisfies these two conditions, we fall into the case of spherical disturbances.
+
+\subsection{Non-Spherical Disturbances}
+With non-spherical disturbances one or both of the assumptions $\operatorname{Var}\left(\varepsilon_{i}\right)=\sigma^{2}$, $\forall i$, and $\operatorname{Cov}\left(\varepsilon_{i}, \varepsilon_{j}\right)=0, \forall i \neq j$, are violated. That is $\operatorname{Var}\left(\varepsilon_{i}\right)=\sigma_{i}^{2}$ (heteroskedasticity) and/or $\operatorname{Cov}\left(\varepsilon_{i}, \varepsilon_{j}\right) \neq 0$, for some $i, j$ (serial correlation). As such, the second Gauss-Markov assumption above no longer holds and we would have that $\operatorname{Var}(\varepsilon)=\operatorname{Var}(\varepsilon \mid C) \neq \sigma^{2} I_{N}$.
+
+When the error term is heteroskedastic, the diagonal elements of the variancecovariance matrix of $\varepsilon$ are not be constant. When the error term is autocorrelated, the variance-covariance matrix of $\varepsilon$ is no longer diagonal. In the most general case of non-spherical error terms,
+
+$$
+\operatorname{Var}(\varepsilon \mid X)=\operatorname{Var}(\varepsilon)=\sigma^{2} \Psi
+$$
+
+where $\Psi$ is some positive-definite matrix, which may also depend on $X$.\\
+If the assumption of spherical disturbances is violated, do we still have the property of unbiasedness for the OLS estimator, $\widehat{\beta}$ ? The answer is yes, since, when we proved unbiasedness, we never used the assumptions about the variance of the error term. However, we have another kind of problems that should be taken into account.
+
+Under the assumption of homoskedasticity and no autocorrelation,
+
+$$
+\begin{aligned}
+\operatorname{Var}(\widehat{\beta}) & =\operatorname{Var}\left[\left(X^{\prime} X\right)^{-1} X^{\prime} y\right] \\
+& =\operatorname{Var}\left[\beta+\left(X^{\prime} X\right)^{-1} X^{\prime} \varepsilon\right] \\
+& =\left(X^{\prime} X\right)^{-1} X^{\prime} \operatorname{Var}(\varepsilon) X\left(X^{\prime} X\right)^{-1} \\
+& =\sigma^{2}\left(X^{\prime} X\right)^{-1}
+\end{aligned}
+$$
+
+Under autocorrelation and/or heteroskedasticity,
+
+$$
+\operatorname{Var}(\widehat{\beta})=\operatorname{Var}\left[\left(X^{\prime} X\right)^{-1} X^{\prime} y\right]
+$$
+
+$$
+\begin{aligned}
+& =\operatorname{Var}\left[\beta+\left(X^{\prime} X\right)^{-1} X^{\prime} \varepsilon\right] \\
+& =\operatorname{Var}\left[\left(X^{\prime} X\right)^{-1} X^{\prime} \varepsilon\right] \\
+& =\left(X^{\prime} X\right)^{-1} X^{\prime} \operatorname{Var}(\varepsilon) X\left(X^{\prime} X\right)^{-1} \\
+& =\sigma^{2}\left(X^{\prime} X\right)^{-1} X^{\prime} \Psi X\left(X^{\prime} X\right)^{-1}
+\end{aligned}
+$$
+
+In general, under non-spherical disturbances, the variance of $\widehat{\beta}$ is different, implying that standard $t$ - and $F$-tests, when they are based (as in many statistical packages) on the usual expression for the variance-covariance matrix of the OLS estimator, will no longer be valid and inference will be wrong. Moreover, since the Gauss-Markov assumptions have been violated, the OLS estimator will no longer be "best" - i.e., efficient.
+
+\subsection{Dealing with Heteroskedasticity or Autocorrelation}
+Several approaches can be adopted to deal with non-spherical disturbances.
+
+\begin{itemize}
+  \item Active strategies consist of a transformation of the original model so that we can derive an alternative estimator which again satisfies the GaussMarkov assumptions and is BLUE.
+  \item Passive strategies use a consistent estimator of the standard errors. If we adopt such an approach, we generally stick to the OLS estimator and then consistently estimate the standard errors under non-spherical disturbances so that the inference will be reliable again. With heteroskedasticity and/or autocorrelation, the OLS estimator is reliable point-wise, because still unbiased (and consistent).
+  \item Re-specification of the model, such that the new model no longer exhibits non-spherical disturbances.
+\end{itemize}
+
+\subsubsection{Theoretical Foundation of the Active Strategy}
+Consider a model, $y=X \beta+\varepsilon$, with non-spherical disturbances. Instead of computing the usual OLS estimator, which we know would not be BLUE, since some Gauss-Markov assumptions are violated, we would like to modify the model to estimate an alternative BLUE estimator for $\beta$.
+
+Theorem. If $\Psi$ is a positive definite matrix, then there exists a matrix $P \in$ $M(N \times N)$, which is square and non-singular, such that $\Psi^{-1}=P^{\prime} P$.
+
+Note that
+$$\begin{aligned}
+    \Psi^{-1} & =P^{\prime} P \Longrightarrow \Psi=\left(P^{\prime} P\right)^{-1}=P^{-1}\left(P^{\prime}\right)^{-1} \\
+    & \Longrightarrow P \Psi P^{\prime}=P P^{-1}\left(P^{\prime}\right)^{-1} P^{\prime}=I_{N}
+  \end{aligned}$$
+
+Under the Gauss-Markov assumptions, $E(\varepsilon \mid X)=0$. Likewise, since $P$ is assumed to be non-random, $E(P \varepsilon \mid X)=P E(\varepsilon \mid X)=0$, from which
+
+$$
+\operatorname{Var}(P \varepsilon \mid X)=P \operatorname{Var}(\varepsilon \mid X) P^{\prime}=\sigma^{2} P \Psi P^{\prime}=\sigma^{2} I_{N}
+$$
+
+While $\varepsilon$ does not satisfy the Gauss-Markov assumptions, $P \varepsilon$ does. Consider the transformed model $P y=P X \beta+P \varepsilon$, or $y^{*}=X^{*} \beta+\varepsilon^{*}$, where $y^{*}=P y$, $X^{*}=P X$, and $\varepsilon^{*}=P \varepsilon$. Under this model, the estimator $\widehat{\beta}^{*}$ is BLUE and has the exact same interpretation and meaning as in the original untransformed model, as we never modified the $\beta$ term:
+
+$$
+\begin{aligned}
+\widehat{\beta}^{*} & =\left(X^{* \prime} X^{*}\right)^{-1} X^{* \prime} y^{*} \\
+& =\left(X^{\prime} P^{\prime} P X\right)^{-1} X^{\prime} P^{\prime} P y \\
+& =\left(X^{\prime} \Psi^{-1} X\right)^{-1} X^{\prime} \Psi^{-1} y .
+\end{aligned}
+$$
+
+$\widehat{\beta}^{*}$ is known as the Generalized Least Squares (GLS) estimator. Of course, if $\Psi=I_{N}$, then $\widehat{\beta}^{*}=\widehat{\beta}$. However, since $\Psi$ is generally unknown, this estimator is not feasible. We will then need to replace $\Psi$ with an estimator $\widehat{\Psi}$, where $\widehat{\Psi} \xrightarrow{p} \Psi$. Then we would have $\widehat{\beta}^{*}=\left(X^{\prime} \widehat{\Psi}^{-1} X\right)^{-1} X^{\prime} \widehat{\Psi}^{-1} y$, known as the Feasible Generalized Least Squares (FGLS) estimator.
+
+It follows that
+
+$$
+\begin{aligned}
+\operatorname{Var}\left(\widehat{\beta}^{*}\right) & =\sigma^{2}\left(X^{* \prime} X^{*}\right)^{-1} \\
+& =\sigma^{2}\left(X^{\prime} P^{\prime} P X\right)^{-1} \\
+& =\sigma^{2}\left(X^{\prime} \Psi^{-1} X\right)^{-1} \\
+\left.\Longrightarrow \widehat{\operatorname{Var}\left(\widehat{\beta}^{*}\right.}\right) & =\widehat{\sigma}^{2}\left(X^{\prime} \widehat{\Psi}^{-1} X\right)^{-1},
+\end{aligned}
+$$
+
+with
+
+$$
+\begin{aligned}
+\widehat{\sigma}^{2} & =\frac{\sum_{i=1}^{N} \widehat{\varepsilon}_{i}^{* 2}}{N-K} \\
+& =\frac{\left(y^{*}-X^{*} \widehat{\beta}^{*}\right)^{\prime}\left(y^{*}-X^{*} \widehat{\beta}^{*}\right)}{N-K} \\
+& =\frac{\left(y-X \widehat{\beta}^{*}\right)^{\prime} \widehat{\Psi}^{-1}\left(y-X \widehat{\beta}^{*}\right)}{N-K}
+\end{aligned}
+$$
+
+$\operatorname{Var}\left(\widehat{\beta}^{*}\right) \leq \operatorname{Var}(\widehat{\beta})$, where $\widehat{\beta}$ is the OLS estimator of $\beta$ in the untransformed model, $y=X \beta+\varepsilon$, with non-spherical disturbances. In fact,
+
+$$
+\sigma^{2}\left(X^{\prime} \Psi^{-1} X\right)^{-1} \leq \sigma^{2}\left(X^{\prime} X\right)^{-1} X^{\prime} \Psi X\left(X^{\prime} X\right)^{-1}
+$$
+
+by the Gauss-Markov theorem.
+
+\subsection{Heteroskedasticity}
+Let us just relax the requirement of homoskedasticity and keep the assumption of no autocorrelation. This is the case when $\operatorname{Var}(\varepsilon \mid X) \neq \sigma^{2} I_{N}$, but is still diagonal. In other words, the error terms are mutually uncorrelated, but the variance of $\varepsilon_{i}$ varies over the observations in the sample. Assume that
+
+$$
+\operatorname{Var}\left(\varepsilon_{i} \mid X\right)=\operatorname{Var}\left(\varepsilon_{i} \mid x_{i}\right)=\sigma^{2} h_{i}^{2}
+$$
+
+Usually, $h_{i}$, the heteroskedasticity function, is unknown, needs to be estimated somehow, and may depend on $X$. For now we will assume it is known and non-constant (otherwise, we would fall into the homoskedasticity case again). In matrix form,
+
+$$
+\operatorname{Var}(\varepsilon \mid X)=\sigma^{2} \operatorname{diag}\left(h_{i}^{2}\right)=\sigma^{2} \Psi
+$$
+
+where $\Psi$ is a diagonal matrix, such that
+
+$$
+\sigma^{2} \Psi=\sigma^{2}\left[\begin{array}{cccc}
+h_{1}^{2} & 0 & \cdots & 0 \\
+0 & h_{2}^{2} & \cdots & 0 \\
+\vdots & \vdots & \ddots & 0 \\
+0 & 0 & \cdots & h_{N}^{2}
+\end{array}\right]
+$$
+
+\subsubsection{Active Strategy (1)}
+If the linear regression model exhibits heteroskedastic error terms, the OLS estimator is unbiased but inefficient. If we want to adopt an active strategy and solve the problem, we need to find a matrix $P$ such that $\Psi^{-1}=P^{\prime} P$. One can show that, if we have heteroskedasticity and no autocorrelation, the matrix $P$ we are looking for is equal to $\operatorname{diag}\left(h_{i_{1}}^{-1}\right)$, a diagonal matrix with values along the diagonal of the form $\frac{1}{h_{1}}, \frac{1}{h_{2}}, \ldots, \frac{1}{h_{N}}$. If we pre-multiply both sides of the linear model by $P$,
+
+$$
+P y=P X \beta+P \varepsilon,
+$$
+
+that is,
+
+$$
+y^{*}=X^{*} \beta+\varepsilon^{*}
+$$
+
+where
+
+$$
+P y=y^{*}=\left[\begin{array}{c}
+\frac{y_{1}}{h_{1}} \\
+\frac{y_{2}}{h_{2}} \\
+\vdots \\
+\frac{y_{N}}{h_{N}}
+\end{array}\right] \Longrightarrow y_{i}^{*}=\frac{y_{i}}{h_{i}}, \forall i .
+$$
+
+In this case, the GLS estimator for $\beta$ in the model $y_{i}=x_{i}^{\prime} \beta+\varepsilon_{i}$ is obtained by running OLS on $y_{i}^{*}=x_{i}^{* \prime} \beta+\varepsilon_{i}^{*}$, or otherwise the model
+
+$$
+\frac{y_{i}}{h_{i}}=\left(\frac{x_{i}}{h_{i}}\right)^{\prime} \beta+\frac{\varepsilon_{i}}{h_{i}} .
+$$
+
+Using this model, we have that
+
+$$
+\operatorname{Var}\left(\varepsilon_{i}^{*}\right)=\operatorname{Var}\left(\frac{\varepsilon_{i}}{h_{i}}\right)=\frac{\sigma^{2} h_{i}^{2}}{h_{i}^{2}}=\sigma^{2},
+$$
+
+implying that the error term, $\varepsilon_{i}^{*}$, is homoskedastic and the OLS estimator BLUE:
+
+$$
+\widehat{\beta}^{*}=\left(X^{\prime} \Psi^{-1} X\right)^{-1} X^{\prime} \Psi^{-1} y=\left(\sum_{i=1}^{N} h_{i}^{-2} x_{i} x_{i}^{\prime}\right)^{-1} \sum_{i=1}^{N} h_{i}^{-2} x_{i} y_{i}
+$$
+
+The GLS estimator for this model is a Weighted Least Squares (WLS) estimator, a special case of $\widehat{\beta}^{*}=\left(X^{\prime} \Psi^{-1} X\right)^{-1} X^{\prime} \Psi^{-1} y$, where $\Psi$ has a specific form. The use of weights, $h_{i}$, in the formula implies that observations with a higher variance get a smaller weight in estimation, or, in other words, that the greatest weights are given to the observations that provide the most accurate information about the model parameters, and the smallest weights to those that provide relatively little information about $\beta$.
+
+The variance of the OLS estimator applied on the transformed, homoskedastic model is
+
+$$
+\begin{aligned}
+\operatorname{Var}\left(\widehat{\beta}^{*}\right) & =\operatorname{Var}\left[\left(X^{\prime} \Psi^{-1} X\right)^{-1} X^{\prime} \Psi^{-1} y\right] \\
+& =\operatorname{Var}\left[\left(X^{\prime} \Psi^{-1} X\right)^{-1} X^{\prime} \Psi^{-1} X \beta+\left(X^{\prime} \Psi^{-1} X\right)^{-1} X^{\prime} \Psi^{-1} \varepsilon\right] \\
+& =\operatorname{Var}\left[\left(X^{\prime} \Psi^{-1} X\right)^{-1} X^{\prime} \Psi^{-1} \varepsilon\right] \\
+& =\left(X^{\prime} \Psi^{-1} X\right)^{-1} X^{\prime} \Psi^{-1} \operatorname{Var}(\varepsilon) \Psi^{-1} X\left(X^{\prime} \Psi^{-1} X\right)^{-1} \\
+& =\sigma^{2}\left(X^{\prime} \Psi^{-1} X\right)^{-1} X^{\prime} \Psi^{\prime} \Psi^{-1} X\left(X^{\prime} \Psi^{-1} X\right)^{-1} \\
+& =\sigma^{2}\left(X^{\prime} \Psi^{-1} X\right)^{-1} X^{\prime} \Psi^{-1} \bar{X}\left(X^{\prime} \Psi^{-1} X\right)^{-1} \\
+& =\sigma^{2}\left(X^{\prime} \Psi^{-1} X\right)^{-1} \\
+& =\sigma^{2}\left(\sum_{i=1}^{N} h_{i}^{-2} x_{i} x_{i}^{\prime}\right)^{-1} .
+\end{aligned}
+$$
+
+However, since the form of heteroskedasticity is still unknown, in practice we cannot compute this estimator yet. We would eventually like to find an estimator of $h_{i}, \widehat{h}_{i} \xrightarrow{p} h_{i}$, to use in the GLS estimator formula and get the statistic
+
+$$
+\widehat{\beta}^{*}=\left(\sum_{i=1}^{N} \widehat{h}_{i}^{-2} x_{i} x_{i}^{\prime}\right)^{-1} \sum_{i=1}^{N} \widehat{h}_{i}^{-2} x_{i} y_{i}
+$$
+
+which is known as the Feasible Generalized Least Squares (FGLS) estimator. The estimated variance of the FGLS estimator is
+
+$$
+\left.\widehat{\operatorname{Var}\left(\widehat{\beta}^{*}\right.}\right)=\widehat{\sigma}^{2}\left(\sum_{i=1}^{N} \widehat{h}_{i}^{-2} x_{i} x_{i}^{\prime}\right)^{-1}
+$$
+
+where $\widehat{\sigma}^{2}=\frac{1}{N-K} \sum_{i=1}^{N} h_{i}^{-2}\left(y_{i}-x_{i}^{\prime} \widehat{\beta}\right)^{2}$. At this point we can use this variance-covariance matrix to run $t$-tests for simple linear restrictions, or run $F$-tests for multiple restrictions on the $\beta$ coefficients. Statistical tests can be run in small samples if the error term is normal, so that $\widehat{\beta}^{*} \sim \mathcal{N}\left(\beta, \operatorname{Var}\left(\widehat{\beta}^{*}\right)\right)$; or in large samples, when the central limit theorem implies that $\left(\widehat{\beta}^{*}-\beta\right) \xrightarrow{d}$ $\mathcal{N}\left(0, \operatorname{Var}\left(\widehat{\beta}^{*}\right)\right)$.
+
+\subsubsection{Passive Strategy}
+Suppose we have problems of heteroskedasticity, but we do not want to respecify the model and/or we are not able to use the active solution because we cannot estimate $h_{i}$. The second-best is a passive strategy. If we want to estimate $y=X \beta+\varepsilon$, or $y_{i}=x_{i}^{\prime} \beta+\varepsilon_{i}$, we can use an OLS estimator, which we know is still unbiased and consistent under heteroskedasticity. However, it will not have the minimum variance. Under heteroskedasticity, the variance of the OLS estimator is
+
+$$
+\begin{aligned}
+\operatorname{Var}(\widehat{\beta}) & =\operatorname{Var}\left[\left(\sum_{i=1}^{N} x_{i} x_{i}^{\prime}\right)^{-1} \sum_{i=1}^{N} x_{i} y_{i}\right] \\
+& =\operatorname{Var}\left[\left(\sum_{i=1}^{N} x_{i} x_{i}^{\prime}\right)^{-1} \sum_{i=1}^{N} x_{i} x_{i}^{\prime} \beta+\left(\sum_{i=1}^{N} x_{i} x_{i}^{\prime}\right)^{-1} \sum_{i=1}^{N} x_{i} \varepsilon_{i}\right] \\
+& =\left(\sum_{i=1}^{N} x_{i} x_{i}^{\prime}\right)^{-1}\left(\sum_{i=1}^{N} x_{i} x_{i}^{\prime} \sigma_{i}^{2}\right)\left(\sum_{i=1}^{N} x_{i} x_{i}^{\prime}\right)^{-1} .
+\end{aligned}
+$$
+
+To consistently estimate this variance, we need to consistently estimate $\sigma_{i}^{2}$. In a famous 1980 Econometrica paper, White proved that
+
+$$
+\frac{1}{N} \sum_{i=1}^{N} \widehat{\varepsilon}_{i}^{2} x_{i} x_{i}^{\prime} \xrightarrow{p} \frac{1}{N} \sum_{i=1}^{N} \sigma_{i}^{2} x_{i} x_{i}^{\prime}
+$$
+
+So, we simply need to run the original untransformed regression, take the error terms, square them, and use the estimator above for $\widehat{\operatorname{Var}(\widehat{\beta})}$. Then,
+
+$$
+\begin{aligned}
+\widehat{\operatorname{Var}(\widehat{\beta})} & =\left(\sum_{i=1}^{N} x_{i} x_{i}^{\prime}\right)^{-1}\left(\sum_{i=1}^{N} \widehat{\varepsilon}_{i}^{2} x_{i} x_{i}^{\prime}\right)\left(\sum_{i=1}^{N} x_{i} x_{i}^{\prime}\right)^{-1} \\
+& \xrightarrow{p}\left(\sum_{i=1}^{N} x_{i} x_{i}^{\prime}\right)^{-1}\left(\sum_{i=1}^{N} \sigma_{i}^{2} x_{i} x_{i}^{\prime}\right)\left(\sum_{i=1}^{N} x_{i} x_{i}^{\prime}\right)^{-1}=\operatorname{Var}(\widehat{\beta}) .
+\end{aligned}
+$$
+
+When the sample is not large enough, using this formula could be dangerous. The standard errors constructed in this way are known as White standard errors, or heteroskedasticity-robust standard errors. If we use robust standard errors, we can safely make inference on the parameters of the linear regression model without estimating the heteroskedasticity function. However, one should keep in mind that robust standard errors are often larger than usual standard errors. If we have some idea of the form of heteroskedasticity affecting the error term of the model, a FGLS approach may provide a more efficient estimator.
+
+\subsubsection{Active Strategy (2) - Multiplicative Heteroskedasticity}
+If we know the shape of the variance-covariance matrix $\Psi$, the GLS estimator will work well. However, we frequently do not know the exact shape of this matrix. A common approach is to use an FGLS estimator assuming multiplicative heteroskedasticity, that is
+
+$$
+\begin{aligned}
+\operatorname{Var}\left(\varepsilon_{i} \mid x_{i}\right) & =\sigma_{i}^{2}=\sigma^{2} \exp \left(\alpha_{1} z_{1 i}+\alpha_{2} z_{2 i}+\ldots+\alpha_{J} z_{J i}\right) \\
+& =\sigma^{2} \exp \left(z_{i}^{\prime} \alpha\right)=\sigma^{2} h_{i}^{2}
+\end{aligned}
+$$
+
+where $z_{i}$ is a vector of observed variables, possibly a function of the set of regressors $x_{i}$ (in such a case, the error variance would depend on the set of regressors). The active strategy for FGLS estimation would then be:\\
+(i) Estimate the model $y_{i}=x_{i}^{\prime} \beta+\varepsilon_{i}$ with OLS, to get $\widehat{\beta} \xrightarrow{p} \beta$.\\
+(ii) Compute $\log \widehat{\varepsilon}_{i}^{2}=\log \left(y_{i}-x_{i}^{\prime} \widehat{\beta}\right)^{2}$.\\
+(iii) Note that $\sigma^{2} \exp \left(z_{i}^{\prime} \alpha\right)=\sigma^{2} h_{i}^{2} \Longrightarrow \log \sigma_{i}^{2}=z_{i}^{\prime} \alpha+\log \sigma^{2}$.\\
+(iv) Estimate $\log h_{i}^{2}$ by running the regression $\log \widehat{\varepsilon}_{i}^{2}=c+z_{i}^{\prime} \alpha+\nu_{i}$, for which we have that $\widehat{\alpha} \xrightarrow{p} \alpha$.\\
+(v) Compute $\widehat{h}_{i}^{2}=\exp \left(z_{i}^{\prime} \widehat{\alpha}\right)$.\\
+(vi) Transform the original model into $\frac{y_{i}}{\hat{h}_{i}}=\left(\frac{x_{i}}{\widehat{h_{i}}}\right)^{\prime} \beta+\left(\frac{\varepsilon_{i}}{\widehat{h}_{i}}\right) \Longrightarrow y_{i}^{*}=x_{i}^{* \prime} \beta+\varepsilon_{i}{ }^{*}$, and run OLS on this model to find the FGLS estimator $\widehat{\beta}^{*} \xrightarrow{p} \beta$.\\
+(vii) Compute $\widehat{\sigma}^{2}=\frac{1}{N-K} \sum_{i=1}^{N} \widehat{\varepsilon}_{i}^{* 2}$.\\
+(viii) Compute $\left.\widehat{\operatorname{Var}\left(\widehat{\beta}^{*}\right.}\right)=\widehat{\sigma}^{2}\left(\frac{\sum_{i=1}^{N} x_{i} x_{i}^{\prime}}{\widehat{h}_{i}^{2}}\right)^{-1}$.
+
+\subsection{Testing for Heteroskedasticity}
+We will analyze two formal tests for determining if heteroskedasticity could be a problem.
+
+\subsubsection{Breusch-Pagan Test}
+We will work under the assumption that, if heteroskedasticity is present, $\sigma_{i}^{2}=$ $\sigma^{2} h\left(z_{i}^{\prime} \alpha\right)$. The function $h$ determines how the variables in $z_{i}$ affect the variance of the error term and is assumed to be unknown but continuously differentiable, such that $h(\cdot)>0$, with $h(0)=1$.
+
+The Breusch-Pagan test is based on the following hypotheses:
+
+$$
+\left\{\begin{array} { l l } 
+{ H _ { 0 } : } & { \text { no heteroskedasticity } } \\
+{ H _ { 1 } : } & { \text { heteroskedasticity } }
+\end{array} \Longrightarrow \left\{\begin{array}{ll}
+H_{0}: & \alpha=0 \\
+H_{1}: & \alpha \neq 0
+\end{array}\right.\right.
+$$
+
+If $h(t)=\exp (t)$, then $\sigma_{i}^{2}=\sigma^{2} \exp \left(\alpha_{1} z_{1 i}+\cdots+\alpha_{J} z_{J i}\right)$. The Breusch-Pagan test should be run using the procedure that follows. Starting from the usual model, $y_{i}=x_{i}^{\prime} \beta+\varepsilon_{i}$, estimate it by OLS and take the squared residuals, $\widehat{\varepsilon}_{i}^{2}$. Then run the auxiliary regression
+
+$$
+\widehat{\varepsilon}_{i}^{2}=\gamma+\alpha_{1} z_{1 i}+\alpha_{2} z_{2 i}+\ldots+\alpha_{J} z_{J i}+\nu_{i}
+$$
+
+under the assumption that $h$ is a linear function. Then test the joint hypothesis that $\alpha_{i}=0$ for all $i$. If we do not reject the null, then it follows that $\widehat{\varepsilon}_{i}{ }^{2}$ will be assumed to be constant, implying constant variance of the error term. In such a case, we would conclude that there is no heteroskedasticity. To test the relevant joint hypothesis, we can use an $F$-test, a Wald test, or a Lagrange Multiplier test, based on the test statistic $B P=N R^{2} \sim \chi_{J}^{2}$. The application of the Lagrange Multiplier test does not require the model to be estimated under the alternative. If $B P$ is high (in a statistical sense - i.e., if compared to an appropriate critical value), we will reject the null and conclude that the variance is non-constant.
+
+The Breusch-Pagan test requires a specific assumption on the nature of heteroskedasticity - i.e., we need to assume a specific form of the heteroskedasticity function, $h$.
+
+\subsubsection{White Test}
+An alternative to the Breusch-Pagan test is the White test. This test does not need assumptions on the form of $h$ and further exploits the idea of a heteroskedasticity-consistent variance-covariance matrix for the OLS estimator derived by White in his 1980 Econometrica paper. To run the test, the first step is again to estimate the model $y_{i}=\beta_{0}+\beta_{1} x_{1 i}+\cdots+\beta_{K} x_{K i}+\varepsilon_{i}$. Then compute the squared residuals, $\widehat{\varepsilon}_{i}^{2}$, and run the auxiliary regression
+
+$$
+\begin{gathered}
+\widehat{\varepsilon}_{i}^{2}=\alpha_{0}+\alpha_{1} x_{1 i}+\cdots+\alpha_{K} x_{K i}+\alpha_{K+1} x_{1 i}^{2}+\cdots+\alpha_{K+K} x_{K i}^{2} \\
++\sum_{l=1}^{K-1} \sum_{m=l+1}^{K} \alpha_{K+K+l} x_{l i} x_{m i}+\nu_{i}
+\end{gathered}
+$$
+
+In practice, the auxiliary regression includes all regressors of the original model, all squared regressors, and all cross products between regressors. The White test proceeds exactly in the same way as the Breusch-Pagan test. That is, we test the null that all $\alpha$ 's, except $\alpha_{0}$, are zero. If at least one of these coefficients is not equal to zero, we have heteroskedasticity. This hypothesis can be tested using an $F$-test, a Wald test, or a Lagrange-Multiplier test based on the test statistic $W=N R^{2} \sim \chi_{P}^{2}$, where $P$ is the number of regressors in the test regression, excluding the intercept.

@@ -1,0 +1,288 @@
+\section{Statistical Inference and Prediction in the OLS Framework}
+The Gauss-Markov assumptions and the normality of the error term guarantee that
+
+$$
+\widehat{\beta} \sim \mathcal{N}\left(\beta, \sigma^{2}\left(X^{\prime} X\right)^{-1}\right)
+$$
+
+and
+
+$$
+\widehat{\beta}_{k} \sim \mathcal{N}\left(\beta_{k}, \sigma^{2} c_{k k}\right)
+$$
+
+where $c_{k k}$ is the element at the intersection of the $k$-th row and $k$-th column of the matrix $\left(X^{\prime} X\right)^{-1}$. This normality result for the OLS estimator holds true in small samples under the normality assumption on the error term and is approximately true in large samples, even if we do not assume normality for the error term, thanks to the central limit theorem.
+
+We can write
+
+$$
+z_{k}=\frac{\widehat{\beta}_{k}-\beta_{k}}{\sigma \sqrt{c_{k k}}} \sim \mathcal{N}(0,1) .
+$$
+
+Since we do not know the value of $\sigma$, we have to estimate it. If we replace $\sigma$ with its unbiased estimate, $\widehat{\sigma}$, then, in small samples,
+
+$$
+t_{k}=\frac{\widehat{\beta}_{k}-\beta_{k}}{\widehat{\sigma} \sqrt{c_{k k}}} \sim T_{N-K},
+$$
+
+with $\widehat{\sigma}^{2}=\frac{\sum_{i=1}^{N} \widehat{\varepsilon}_{i}^{2}}{N-K}$. The numerator of $t_{k}$ is a normally distributed random variable with mean equal to zero, its denominator is the square root of a $\chi^{2}$ distributed random variable (because $\widehat{\varepsilon}_{i}^{2}$ is normal, from which $\sum_{i=1}^{N} \widehat{\varepsilon}_{i}^{2}$ has a $\chi^{2}$ distribution) divided by $N-K$. It follows that $t_{k} \sim T_{N-K}$.
+
+\subsection{Simple Hypothesis on a Coefficient: $t$-Test}
+Consider the model $y=X \beta+\varepsilon$, where $\beta \in M(K, 1)$. We estimate this vector of parameters with $\widehat{\beta} \in M(K, 1)$ and then test the following simple hypothesis concerning the $k$-th element in $\beta$ :
+
+$$
+\begin{cases}H_{0}: & \beta_{k}=\beta_{k}^{0} \\ H_{1}: & \beta_{k} \neq \beta_{k}^{0}\end{cases}
+$$
+
+Under the null, the statistic $t_{k}=\frac{\widehat{\beta}_{k}-\beta_{k}^{0}}{S E\left(\widehat{\beta}_{k}\right)} \sim T_{N-K}$ can be used to run the test. The idea is straightforward. Once $\beta_{k}$ has been estimated using $\widehat{\beta}_{k}$, if the difference between $\widehat{\beta}_{k}$ and $\beta_{k}^{0}$ is large in absolute value, we will reject the null hypothesis. In other words, we will reject the null if the absolute value of $t_{k}$\\
+is large. The definition of "large" in this case depends on the size, $\alpha$, of the test. The null will be rejected if the probability of observing a value of $\left|t_{k}\right|$ or larger is smaller than a given significance level, $\alpha$. Said in yet another way, we will reject $H_{0}$ if the value of $t_{k}$ we observe is bigger, in absolute value, than a suitable critical value calculated using a $T_{N-K}$ distribution.
+
+According to this argument, we have two, perfectly equivalent, ways to run the test above and decide whether to reject or not the null hypothesis. We can compare the value of the test statistic with a critical value properly computed. The critical value, $t^{*}$, is chosen such that $\operatorname{Prob}\left(|t|>t^{*}\right)=\alpha$, where $t \sim T_{N-K}$. It follows that $t^{*}=t_{N-K, 1-\frac{\alpha}{2}}$. For example, for $N$ large enough, $H_{0}$ is rejected at the $5 \%$ level if $\left|t_{k}\right|>1.96$. Alternatively, we can base our decision on the socalled $p$-value, $p$, or probability level. The p-value is the probability of observing a more extreme value of the test statistic than the one we actually observe, assuming that the null hypothesis is true. In this case, $p=2 \operatorname{Prob}\left(t>\left|t_{k}\right|\right)$, where $t \sim T_{N-K}$. If $p<\alpha$, we reject the null hypothesis.
+
+In a one-sided test, the null and alternative hypotheses may be
+
+$$
+\begin{cases}H_{0}: & \beta_{k} \leq \beta_{k}^{0} \\ H_{1}: & \beta_{k}>\beta_{k}^{0}\end{cases}
+$$
+
+Intuitively, we will reject the null for large values of the $t$ statistic. The critical value, $t^{*}$, that we should use for running the test satisfies the condition $\operatorname{Prob}\left(t>t^{*}\right)=\alpha$, from which $t^{*}=t_{N-K, 1-\alpha}$. The p-value associated with this test is $p=\operatorname{Prob}\left(t>t_{k}\right)$.
+
+\subsection{Confidence Intervals}
+An interval estimate of a particular level of confidence, $\alpha$, for $\beta_{k}$ will be made of all values of $\beta_{k}^{0}$ for which the null that $\beta_{k}=\beta_{k}^{0}$ is not rejected by a $t$-test. That is, the following condition should be satisfied:
+
+$$
+\begin{gathered}
+-t_{N-K ; 1-\frac{\alpha}{2}}<t_{k}<t_{N-K ; 1-\frac{\alpha}{2}} \\
+\Longrightarrow \widehat{\beta}_{k}-t_{N-K ; 1-\frac{\alpha}{2}} \cdot S E\left(\widehat{\beta}_{k}\right)<\beta_{k}<\widehat{\beta}_{k}+t_{N-K ; 1-\frac{\alpha}{2}} \cdot S E\left(\widehat{\beta}_{k}\right),
+\end{gathered}
+$$
+
+and
+
+$$
+\left[\widehat{\beta}_{k}-t_{N-K ; 1-\frac{\alpha}{2}} \cdot S E\left(\widehat{\beta}_{k}\right) ; \widehat{\beta}_{k}+t_{N-K ; 1-\frac{\alpha}{2}} \cdot S E\left(\widehat{\beta}_{k}\right)\right]
+$$
+
+is a $(1-\alpha)$-level confidence interval for $\beta_{k}$. If $\alpha=.05$, we have again that $t_{N-K ; 1-\frac{\alpha}{2}} \longrightarrow 1.96$, as $N \longrightarrow \infty$.
+
+\subsection{Linear Restriction of the Coefficients: $t$-Test}
+Consider the model
+
+$$
+y_{i}=\beta_{1}+\beta_{2} x_{2 i}+\beta_{3} x_{3 i}+\ldots+\beta_{K} x_{K i}+\varepsilon_{i} .
+$$
+
+We would like to run a test on a linear combination of its parameters:
+
+$$
+\begin{cases}H_{0}: & r_{1} \beta_{1}+r_{2} \beta_{2}+\ldots+r_{K} \beta_{K}=q \quad\left(\text { or } r^{\prime} \beta=q\right) \\ H_{1}: & H_{0} \text { is false }\end{cases}
+$$
+
+where $r \in \mathbb{R}^{K}$ and $q \in \mathbb{R}$. Under the Gauss-Markov assumptions, $\widehat{\beta}$ is BLUE for $\beta$ and $\operatorname{Var}(\widehat{\beta})=\sigma^{2}\left(X^{\prime} X\right)^{-1}$. It follows that\\
+(i) the linear combination $r^{\prime} \widehat{\beta}$ is BLUE for $r^{\prime} \beta$, with variance $\operatorname{Var}\left(r^{\prime} \widehat{\beta}\right)=$ $r^{\prime} \operatorname{Var}(\widehat{\beta}) r ;$\\
+(ii) $\left.\widehat{\operatorname{Var}\left(r^{\prime}\right.} \widehat{\beta}\right)$ is the estimate of $\operatorname{Var}\left(r^{\prime} \widehat{\beta}\right)$;\\
+(iii) $S E\left(r^{\prime} \widehat{\beta}\right)=\sqrt{\left.\operatorname{Var(r^{\prime }} \widehat{\beta}\right)}=\sqrt{r^{\prime} \operatorname{Var}(\widehat{\beta}) r}$.
+
+If the error is normally distributed, then under the null hypothesis $\widehat{\beta} \sim \mathcal{N}\left(\beta, \sigma^{2}\left(X^{\prime} X\right)^{-1}\right)$. This is approximately true in large samples even if the error term is not normal. Then
+
+$$
+\begin{aligned}
+r^{\prime} \widehat{\beta} & \sim \mathcal{N}\left(r^{\prime} \beta, r^{\prime} \operatorname{Var}(\widehat{\beta}) r\right) \\
+& \Longrightarrow \frac{r^{\prime} \widehat{\beta}-r^{\prime} \beta}{S E\left(r^{\prime} \widehat{\beta}\right)} \sim T_{N-K} \\
+& \Longrightarrow t=\frac{r^{\prime} \widehat{\beta}-q}{S E\left(r^{\prime} \widehat{\beta}\right)} \sim T_{N-K}
+\end{aligned}
+$$
+
+We can then use this statistic to run the test above. In some cases, reparameterization is useful and more straightforward to run the same test.
+
+\subsubsection{A Reparameterization Trick}
+Instead of running a t-test, we might rearrange the terms in the model in a more convenient way so that running the test is more straightforward. For example, consider a model with two exogenous regressors:
+
+$$
+y_{i}=\beta_{1}+\beta_{2} x_{2 i}+\beta_{3} x_{3 i}+\varepsilon_{i} .
+$$
+
+We want to run the test
+
+$$
+\left\{\begin{array}{ll}
+H_{0}: & \beta_{2}=\beta_{3} \quad\left(\beta_{2}-\beta_{3}=0\right) \\
+H_{1}: & \beta_{2} \neq \beta_{3}
+\end{array} .\right.
+$$
+
+In this case, $r=\left[\begin{array}{c}0 \\ 1 \\ -1\end{array}\right]$ and $q=0$. The test statistic would be
+
+$$
+t=\frac{\widehat{\beta}_{2}-\widehat{\beta}_{3}}{S E\left(\widehat{\beta}_{2}-\widehat{\beta}_{3}\right)}
+$$
+
+However, we can just add and subtract $\beta_{3} x_{2 i}$ on the right-hand side of the equation to obtain the equivalent model:
+
+$$
+\begin{aligned}
+y_{i} & =\beta_{1}+\left(\beta_{2}-\beta_{3}\right) x_{2 i}+\beta_{3}\left(x_{3 i}+x_{2 i}\right)+\varepsilon_{i} \\
+& =\beta_{1}+\beta_{2}^{*} x_{2 i}+\beta_{3}\left(x_{3 i}+x_{2 i}\right)+\varepsilon_{i} .
+\end{aligned}
+$$
+
+At this point, to test the null hypothesis above, we can run the simple $t$-test
+
+$$
+\begin{cases}H_{0}: & \beta_{2}^{*}=0 \\ H_{1}: & \beta_{2}^{*} \neq 0\end{cases}
+$$
+
+whose test statistic is
+
+$$
+t=\frac{\widehat{\beta}_{2}^{*}}{S E\left(\widehat{\beta}_{2}^{*}\right)}
+$$
+
+\subsection{Joint Test of Significance on Regression Coefficients: $F$-Test}
+Consider $J<K$ parameters in the linear regression model. This time we want to test the hypothesis that each of the $J$ parameters are equal to zero. The alternative hypothesis is that at least one of them is not equal to zero:
+
+$$
+\begin{cases}H_{0}: & \beta_{K-J+1}=\cdots=\beta_{K}=0 \\ H_{1}: & H_{0} \text { is false }\end{cases}
+$$
+
+In other words, we select $J$ parameters in the linear model and test the joint hypothesis that they are all equal to zero. To run this test, let us estimate the unrestricted model first,
+
+$$
+y_{i}=\beta_{1}+\beta_{2} x_{2 i}+\cdots+\beta_{K} x_{K i}+\varepsilon_{i}
+$$
+
+i.e., the original model on which the restrictions we want to test have not been applied. We can thus calculate the residual sum of squares, $S_{1}=R S S_{U}$, of the unrestricted model. Next, we can estimate the model with the restrictions in the null applied and the corresponding residual sum of squares, $S_{0}=R S S_{R}$, for\\
+the restricted equation.\\
+Note that $S_{0}>S_{1}$, because if we add zero-restrictions to the regression we omit some variables and the accuracy of the model deteriorates. ${ }^{9}$ We can show that, under $H_{0}$,
+
+$$
+\frac{S_{0}-S_{1}}{\sigma^{2}} \sim \chi_{J}^{2}
+$$
+
+where $J$ is the number of restrictions and $\sigma^{2}$ is the variance of $\varepsilon_{i}$. In theory, we could use this statistic to run the test. The idea is that, if the restricted model is much worse than the unrestricted one at explaining $y_{i}, S_{0}$ would be much bigger than $S_{1}$, the value of the test statistic would get big value and, based on the critical values of a $\chi_{J}^{2}$ distribution, we would reject the null hypothesis. The problem is that $\sigma^{2}$ is not known. The best we can do is to replace $\sigma^{2}$ with its unbiased estimate, $\widehat{\sigma}^{2}=\frac{S_{1}}{N-K}$, and use
+
+$$
+F_{J}=\frac{\left(S_{0}-S_{1}\right) / J}{S_{1} /(N-K)} \sim F_{J, N-K}
+$$
+
+as a test statistic. This test statistic is the ratio of two $\chi^{2}$-distributed variables, an $F$-distributed random variable with degrees of freedom equal to the degrees of freedom of the two $\chi^{2}$ variables at the numerator and denominator. Recall that $R^{2}=1-\frac{R S S}{T S S}$. The test statistic is then equivalent to
+
+$$
+F_{J}=\frac{\left(R_{1}^{2}-R_{0}^{2}\right) / J}{\left(1-R_{1}^{2}\right) /(N-K)}
+$$
+
+where $R_{1}^{2}$ is the $R^{2}$ of the unrestricted model and $R_{0}^{2}$ is the $R^{2}$ of the restricted one. Intuitively, we will reject the null if $S_{0}$ is much bigger than $S_{1}$. That is, the larger the value of $F_{J}$ ( $F_{J}$ is defined only on the positive real axis), the more likely we are to reject.
+
+The actual test procedure is identical to the previous cases. we choose a size, $\alpha$, to determine a critical value which defines the rejection region, $R$. If we reject - i.e., the value of the test statistic is larger than the critical value computed from an appropriate $F$ distribution with given degrees of freedom - we will conclude that the restricted model does a poor job at explaining the variance of the dependent variable and should not be used. More specifically, the critical value, $F^{*}$, is chosen such that $\operatorname{Prob}\left(F>F^{*}\right)=\alpha$, where $F \sim F_{J, N-K}$. It follows that $F^{*}=F_{J, N-K ; 1-\alpha}$. The p-value is then $p=\operatorname{Prob}\left(F>F_{J}\right)$.
+
+\subsection{Multiple Linear Restrictions: Wald Test}
+Rather than testing a set of simple restrictions or just one linear restriction as in the previous paragraphs, sometimes we may be interested in running a test\footnotetext{${ }^{9}$ Remember the discussion on the $R^{2}$.}
+with multiple linear restrictions of the model parameters. That is, we may want to run the test:
+
+\[
+\begin{cases}
+    H_{0}: & R\beta = q \\ 
+    H_{1}: & R\beta \neq q 
+\end{cases}
+\]
+
+where $\beta \in \mathbb{R}^{K}$, $R \in \mathcal{M}(J, K)$ (the space of $J \times K$ matrices), and $q \in \mathbb{R}^{J}$. Here $J$ denotes the number of linear restrictions in the null hypothesis. Under the normality assumption of the error term,
+
+\[
+\widehat{\beta} \sim \mathcal{N}\left(\beta, \operatorname{Var}(\widehat{\beta})\right)
+\]
+
+and consequently,
+
+\[
+R\widehat{\beta} \sim \mathcal{N}\left(R\beta, \operatorname{Var}(R\widehat{\beta})\right)
+\]
+
+where $\operatorname{Var}(R\widehat{\beta}) = R\operatorname{Var}(\widehat{\beta})R^{\prime}$. It can be shown that:
+
+\[
+(R\widehat{\beta} - q)^{\prime} \left[\operatorname{Var}(R\widehat{\beta})\right]^{-1} (R\widehat{\beta} - q) \sim \chi_{J}^{2}
+\]
+
+This follows because the quadratic form of a normal random vector with its covariance matrix inverse follows a chi-squared distribution. Note that the outer two terms are normal random variables and the center term is a constant unknown matrix. Replacing the unknown variance with its consistent estimator $\widehat{\operatorname{Var}}(R\widehat{\beta})$, we obtain the asymptotic version:
+
+\[
+(R\widehat{\beta} - q)^{\prime} \left[R\widehat{\operatorname{Var}}(\widehat{\beta})R^{\prime}\right]^{-1} (R\widehat{\beta} - q) \stackrel{a}{\sim} \chi_{J}^{2}
+\]
+
+This holds in large samples, if, as N grows to infinity, the denominator converges in probability to the true unknown population variance-covariance matrix of $R \hat{\beta}$. That is, if $\widehat{\operatorname{Var}}(R\widehat{\beta}) \xrightarrow{p} \operatorname{Var}(R\widehat{\beta})$ as $N \to \infty$.
+
+To run this test, we calculate the sample value of the Wald test statistic,
+
+\[
+W = (R\widehat{\beta} - q)^{\prime} \left[R\widehat{\operatorname{Var}}(\widehat{\beta})R^{\prime}\right]^{-1} (R\widehat{\beta} - q)
+\]
+
+using sample data. Intuitively, we will reject the null hypothesis if the test statistic is large ($R \hat{\beta}$ is far from $q$). We set a critical threshold (significance level) based on a size, $\alpha$. Given the shape of a $\chi^2$ distribution, we reject the null when the critical threshold is less than the realized value of the test statistic. 
+
+When the sample is not large, the statistic under consideration has an $F$ distribution, which we will need to compute an appropriate critical value, given the size of the test. Under the Gauss-Markov assumptions and the normality of the error term,
+
+\[
+R\widehat{\beta} \sim \mathcal{N}\left(R\beta, \sigma^{2}R(X^{\prime}X)^{-1}R^{\prime}\right)
+\implies (R\widehat{\beta} - R \beta) \sim \mathcal{N} \left(0, \sigma^{2}R(X^{\prime}X)^{-1}R^{\prime}\right)
+\]
+
+So the Wald statistic can be rewritten as
+
+\[
+\frac{(R\widehat{\beta} - R\beta)^{\prime}\left[R(X^{\prime}X)^{-1}R^{\prime}\right]^{-1}(R\widehat{\beta} - R\beta)}{\sigma^{2}} \sim \chi_{J}^{2}
+\]
+
+In this last expression, the only element we do not know is $\sigma^{2}$. Substituting $\sigma^{2}$ with its unbiased estimator $\widehat{\sigma}^{2} = \frac{\sum_{i=1}^{N} \widehat{\varepsilon}_{i}^{2}}{N-K}$ yields:
+
+\[
+W = \frac{ \{(R\widehat{\beta} - R\beta)^{\prime}\left[R(X^{\prime}X)^{-1}R^{\prime}\right]^{-1}(R\widehat{\beta} - R\beta)\}/J}{\widehat{\sigma}^{2}} \sim F_{J, N-K}
+\]
+
+The intuition to use to run the test is the same as before: we will reject the null for large values of the test statistic.
+
+The bottom line is that the statistic may have two distributions: in large samples it is $\chi^2$-distributed, in small samples it is $F$-distributed under a set of conditions. Depending on the situation, the Wald test can be used either in its $\chi^{2}$ or $F$ forms to test multiple restrictions of the regression coefficients. 
+
+We need the Gauss-Markov assumptions - to assure the unbiasedness of $\widehat{\beta}$ - and the normality assumption of the error term for the test statistic to be distributed as an $F$ in small samples. Using the $\chi^{2}$ version of the test in small samples may lead to unreliable inference. If the errors are not independent and identically distributed, the Wald test in its $F$ form may lead to unreliable inference as well, since the Wald statistic is $F$-distributed only if the Gauss-Markov assumptions hold. 
+
+\textbf{If the errors are not i.i.d., the $\chi^{2}$ version should be preferred}, provided that the sample is large enough and that $\operatorname{Var}(R \widehat{\beta})$ can be estimated consistently in presence of autocorrelation and/or heteroskedasticity.\textbf{If the errors are i.i.d., the two versions of the test are asymptotically equivalent}, as intuitively argued above. 
+
+Key considerations:
+\begin{itemize}
+    \item Use $\chi^{2}$ version for large samples or non-i.i.d. errors (with robust variance)
+    \item Use $F$ version for small samples under Gauss-Markov/normality
+    \item As $N \to \infty$, $J \times F_{J,N-K} \stackrel{d}{\to} \chi_{J}^{2}$
+\end{itemize}
+
+\subsection{Prediction}
+Consider the usual linear model in the form $y_{i}=x_{i}^{\prime} \beta+\varepsilon_{i}$. Using this model, we want to predict the value of $y$ for a given $x_{0}$, not in the original sample we are\\
+using for estimation. In other words, we want to predict $y_{0}$, where $y_{0}=x_{0}^{\prime} \beta+\varepsilon_{0}$. It follows that $\widehat{y}_{0}=x_{0}^{\prime} \widehat{\beta}$ is a predictor for $y_{0}$ and that $y_{0}=\widehat{y}_{0}+\widehat{\varepsilon}_{0}$.
+
+We can show that the estimator, $\widehat{y}_{0}$, is unbiased for $y_{0}$ :
+
+$$
+E(\widehat{\beta})=\beta \Longrightarrow E\left(\widehat{y}_{0}\right)=E\left(y_{0}-\widehat{\varepsilon}_{0}\right)=y_{0}
+$$
+
+Since $\widehat{y}_{0}$ is a random variable, we can compute its variance,
+
+$$
+\operatorname{Var}\left(\widehat{y}_{0}\right)=\operatorname{Var}\left(x_{0}^{\prime} \widehat{\beta}\right)=x_{0}^{\prime} \operatorname{Var}(\widehat{\beta}) x_{0}=\sigma^{2} x_{0}^{\prime}\left(X^{\prime} X\right)^{-1} x_{0} .
+$$
+
+The prediction error is defined as $\widehat{y}_{0}-y_{0}=x_{0}^{\prime} \widehat{\beta}-x_{0}^{\prime} \beta-\varepsilon_{0}=x_{0}^{\prime}(\widehat{\beta}-\beta)-\varepsilon_{0}$, which, on average, should be equal to zero since $E\left(y_{0}-\widehat{y}_{0}\right)=y_{0}-y_{0}=0$.
+
+Finally, the prediction error has a variance:
+
+$$
+\begin{aligned}
+\operatorname{Var}\left(\widehat{y}_{0}-y_{0}\right) & =\operatorname{Var}\left(\widehat{y}_{0}\right)+\operatorname{Var}\left(y_{0}\right)-2 \operatorname{Cov}\left(\widehat{y}_{0}, y_{0}\right) \\
+& =\sigma^{2} x_{0}^{\prime}\left(X^{\prime} X\right)^{-1} x_{0}+\operatorname{Var}\left(x_{0}^{\prime} \beta+\varepsilon_{0}\right)-2 \operatorname{Cov}\left(\widehat{y}_{0}, x_{0}^{\prime} \beta+\varepsilon_{0}\right) \\
+& =\sigma^{2} x_{0}^{\prime}\left(X^{\prime} X\right)^{-1} x_{0}+\operatorname{Var}\left(\varepsilon_{0}\right)-2 \widehat{\operatorname{Cov}\left(\widehat{y_{0}}, x_{0}^{\prime} \beta\right)}-2 \operatorname{Cov}\left(\widehat{y}_{0}, \varepsilon_{0}\right) \\
+& =\sigma^{2} x_{0}^{\prime}\left(X^{\prime} X\right)^{-1} x_{0}+\sigma^{2}-2 \operatorname{Cov}\left(x_{0}^{\prime} \widehat{\beta}, \varepsilon_{0}\right) \\
+& =\sigma^{2} x_{0}^{\prime}\left(X^{\prime} X\right)^{-1} x_{0}+\sigma^{2} \\
+& =\left[1+x_{0}^{\prime}\left(X^{\prime} X\right)^{-1} x_{0}\right] \sigma^{2},
+\end{aligned}
+$$
+
+under the assumption that $\widehat{\beta}$ and $\varepsilon_{0}$ are not correlated (in fact, $\varepsilon_{0}$ does not enter the expression of $\widehat{\beta}$ ). We can use the variance of the prediction error and the normality assumption in large samples to compute confidence intervals for $y_{0}$ or the prediction error itself.
