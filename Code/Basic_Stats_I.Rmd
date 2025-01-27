@@ -1,0 +1,342 @@
+---
+title: "ECON 167 - Basic Statistics I"
+author: "Augusto Gonzalez-Bonorino"
+date: 'Sys.Date()'
+output: html_notebook
+---
+
+# Basic Statistics 
+
+## bessel's correction for degrees of freedom
+
+
+```{r}
+x <- c(2, 4, 6, 8)
+n <- length(x)
+x_bar <- mean(x)
+
+# Calculate deviations
+deviations <- x - x_bar
+print(deviations)
+
+# Note: these sum to zero by construction
+print(sum(deviations))
+
+# Compare biased and unbiased variance
+biased_var <- sum((x - x_bar)^2)/n
+unbiased_var <- sum((x - x_bar)^2)/(n-1)
+r_var <- var(x)
+
+print(biased_var)
+print(unbiased_var)
+print(r_var)
+```
+
+Notice that the biased variance underestimates the true variance. This is always true, and the reason why comes from probability theory and the minimization that the sample mean solves for. To be specific, the sample mean minimizes the sum of squared deviations for our particular sample. So, while the sample mean while randomly vary around the true population mean it will specifically deviate in the direction that reduces squared deviations for that particular sample. This creates a systematic bias, an underestimation to be precise, in our estimation of the variance when using the sample mean. This systematic underestimation is what the n-1 correction addresses.
+
+Here is an simulated demonstration:
+
+
+```{r}
+set.seed(123)
+mu <- 10  # True population mean
+sigma <- 2 # True population SD
+
+# Function to compare squared deviations
+compare_deviations <- function(n) {
+  sample <- rnorm(n, mu, sigma)
+  x_bar <- mean(sample)
+  
+  # Squared deviations from sample mean
+  dev_xbar <- sum((sample - x_bar)^2)
+  
+  # Squared deviations from population mean
+  dev_mu <- sum((sample - mu)^2)
+  
+  return(c(dev_xbar, dev_mu))
+}
+
+# Run many simulations
+results <- replicate(10000, compare_deviations(5))
+mean_devs <- rowMeans(results)
+print(paste("Average squared deviations from x̄:", mean_devs[1]))
+print(paste("Average squared deviations from μ:", mean_devs[2]))
+```
+
+Diving deeper into this fundamental property of statistical inference gets into the principles of statistics and probability theory. Something that I am not qualified to explore and that we won't need for this class. However, it is important to understand that the n-1 correction is not arbitrary, but rather a fundamental property of the sample mean and the minimization of squared deviations.
+
+## Expectation, Variance, and Covariance
+
+Let's explore how this affects our estimations of expectations and variances in practice.
+
+
+```{r}
+# Set seed for reproducibility
+set.seed(123)
+
+# Part 1: Expectation (Mean) ----------------------------------------
+
+# Simulate data from different distributions
+n <- 10000  
+
+# Normal distribution
+x_normal <- rnorm(n, mean = 2, sd = 1.5)
+# Log-normal distribution
+x_lognormal <- rlnorm(n, meanlog = 0, sdlog = 0.5)
+# Uniform distribution
+x_uniform <- runif(n, min = 0, max = 5)
+
+# Compute expectations (sample means)
+# E(X) = ∑(x_i)/n
+# The estimates are not exactly equal, but they are so close that we consider them unbiased
+# That is, we can be confident that our estimation from a finite sample of data cannot get any better than this.
+mean_normal <- mean(x_normal)
+mean_lognormal <- mean(x_lognormal)
+mean_uniform <- mean(x_uniform)
+
+# Compare with theoretical expectations
+cat("Normal Distribution:\n")
+cat("Sample Mean:", mean_normal, "\n")
+cat("Theoretical Mean:", 2, "\n\n")
+
+cat("Log-normal Distribution:\n")
+cat("Sample Mean:", mean_lognormal, "\n")
+cat("Theoretical Mean:", exp(0 + 0.5^2/2), "\n\n")
+
+cat("Uniform Distribution:\n")
+cat("Sample Mean:", mean_uniform, "\n")
+cat("Theoretical Mean:", 2.5, "\n\n")
+```
+
+```{r}
+# Part 2: Variance ------------------------------------------------
+
+# Compute sample variances
+# Var(X) = E[(X - μ)²] = ∑(x_i - x̄)²/(n-1)
+var_normal <- var(x_normal)
+
+# Manual computation to demonstrate the formula
+biased_var_normal <- sum((x_normal - mean(x_normal))^2) / (length(x_normal)) # bessel's correction
+
+cat("Variance Comparisons:\n")
+cat("Normal Distribution:\n")
+cat("Sample Variance:", var_normal, "\n")
+cat("Theoretical Variance:", 1.5^2, "\n")
+cat("Non-corrected Variance:", biased_var_normal, "\n\n")
+```
+
+```{r}
+# Exercise 1
+# Write the code to compute the sample variance of the log-normal and uniform distributions
+# Use cat() to print the results
+
+```
+
+```{r}
+# Exercise 2
+# Create three random normal distributions with mu=5 and var=4: 1 with 10 observations, 1 with 100 observations, and 1 with 1000 observations
+# Compute and print the biased and unbiased variance for each distribution
+
+```
+
+How do the estimates between the biased and unbiased sample variance estimators differ as the sample size increases? 
+
+```{r}
+# Part 3: Covariance ------------------------------
+
+# Generate correlated data
+n <- 10000
+rho <- 0.7  # desired correlation
+
+# Method 1: Using mvrnorm from MASS package
+library(MASS)
+
+# 1 in the diagonal because each variable is obviously perfectly correlated with itself
+# The off-diagonal elements are the correlation coefficients between the variables
+sigma <- matrix(c(1, rho, rho, 1), nrow = 2)
+
+# mu is the true mean of each random variable
+# Sigma is the variance covariance matrix
+xy_data <- mvrnorm(n, mu = c(0, 0), Sigma = sigma)
+x <- xy_data[, 1]
+y <- xy_data[, 2]
+
+# Compute sample covariance
+# Cov(X,Y) = E[(X - μ_x)(Y - μ_y)] = ∑(x_i - x̄)(y_i - ȳ)/(n-1)
+cov_xy <- cov(x, y)
+
+# Manual computation of covariance
+# Exactly what's happening behind the scenes in the cov() function
+manual_cov_xy <- sum((x - mean(x)) * (y - mean(y))) / (length(x) - 1)
+
+
+cat("Covariance and Correlation:\n")
+cat("Sample Covariance:", cov_xy, "\n")
+cat("Manual Covariance:", manual_cov_xy, "\n")
+cat("True Correlation:", rho, "\n\n")
+```
+
+# Small and Large sample properties
+
+## Convergence to Probability Example
+
+Let's understand convergence in probability through simulation using R. We'll examine how the sample proportion of heads (\(\widehat{\theta}_N\)) converges to the true probability (\(\theta = 0.5\)) as our sample size increases.
+
+```{r}
+set.seed(234)
+
+# Function to simulate coin flips and check if estimate deviates by more than epsilon
+check_convergence <- function(N, epsilon = 0.1, replications = 10000) {
+  # Matrix to store results: each row is a replication of N coin flips
+  results <- matrix(rbinom(N * replications, 1, 0.5), 
+                   nrow = replications, ncol = N)
+  
+  # Calculate proportion of heads for each replication
+  proportions <- rowMeans(results)
+  
+  # Calculate probability of deviating by more than epsilon
+  prob_deviation <- mean(abs(proportions - 0.5) > epsilon)
+  
+  return(prob_deviation)
+}
+
+# Test different sample sizes
+sample_sizes <- c(10, 50, 100, 500)
+results <- sapply(sample_sizes, check_convergence)
+
+# Print results
+for(i in seq_along(sample_sizes)) {
+  cat("N =", sample_sizes[i], 
+      ": P(|theta_hat - 0.5| > 0.1) ≈", 
+      round(results[i], 3), "\n")
+}
+```
+
+These simulations results clearly demonstrate convergence in probability:
+\begin{enumerate}
+    \item[1) ] With N = 10 flips, there's still a substantial probability (34\%) that our estimate will deviate from 0.5 by more than 0.1
+    \item[2) ] By N = 100, this probability drops dramatically to just 4\%
+    \item[3) ] At N = 500, the probability becomes effectively zero, showing that with large enough samples, we can be very confident our estimate will be close to the true value
+\end{enumerate}
+
+Experiment by modifying the code:
+\begin{itemize}
+    \item Change epsilon (e.g., try 0.05 to see how sample size requirements increase for higher precision)
+    \item Modify the true probability from 0.5 to another value
+    \item Increase replications to get more precise probability estimates
+    \item Add more sample sizes to see the pattern of convergence in more detail
+\end{itemize
+    
+Practical Implications:
+\begin{itemize}
+    \item In survey sampling, this shows why larger samples give more reliable estimates
+    \item For economic indicators (like unemployment rates), it explains why thousands of observations are often needed
+    \item When designing experiments, it helps determine appropriate sample sizes for desired precision (i.e., statistical power)
+\end{itemize}
+    
+```{r}
+# Visualization code
+plot_convergence <- function(N = 100, epsilon = 0.1) {
+  results <- matrix(rbinom(N * 100, 1, 0.5), 
+                   nrow = 100, ncol = N)
+  running_means <- t(apply(results, 1, cumsum) / 1:N)
+  
+  plot(1:N, running_means[1,], type = "n",
+       ylim = c(0, 1),
+       xlab = "Number of Flips",
+       ylab = "Estimated Probability",
+       main = "Convergence of Sample Proportions")
+  
+  # Add reference lines
+  abline(h = 0.5, col = "red", lwd = 2)
+  abline(h = 0.5 + epsilon, col = "gray", lty = 2)
+  abline(h = 0.5 - epsilon, col = "gray", lty = 2)
+  
+  # Plot 100 different sequences
+  for(i in 1:100) {
+    lines(1:N, running_means[i,], col = rgb(0,0,1,0.1))
+  }
+}
+
+plot_convergence()
+```
+
+## Law of Large Numbers
+
+```{r}
+set.seed(42)
+
+# Demonstrate convergence of sample mean to theoretical mean
+sample_sizes <- seq(10, 10000, by = 100)
+sample_means <- numeric(length(sample_sizes))
+
+for (i in seq_along(sample_sizes)) {
+    sample_means[i] <- mean(rnorm(sample_sizes[i], mean = 2, sd = 1.5))
+}
+
+# Plot convergence
+plot(sample_sizes, sample_means, type = "l",
+     main = "Law of Large Numbers Demonstration",
+     xlab = "Sample Size", ylab = "Sample Mean",
+     ylim = c(1.5, 2.5))
+abline(h = 2, col = "red", lty = 2)
+legend("topright", legend = c("Sample Mean", "True Mean"),
+       col = c("black", "red"), lty = c(1, 2))
+
+```
+
+This makes it clear to see how smaller sample sizes are associated with much higher variance in sample means. As the sample size increases, the sample means converge to the true mean of 2. The red dashed line represents the true mean of the simulated normal distribution.
+
+
+## Central Limit Theorem
+
+```{r}
+# Theory: For large n, sample means are approximately normally distributed
+# regardless of the underlying distribution
+
+library(ggplot2)
+library(gridExtra)
+
+# Parameters
+n_samples <- 10000  # Number of samples
+sample_sizes <- c(1, 2, 5, 30)  # Different sample sizes to demonstrate convergence
+
+# Generate data for different sample sizes
+set.seed(42)  # For reproducibility
+
+# Function to generate sample means and create a data frame for plotting
+generate_clt_data <- function(sample_size) {
+    # Generate sample means from chi-square(1)
+    means <- replicate(n_samples, mean(rchisq(sample_size, df=1)))
+    
+    data.frame(
+        sample_size = factor(paste("Sample Size:", sample_size)),
+        mean = means
+    )
+}
+
+# Combine all data
+clt_data <- do.call(rbind, lapply(sample_sizes, generate_clt_data))
+
+# Create the plot with smoother density estimates
+ggplot(clt_data, aes(x = mean)) +
+    geom_density(aes(color = "Empirical"), adjust = 1.5) +
+    stat_function(aes(color = "Theoretical Normal"), 
+                 fun = dnorm,
+                 args = list(
+                     mean = 1,  # theoretical mean of chi-square(1)
+                     sd = sqrt(2/as.numeric(gsub("Sample Size: ", "", levels(clt_data$sample_size))))
+                 )) +
+    facet_wrap(~sample_size, scales = "free") +
+    labs(title = "Central Limit Theorem Demonstration",
+         subtitle = "Chi-square(1) distribution → Normal as n increases",
+         x = "Sample Mean",
+         y = "Density") +
+    theme_minimal() +
+    scale_color_manual(values = c("blue", "red"),
+                      name = "Distribution") +
+    theme(legend.position = "bottom")
+```
+
+Note how the sample mean of a chi-square with sample size 1 is highly skewed but becomes increasingly closer to a normal distribution as the sample size increases.
+
