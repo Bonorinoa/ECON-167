@@ -2,7 +2,6 @@
 title: "ECON 167 - Basic Statistics I"
 author: "Augusto Gonzalez-Bonorino"
 date: 'Sys.Date()'
-output: html_notebook
 ---
 
 # Basic Statistics 
@@ -32,7 +31,7 @@ print(unbiased_var)
 print(r_var)
 ```
 
-Notice that the biased variance underestimates the true variance. This is always true, and the reason why comes from probability theory and the minimization that the sample mean solves for. To be specific, the sample mean minimizes the sum of squared deviations for our particular sample. So, while the sample mean while randomly vary around the true population mean it will specifically deviate in the direction that reduces squared deviations for that particular sample. This creates a systematic bias, an underestimation to be precise, in our estimation of the variance when using the sample mean. This systematic underestimation is what the n-1 correction addresses.
+Notice that the biased variance underestimates the true variance. This is always true, and the reason why comes from probability theory and the minimization that the sample mean solves for. To be specific, the sample mean minimizes the sum of squared deviations for our particular sample. So, while the sample mean will randomly vary around the true population mean it will specifically deviate in the direction that reduces squared deviations for that particular sample. This creates a systematic bias, an underestimation to be precise, in our estimation of the variance when using the sample mean. This systematic underestimation is what the n-1 correction addresses.
 
 Here is an simulated demonstration:
 
@@ -59,9 +58,15 @@ compare_deviations <- function(n) {
 # Run many simulations
 results <- replicate(10000, compare_deviations(5))
 mean_devs <- rowMeans(results)
-print(paste("Average squared deviations from x̄:", mean_devs[1]))
+print(paste("Average squared deviations from x̄:", mean_devs[1])) # should be lower
 print(paste("Average squared deviations from μ:", mean_devs[2]))
 ```
+
+```{r}
+# quick quiz: Plot a histogram of the results and observe the shape of the distribution. We are sampling from a random normal distribution, why is it skewed? What major statistics theorem can you use to make it more normally distributed? Operationalize that insight and plot the histogram again.
+
+```
+
 
 Diving deeper into this fundamental property of statistical inference gets into the principles of statistics and probability theory. Something that I am not qualified to explore and that we won't need for this class. However, it is important to understand that the n-1 correction is not arbitrary, but rather a fundamental property of the sample mean and the minimization of squared deviations.
 
@@ -77,7 +82,7 @@ set.seed(123)
 # Part 1: Expectation (Mean) ----------------------------------------
 
 # Simulate data from different distributions
-n <- 10000  
+n <- 10000 # the larger this number, the closer the sample mean will be to the theoretical mean because of the law of large numbers
 
 # Normal distribution
 x_normal <- rnorm(n, mean = 2, sd = 1.5)
@@ -90,6 +95,8 @@ x_uniform <- runif(n, min = 0, max = 5)
 # E(X) = ∑(x_i)/n
 # The estimates are not exactly equal, but they are so close that we consider them unbiased
 # That is, we can be confident that our estimation from a finite sample of data cannot get any better than this.
+## This is how things work in practice. We can never be certain about the true population mean, but we want our estimators to get infinitely close to it as the sample size increases.
+## In data science, you will see the term accuracy instead of bias. It probably captures the essence of estimation a bit better. No such thing as unbiased, but we can get infinitely close to the truth.
 mean_normal <- mean(x_normal)
 mean_lognormal <- mean(x_lognormal)
 mean_uniform <- mean(x_uniform)
@@ -126,16 +133,12 @@ cat("Non-corrected Variance:", biased_var_normal, "\n\n")
 ```
 
 ```{r}
-# Exercise 1
-# Write the code to compute the sample variance of the log-normal and uniform distributions
-# Use cat() to print the results
+# Quick quiz: Write the code to compute the sample variance of the log-normal and uniform distributions. Use cat() to print the results
 
 ```
 
 ```{r}
-# Exercise 2
-# Create three random normal distributions with mu=5 and var=4: 1 with 10 observations, 1 with 100 observations, and 1 with 1000 observations
-# Compute and print the biased and unbiased variance for each distribution
+# Quick quiz: Create three random normal distributions with mu=5 and var=4: 1 with 10 observations, 1 with 100 observations, and 1 with 1000 observations. Compute and print the biased and unbiased variance for each distribution
 
 ```
 
@@ -299,7 +302,7 @@ library(gridExtra)
 
 # Parameters
 n_samples <- 10000  # Number of samples
-sample_sizes <- c(1, 2, 5, 30)  # Different sample sizes to demonstrate convergence
+sample_sizes <- c(1, 5, 30, 100)  # Different sample sizes to demonstrate convergence
 
 # Generate data for different sample sizes
 set.seed(42)  # For reproducibility
