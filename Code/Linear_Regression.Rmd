@@ -5,6 +5,355 @@ date: 'Sys.Date()'
 output: html_notebook
 ---
 
+## Gauss-Markov Assumptions
+
+```{r}
+library(tidyverse)
+library(MASS)
+library(car)
+library(lmtest)
+set.seed(123)  # For reproducibility
+```
+
+# 1. Linearity Assumption
+
+## Theory
+The linearity assumption has two components:
+1. Linearity in parameters: The relationship between X and Y can be written as a linear function
+2. Linearity in disturbances: The error term enters the equation additively
+
+Mathematically:
+
+$$Y = X\beta + \epsilon$$
+
+where:
+- Y is the dependent variable
+- X is the matrix of independent variables
+- β is the vector of parameters
+- ε is the vector of error terms
+
+Let's visualize this assumption and see what happens when it's violated.
+
+```{r linearity}
+# Generate data that follows linear relationship
+n <- 100
+x <- runif(n, 0, 10)
+epsilon <- rnorm(n, 0, 1)
+y_linear <- 2 + 3 * x + epsilon
+
+# Generate nonlinear data
+y_nonlinear <- 2 + 3 * x + 0.3 * x^2 + epsilon
+
+# Create dataframes
+df_linear <- data.frame(x = x, y = y_linear)
+df_nonlinear <- data.frame(x = x, y = y_nonlinear)
+
+# Plot linear relationship
+p1 <- ggplot(df_linear, aes(x, y)) +
+  geom_point() +
+  geom_smooth(method = "lm", color = "blue") +
+  ggtitle("Linear Relationship") +
+  theme_minimal()
+
+# Plot nonlinear relationship
+p2 <- ggplot(df_nonlinear, aes(x, y)) +
+  geom_point() +
+  geom_smooth(method = "lm", color = "red") +
+  ggtitle("Nonlinear Relationship") +
+  theme_minimal()
+
+# Display plots side by side
+gridExtra::grid.arrange(p1, p2, ncol = 2)
+```
+
+
+*Which of the GMAs looks immediately violated by the non linear relationship?*
+
+
+```{r}
+# plot residuals of previous two models side by side
+model_linear <- lm(y_linear ~ x)
+model_nonlinear <- lm(y_nonlinear ~ x)
+
+# Plot residuals for linear model
+df_linear$residuals <- residuals(model_linear)
+p3 <- ggplot(df_linear, aes(x, residuals)) +
+  geom_point() +
+  geom_hline(yintercept = 0, color = "red") +
+  ggtitle("Residuals of Linear Model") +
+  theme_minimal()
+
+# Plot residuals for nonlinear model
+df_nonlinear$residuals <- residuals(model_nonlinear)
+p4 <- ggplot(df_nonlinear, aes(x, residuals)) +
+  geom_point() +
+  geom_hline(yintercept = 0, color = "red") +
+  ggtitle("Residuals of Nonlinear Model") +
+  theme_minimal()
+
+# Display plots side by side
+gridExtra::grid.arrange(p3, p4, ncol = 2)
+```
+
+
+
+# 2. Full Rank (No Perfect Multicollinearity)
+
+The full rank assumption requires that no independent variable can be perfectly predicted by a linear combination of other independent variables. Mathematically, this means the matrix X must have full column rank:
+
+$rank(X) = K$ where K is the number of parameters.
+
+Let's demonstrate the impact of multicollinearity:
+
+```{r multicollinearity}
+x1 <- rnorm(n)
+x2 <- rnorm(n)
+x3 <- x1 + x2  # Perfect linear combination
+data_mc <- data.frame(y, x1, x2, x3)
+model_mc <- lm(y ~ x1 + x2 + x3, data = data_mc)
+summary(model_mc)  # Note NA for x3
+```
+
+```{r}
+X <- model.matrix(model_mc)
+cat("Matrix rank:", qr(X)$rank, "/", ncol(X)) # 3 out of 4 columns are linearly independent
+```
+
+```{r multicollinearity}
+# Set sample size
+n <- 100
+
+# Generate true coefficients
+beta0 <- 1
+beta1 <- 2
+beta2 <- 3
+
+# Generate independent variables
+x1 <- rnorm(n)
+x2 <- rnorm(n)
+# Create x3 as a perfect linear combination
+x3 <- x1 + x2
+
+# Generate dependent variable
+y <- beta0 + beta1*x1 + beta2*x2 + rnorm(n, 0, 1)
+
+# Fit model with perfect multicollinearity
+model_mc <- lm(y ~ x1 + x2 + x3)
+
+# Check model results
+summary(model_mc)  # Note the NA coefficient for x3
+
+# Check matrix rank
+X <- model.matrix(model_mc)
+cat("Matrix rank:", qr(X)$rank, "out of", ncol(X), "columns\n")
+
+# Demonstrate imperfect multicollinearity
+x3_imperfect <- 0.9*x1 + 0.9*x2 + rnorm(n, 0, 0.1)
+model_imperfect <- lm(y ~ x1 + x2 + x3_imperfect)
+
+# Compare standard errors
+se_perfect <- summary(lm(y ~ x1 + x2))$coefficients[, 2]
+se_imperfect <- summary(model_imperfect)$coefficients[, 2]
+
+cat("\n\nStandard errors with perfect multicollinearity:\n", se_perfect)
+
+cat("\n\nStandard errors with imperfect multicollinearity:\n", se_imperfect)
+```
+
+
+# 3. Exogeneity
+
+
+The exogeneity assumption requires that the error term is uncorrelated with our independent variables. 
+
+$$E[\epsilon|X] = 0$$
+
+When this assumption is violated, our coefficient estimates become biased.
+
+```{r exogeneity}
+# Set sample size and true parameters
+n <- 1000
+beta0 <- 1
+beta1 <- 2
+
+# Generate instrument (z) and error term with common factor
+z <- rnorm(n)
+epsilon <- 2*z + rnorm(n)  # Error term depends on z
+
+# Generate x1 with endogeneity
+x1_endo <- 0.5*z + rnorm(n)  # x1 correlated with z and thus with epsilon
+
+# Generate dependent variable
+y_endo <- beta0 + beta1*x1_endo + epsilon
+
+# Generate exogenous case for comparison
+x1_exog <- rnorm(n)  # Independent x1
+epsilon_exog <- rnorm(n)  # Independent error
+y_exog <- beta0 + beta1*x1_exog + epsilon_exog
+
+# Fit both models
+model_endo <- lm(y_endo ~ x1_endo)
+model_exog <- lm(y_exog ~ x1_exog)
+
+# Create comparison of estimates
+results <- data.frame(
+  Parameter = c("beta0", "beta1"),
+  True_Value = c(beta0, beta1),
+  Exogenous_Estimate = coef(model_exog),
+  Endogenous_Estimate = coef(model_endo)
+)
+
+# Visualize bias
+par(mfrow = c(1, 2))
+plot(x1_exog, epsilon_exog, 
+     main = "Exogenous Case: x ⊥ ε",
+     xlab = "x", ylab = "ε")
+abline(h = 0, col = "red", lty = 2)
+
+plot(x1_endo, epsilon, 
+     main = "Endogenous Case: x ~ ε",
+     xlab = "x", ylab = "ε")
+abline(h = 0, col = "red", lty = 2)
+
+```
+
+```{r}
+results
+```
+
+# 4. Spherical Disturbances
+
+This assumption requires homoskedastic errors (constant variance) and no autocorrelation. Mathematically, this means:
+
+
+$E[\epsilon\epsilon'|X] = \sigma^2I$
+
+The term "spherical" comes from the geometric interpretation: when we plot the multivariate normal density function, the contours form perfect spheres in n-dimensional space.
+
+Let's focus on heteroskedasticity, where error variance depends on X.
+
+```{r spherical_disturbances}
+# Generate data with homoskedastic errors
+x <- runif(n, -2, 2)
+epsilon_homo <- rnorm(n, 0, 1)  # Constant variance
+y_homo <- beta0 + beta1*x + epsilon_homo
+
+# Generate heteroskedastic errors where variance increases with x
+epsilon_hetero <- rnorm(n, 0, 0.5 + abs(x))  # Variance depends on x
+y_hetero <- beta0 + beta1*x + epsilon_hetero
+
+# Fit models
+model_homo <- lm(y_homo ~ x)
+model_hetero <- lm(y_hetero ~ x)
+
+# Create visualization
+par(mfrow = c(2, 2))
+
+# Plot original data
+plot(x, y_homo, 
+     main = "Homoskedastic Data",
+     xlab = "x", ylab = "y")
+abline(model_homo, col = "blue")
+
+plot(x, y_hetero, 
+     main = "Heteroskedastic Data",
+     xlab = "x", ylab = "y")
+abline(model_hetero, col = "blue")
+
+# Plot residuals
+plot(x, residuals(model_homo),
+     main = "Homoskedastic Residuals",
+     xlab = "x", ylab = "Residuals")
+abline(h = 0, col = "red", lty = 2)
+
+plot(x, residuals(model_hetero),
+     main = "Heteroskedastic Residuals",
+     xlab = "x", ylab = "Residuals")
+abline(h = 0, col = "red", lty = 2)
+
+# Perform Breusch-Pagan test
+bp_homo <- bptest(model_homo)
+bp_hetero <- bptest(model_hetero)
+
+cat("\nBreusch-Pagan test p-values:\n")
+cat("Homoskedastic case:", bp_homo$p.value, "\n")
+cat("Heteroskedastic case:", bp_hetero$p.value, "\n")
+```
+
+
+# 5. Exogenous Data Generating Process
+
+## Theory
+This assumption requires that the process generating X is independent of the process generating the errors. While this is similar to the exogeneity assumption, it's more fundamental as it concerns the underlying data-generating process.
+
+Let's demonstrate with a simple simulation:
+
+
+```{r dgp}
+# Function to simulate data with different DGPs
+simulate_dgp <- function(n, independent = TRUE) {
+  if (independent) {
+    # Independent DGP
+    x <- rnorm(n)
+    epsilon <- rnorm(n)
+  } else {
+    # Common shock affects both x and epsilon
+    shock <- rnorm(n)
+    x <- 0.7*shock + rnorm(n)
+    epsilon <- 0.7*shock + rnorm(n)
+  }
+  
+  y <- beta0 + beta1*x + epsilon
+  
+  return(list(x = x, y = y, epsilon = epsilon))
+}
+
+# Generate data from both processes
+n <- 1000
+independent_dgp <- simulate_dgp(n, TRUE)
+dependent_dgp <- simulate_dgp(n, FALSE)
+
+# Fit models
+model_independent <- lm(independent_dgp$y ~ independent_dgp$x)
+model_dependent <- lm(dependent_dgp$y ~ dependent_dgp$x)
+
+# Visualize relationships between x and epsilon
+par(mfrow = c(1, 2))
+plot(independent_dgp$x, independent_dgp$epsilon,
+     main = "Independent DGP",
+     xlab = "x", ylab = "ε")
+abline(h = 0, col = "red", lty = 2)
+
+plot(dependent_dgp$x, dependent_dgp$epsilon,
+     main = "Dependent DGP\n(Common Shock)",
+     xlab = "x", ylab = "ε")
+abline(h = 0, col = "red", lty = 2)
+
+```
+
+```{r}
+# estimates
+print(summary(model_independent))
+
+print(summary(model_dependent))
+```
+
+# Conclusion
+
+Understanding and testing for the Gauss-Markov assumptions is crucial in regression analysis. When these assumptions hold:
+
+1. The OLS estimator is unbiased: $E[\hat{\beta}] = \beta$
+2. It has minimum variance among all linear unbiased estimators
+3. The standard errors and hypothesis tests are valid
+
+When assumptions are violated, we might need to consider:
+- Transforming variables (for non-linearity)
+- Using robust standard errors (for heteroskedasticity)
+- Implementing instrumental variables (for endogeneity)
+- Using time series methods (for autocorrelation)
+
+### ----------------------------------------------- ###
+
 ## Linear Regression
 
 ```{r}

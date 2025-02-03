@@ -63,10 +63,15 @@ print(paste("Average squared deviations from μ:", mean_devs[2]))
 ```
 
 ```{r}
-# quick quiz: Plot a histogram of the results and observe the shape of the distribution. We are sampling from a random normal distribution, why is it skewed? What major statistics theorem can you use to make it more normally distributed? Operationalize that insight and plot the histogram again.
-
+rnorm(5, 5, 2)
 ```
 
+
+```{r}
+# quick quiz: Plot a histogram of the results and observe the shape of the distribution. We are sampling from a random normal distribution, why is it skewed? What major statistics theorem can you use to make it more normally distributed? Operationalize that insight and plot the histogram again.
+results <- replicate(10000, compare_deviations(500))
+hist(results)
+```
 
 Diving deeper into this fundamental property of statistical inference gets into the principles of statistics and probability theory. Something that I am not qualified to explore and that we won't need for this class. However, it is important to understand that the n-1 correction is not arbitrary, but rather a fundamental property of the sample mean and the minimization of squared deviations.
 
@@ -123,7 +128,7 @@ cat("Theoretical Mean:", 2.5, "\n\n")
 var_normal <- var(x_normal)
 
 # Manual computation to demonstrate the formula
-biased_var_normal <- sum((x_normal - mean(x_normal))^2) / (length(x_normal)) # bessel's correction
+biased_var_normal <- sum((x_normal - mean(x_normal))^2) / (length(x_normal) ) # bessel's correction
 
 cat("Variance Comparisons:\n")
 cat("Normal Distribution:\n")
@@ -134,11 +139,37 @@ cat("Non-corrected Variance:", biased_var_normal, "\n\n")
 
 ```{r}
 # Quick quiz: Write the code to compute the sample variance of the log-normal and uniform distributions. Use cat() to print the results
+var_lognormal <- var(x_lognormal)
 
+cat("Variance of log-normal simulated distribution =", var_lognormal)
+
+var_uniform <- var(x_uniform)
+
+cat("\nVariance of uniform simulated distribution =", var_uniform)
 ```
 
 ```{r}
 # Quick quiz: Create three random normal distributions with mu=5 and var=4: 1 with 10 observations, 1 with 100 observations, and 1 with 1000 observations. Compute and print the biased and unbiased variance for each distribution
+x1 <- rnorm(10, mean = 5, sd = 2)
+x2 <- rnorm(100, mean = 5, sd = 2)
+x3 <- rnorm(1000, mean = 5, sd = 2)
+
+ub_x1 <- var(x1)
+ub_x2 <- var(x2)
+ub_x3 <- var(x3)
+
+b_x1 <- sum((x1 - mean(x1))^2) / (length(x1) )
+b_x2 <- sum((x2 - mean(x2))^2) / (length(x2) )
+b_x3 <- sum((x3 - mean(x3))^2) / (length(x3) )
+
+cat("Biased variance for 10 observations:", b_x1, "\n")
+cat("Unbiased variance for 10 observations:", ub_x1, "\n\n")
+
+cat("Biased variance for 100 observations:", b_x2, "\n")
+cat("Unbiased variance for 100 observations:", ub_x2, "\n\n")
+
+cat("Biased variance for 1000 observations:", b_x3, "\n")
+cat("Unbiased variance for 1000 observations:", ub_x3, "\n\n")
 
 ```
 
