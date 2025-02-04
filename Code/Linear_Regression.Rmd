@@ -12,6 +12,7 @@ library(tidyverse)
 library(MASS)
 library(car)
 library(lmtest)
+
 set.seed(123)  # For reproducibility
 ```
 
@@ -96,7 +97,6 @@ gridExtra::grid.arrange(p3, p4, ncol = 2)
 ```
 
 
-
 # 2. Full Rank (No Perfect Multicollinearity)
 
 The full rank assumption requires that no independent variable can be perfectly predicted by a linear combination of other independent variables. Mathematically, this means the matrix X must have full column rank:
@@ -111,53 +111,12 @@ x2 <- rnorm(n)
 x3 <- x1 + x2  # Perfect linear combination
 data_mc <- data.frame(y, x1, x2, x3)
 model_mc <- lm(y ~ x1 + x2 + x3, data = data_mc)
-summary(model_mc)  # Note NA for x3
+summary(model_mc)  # Note NA for x3 and a negative R^2
 ```
 
 ```{r}
 X <- model.matrix(model_mc)
 cat("Matrix rank:", qr(X)$rank, "/", ncol(X)) # 3 out of 4 columns are linearly independent
-```
-
-```{r multicollinearity}
-# Set sample size
-n <- 100
-
-# Generate true coefficients
-beta0 <- 1
-beta1 <- 2
-beta2 <- 3
-
-# Generate independent variables
-x1 <- rnorm(n)
-x2 <- rnorm(n)
-# Create x3 as a perfect linear combination
-x3 <- x1 + x2
-
-# Generate dependent variable
-y <- beta0 + beta1*x1 + beta2*x2 + rnorm(n, 0, 1)
-
-# Fit model with perfect multicollinearity
-model_mc <- lm(y ~ x1 + x2 + x3)
-
-# Check model results
-summary(model_mc)  # Note the NA coefficient for x3
-
-# Check matrix rank
-X <- model.matrix(model_mc)
-cat("Matrix rank:", qr(X)$rank, "out of", ncol(X), "columns\n")
-
-# Demonstrate imperfect multicollinearity
-x3_imperfect <- 0.9*x1 + 0.9*x2 + rnorm(n, 0, 0.1)
-model_imperfect <- lm(y ~ x1 + x2 + x3_imperfect)
-
-# Compare standard errors
-se_perfect <- summary(lm(y ~ x1 + x2))$coefficients[, 2]
-se_imperfect <- summary(model_imperfect)$coefficients[, 2]
-
-cat("\n\nStandard errors with perfect multicollinearity:\n", se_perfect)
-
-cat("\n\nStandard errors with imperfect multicollinearity:\n", se_imperfect)
 ```
 
 
@@ -275,11 +234,10 @@ abline(h = 0, col = "red", lty = 2)
 bp_homo <- bptest(model_homo)
 bp_hetero <- bptest(model_hetero)
 
-cat("\nBreusch-Pagan test p-values:\n")
+cat("\nBreusch-Pagan test p-values:\n") # test for heteroskedasticity, null hypothesis is that residuals' variance is homoskedastic
 cat("Homoskedastic case:", bp_homo$p.value, "\n")
-cat("Heteroskedastic case:", bp_hetero$p.value, "\n")
+cat("Heteroskedastic case:", bp_hetero$p.value, "\n") # small p-value => heteroskedasticity 
 ```
-
 
 # 5. Exogenous Data Generating Process
 
@@ -291,7 +249,7 @@ Let's demonstrate with a simple simulation:
 
 ```{r dgp}
 # Function to simulate data with different DGPs
-simulate_dgp <- function(n, independent = TRUE) {
+simulate_dgp <- function(n, beta0=1, beta1=2, independent = TRUE) {
   if (independent) {
     # Independent DGP
     x <- rnorm(n)
