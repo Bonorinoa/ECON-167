@@ -1,0 +1,350 @@
+---
+title: "ECON 167 - OLS"
+author: "Augusto Gonzalez-Bonorino"
+date: 'Sys.Date()'
+---
+
+## 1. Fundamentals of Matrix Algebra and Calculus in R
+
+```{r}
+# Create matrices in different ways
+A <- matrix(1:6, nrow = 2, ncol = 3)
+B <- matrix(c(1, 2, 3, 4), nrow = 2)  # 2 x 2 matrix
+C <- rbind(c(1, 2, 3), c(4, 5, 6))     # Using row binding
+D <- cbind(c(1, 2), c(3, 4))            # Using column binding
+I <- diag(2)                           # Identity matrix 2x2
+
+# Print matrices and basic properties
+cat("Matrix A:\n")
+print(A)
+cat("\nMatrix B:\n")
+print(B)
+cat("\nIdentity Matrix (I):\n")
+print(I)
+
+cat("\nDimensions of A:", dim(A), "\n")
+cat("Number of rows in A:", nrow(A), "\n")
+cat("Number of columns in A:", ncol(A), "\n")
+
+# Matrix arithmetic examples
+cat("\nB + B:\n")
+print(B + B)
+cat("\nB - B:\n")
+print(B - B)
+cat("\nMatrix multiplication (B %*% B):\n")
+print(B %*% B)
+cat("\nElement-wise multiplication (B * B):\n")
+print(B * B)
+
+# Transpose and inverse of B
+cat("\nTranspose of B:\n")
+print(t(B))
+cat("\nInverse of B:\n")
+B_inv <- solve(B) # check the documentation for solve() using the Help tab
+print(B_inv)
+cat("\nB multiplied by its inverse (should approximate I):\n")
+print(round(B %*% B_inv, 10))
+```
+
+```{r}
+# Quick quiz: 
+# - Set a seed so you can replicate the exercise.
+# - Create a 4x4 matrix with values drawn from a random uniform distribution with range [-2, 5].
+# - Create a 4x1 vector with four values drawn from a random standard normal distribution.
+# - Multiply these two and print out the result using cat().
+
+```
+
+
+## Ordinary Least Squares (OLS) Regression
+
+```{r}
+# simulated example
+x <- rnorm(100)
+y <- 2*x + rnorm(100)
+
+regression_model <- lm(y ~ x)
+
+plot(x, y)
+abline(regression_model)
+title("Simple Linear Regression Example")
+mtext("y = 2x + error", side = 3, line = 0.2)
+```
+
+In the background, `lm()` is using OLS to estimate the coefficients of the model. The model is estimated as:
+
+$$ y = \beta_0 + \beta_1 x + \epsilon $$
+
+where $\beta_0$ is the intercept and $\beta_1$ is the slope of the line. The error term $\epsilon$ is assumed to be normally distributed with mean 0 and constant variance.
+
+In theory, this would be the same estimates we get by solving the minimization problem in pen and paper. Recall that the OLS estimators, for univariate regression models, are:
+
+$$ \hat{\beta_0} = \bar{y} - \hat{\beta_1} \bar{x} $$
+
+$$ \hat{\beta_1} = \frac{\sum_{i=1}^{n} (x_i - \bar{x})(y_i - \bar{y})}{\sum_{i=1}^{n} (x_i - \bar{x})^2} = \frac{Cov(x, y)}{Var(x)} $$
+
+where $\bar{y}$ and $\bar{x}$ are the sample means of $y$ and $x$, respectively.
+
+```{r}
+# Simulate a simple linear regression model: y = beta0 + beta1*x + error
+set.seed(123)
+x <- rnorm(100)
+y <- 2 * x + rnorm(100)
+
+# Fit model using lm()
+simple_model <- lm(y ~ x)
+
+# Manually compute the slope and intercept
+beta1_manual <- cov(x, y) / var(x)
+beta0_manual <- mean(y) - beta1_manual * mean(x)
+
+cat("Manual OLS (Simple Regression):\n")
+cat("Intercept:", beta0_manual, "\n") # should be close to 0
+cat("Slope:", beta1_manual, "\n\n") # should be close to 2
+cat("lm() Coefficients:\n")
+print(coef(simple_model)) # should be the same as the ones computed manually
+
+```
+
+```{r}
+# Simulate a multiple regression with two regressors:
+set.seed(123)
+n <- 100
+# X includes an intercept column plus two random regressors
+X <- cbind(1, rnorm(n), rnorm(n))
+beta_true <- c(1, 2, -1)  # True coefficients: intercept, beta1, beta2
+epsilon <- rnorm(n, mean = 0, sd = 0.5)
+y_multi <- X %*% beta_true + epsilon  # Model: y = Xβ + error
+
+# Manual OLS estimation using matrix algebra: β_hat = (X'X)^{-1} X'y
+beta_hat_manual <- solve(t(X) %*% X) %*% t(X) %*% y_multi
+y_hat_manual <- X %*% beta_hat_manual
+residuals_manual <- y_multi - y_hat_manual
+
+# Fit the same model using lm()
+# Note: lm() adds the intercept automatically, so we exclude the first column of X.
+multi_model <- lm(y_multi ~ X[, -1])
+
+cat("Manual OLS (Multiple Regression):\n")
+print(beta_hat_manual)
+cat("\nCoefficients from lm():\n")
+print(coef(multi_model))
+
+# Calculate R-squared manually
+TSS <- sum((y_multi - mean(y_multi))^2)
+RSS <- sum(residuals_manual^2)
+R2_manual <- 1 - RSS / TSS
+
+cat("\nManual R-squared:", R2_manual, "\n")
+cat("lm() R-squared:", summary(multi_model)$r.squared, "\n")
+
+```
+
+There might be some performance difference stemming from how the `lm()` function computes the covariance and variance, specially for larger datasets or bigger models. That is, the actual algorithmic implementation might be more sophisticated than simply computing cov(x,y) and var(x) directly. Nevertheless, it is very important that you understand what is happenning under the hood. Different softwares (e.g., R packages or Stata) tend to do things differently, and it is important to understand the assumptions and limitations of the software you are using to make intelligent decisions.
+
+```{r}
+# Quick Quiz: 
+# - Simulate your Data Generating Process with an intercept and two regressors
+# - Estimate the three coefficients and the residuals with the OLS estimator manually
+# - Plot the residuals using plot() with a red horizontal line at 0 using abline() 
+
+```
+
+
+### Applications in Regression Analysis
+
+In this section we download economic data from FRED via the fredr package. We choose three series:
+
+- *PCEC* (Personal Consumption Expenditures) as the dependent variable,
+- *M2SL* (M2 Money Supply) as a regressor with an expected positive effect on consumption, and
+- *FEDFUNDS* (Effective Federal Funds Rate) as a regressor with an expected negative effect on consumption.
+
+Theory to test: An increase in money supply increases consumption, as measured by PCEC, and an increase in the fed funds rate has a negative effect on consumption.
+
+```{r}
+# Install and load necessary packages
+if (!require("fredr")) {
+  install.packages("fredr")
+  library(fredr)
+} else {
+  library(fredr)
+}
+if (!require("dplyr")) {
+  install.packages("dplyr")
+  library(dplyr)
+}
+
+fredr_set_key("aeca492c1d6b24a773fe1fb915779b96") # Replace with your own key from https://cran.r-project.org/web/packages/fredr/vignettes/fredr.html
+```
+
+```{r}
+# Define the observation period
+start_date <- as.Date("2015-01-01")
+end_date <- as.Date("2020-12-31")
+
+# Download monthly data from FRED
+data_PCEC <- fredr(series_id = "PCEC", 
+                   observation_start = start_date, 
+                   observation_end = end_date)
+data_M2SL <- fredr(series_id = "M2SL", 
+                   observation_start = start_date, 
+                   observation_end = end_date)
+data_FEDFUNDS <- fredr(series_id = "FEDFUNDS", 
+                       observation_start = start_date, 
+                       observation_end = end_date)
+
+# For merging, create a "year-month" column. PCEC and M2SL are monthly; for FEDFUNDS (often daily),
+data_PCEC <- data_PCEC %>% mutate(year_month = format(date, "%Y-%m"))
+data_M2SL <- data_M2SL %>% mutate(year_month = format(date, "%Y-%m"))
+data_FEDFUNDS <- data_FEDFUNDS %>% mutate(year_month = format(date, "%Y-%m"))
+
+# we aggregate to the monthly average.
+monthly_FEDFUNDS <- data_FEDFUNDS %>%
+  group_by(year_month) %>%
+  summarize(FEDFUNDS = mean(value, na.rm = TRUE))
+
+# Merge the datasets by "year_month"
+merged_data <- merge(
+  data_PCEC[, c("year_month", "value")],
+  data_M2SL[, c("year_month", "value")],
+  by = "year_month", suffixes = c("_PCEC", "_M2SL")
+)
+merged_data <- merge(merged_data, monthly_FEDFUNDS, by = "year_month")
+
+# Rename columns for clarity
+names(merged_data) <- c("year_month", "PCEC", "M2SL", "FEDFUNDS")
+head(merged_data)
+```
+
+```{r}
+# Convert series to numeric if necessary (just a sanity check)
+merged_data$PCEC <- as.numeric(merged_data$PCEC)
+merged_data$M2SL <- as.numeric(merged_data$M2SL)
+merged_data$FEDFUNDS <- as.numeric(merged_data$FEDFUNDS)
+
+# Manual OLS using matrix algebra for the FRED data example:
+# Model: PCEC = β0 + β1*M2SL + β2*FEDFUNDS + error
+n_obs <- nrow(merged_data)
+X_fred <- cbind(1, merged_data$M2SL, merged_data$FEDFUNDS)  # Intercept + Data
+y_fred <- merged_data$PCEC
+
+beta_hat_fred_manual <- solve(t(X_fred) %*% X_fred) %*% t(X_fred) %*% y_fred
+y_hat_fred_manual <- X_fred %*% beta_hat_fred_manual
+residuals_fred_manual <- y_fred - y_hat_fred_manual
+
+# Fit the same model using lm()
+fred_model <- lm(PCEC ~ M2SL + FEDFUNDS, data = merged_data)
+
+cat("Manual OLS Coefficients (FRED data):\n")
+print(beta_hat_fred_manual)
+cat("\nCoefficients from lm() (FRED data):\n")
+print(coef(fred_model))
+
+```
+
+```{r}
+# Residual vs. Fitted Plot for the FRED model
+plot(fred_model$fitted.values, fred_model$residuals,
+     main = "Residuals vs. Fitted Values",
+     xlab = "Fitted Values", ylab = "Residuals",
+     pch = 20, col = "blue")
+abline(h = 0, lty = 2, col = "red")
+
+# Q-Q Plot for the residuals
+qqnorm(fred_model$residuals, main = "Normal Q-Q Plot")
+qqline(fred_model$residuals, col = "red")
+
+```
+## Testing the Gauss–Markov Assumptions
+
+We now run several standard tests to check the assumptions behind OLS:
+
+- **Homoscedasticity**: We use the Breusch–Pagan test. Null Hypothesis (H₀): Residuals are homoscedastic (variance is constant) so we want a high p-value
+- **Autocorrelation**: We use the Durbin–Watson test. Null Hypothesis (H₀): No autocorrelation in the residuals (independence) so we want a high p-value
+- **Normality of Residuals**: We use the Shapiro–Wilk test. Null Hypothesis (H₀): Residuals are normally distributed so we want a high p-value
+
+```{r}
+# Install and load lmtest package if not already installed
+if (!require("lmtest")) {
+  install.packages("lmtest")
+  library(lmtest)
+} else {
+  library(lmtest)
+}
+
+# Breusch-Pagan Test for homoscedasticity
+bp_test <- bptest(fred_model)
+cat("Breusch-Pagan Test for Homoscedasticity:\n")
+print(bp_test)
+
+# Durbin-Watson Test for autocorrelation
+dw_test <- dwtest(fred_model)
+cat("\nDurbin-Watson Test for Autocorrelation:\n")
+print(dw_test)
+
+# Shapiro-Wilk Test for normality of residuals
+shapiro_test <- shapiro.test(fred_model$residuals)
+cat("\nShapiro-Wilk Test for Normality of Residuals:\n")
+print(shapiro_test)
+
+```
+
+Remember: For all these tests, a high p-value means we fail to reject the null hypothesis (i.e. the assumption holds), which is what we desire.
+
+## Partial Regression Plots
+
+With multiple regressors, it becomes challenging to visualize the results. But we can convert them to 2D plots with partial regressions.
+Partial regression plots (or added-variable plots) help us visualize the unique contribution of each regressor on the dependent variable while controlling for the other regressor(s).
+
+
+```{r}
+# Partial regression plot for M2SL:
+# Regress PCEC on FEDFUNDS (excluding M2SL)
+model_y_FED <- lm(PCEC ~ FEDFUNDS, data = merged_data)
+resid_y_M2 <- residuals(model_y_FED)
+
+# Regress M2SL on FEDFUNDS
+model_M2_FED <- lm(M2SL ~ FEDFUNDS, data = merged_data)
+resid_x_M2 <- residuals(model_M2_FED)
+
+# Plot the residuals
+plot(resid_x_M2, resid_y_M2,
+     main = "Partial Regression Plot for M2SL (Money Supply)",
+     xlab = "Residuals of M2SL ~ FEDFUNDS",
+     ylab = "Residuals of PCEC ~ FEDFUNDS",
+     pch = 20, col = "blue")
+abline(lm(resid_y_M2 ~ resid_x_M2), col = "red", lwd = 2)
+slope_M2 <- coef(lm(resid_y_M2 ~ resid_x_M2))[2]
+legend("topleft", legend = paste("Slope =", round(slope_M2, 3)), bty = "n")
+
+```
+
+- The slope is 0.33, indicating that for every unit increase in the residual of Money Supply (after accounting for the Fed Funds Rate), the dependent variable increases by 0.33 units on average.
+- This reflects the unique contribution of Money Supply to the dependent variable when the effect of Fed Funds Rate is held constant.
+- Money Supply has a positive and statistically significant contribution to the dependent variable, but other factors or random noise also influence this relationship.
+
+
+```{r}
+# Partial regression plot for FEDFUNDS:
+# Regress PCEC on M2SL (excluding FEDFUNDS)
+model_y_M2 <- lm(PCEC ~ M2SL, data = merged_data)
+resid_y_FED <- residuals(model_y_M2)
+
+# Regress FEDFUNDS on M2SL
+model_FED_M2 <- lm(FEDFUNDS ~ M2SL, data = merged_data)
+resid_x_FED <- residuals(model_FED_M2)
+
+# Plot the residuals
+plot(resid_x_FED, resid_y_FED,
+     main = "Partial Regression Plot for FEDFUNDS (Fed Funds Rate)",
+     xlab = "Residuals of FEDFUNDS ~ M2SL",
+     ylab = "Residuals of PCEC ~ M2SL",
+     pch = 20, col = "blue")
+abline(lm(resid_y_FED ~ resid_x_FED), col = "red", lwd = 2)
+slope_FED <- coef(lm(resid_y_FED ~ resid_x_FED))[2]
+legend("topleft", legend = paste("Slope =", round(slope_FED, 3)), bty = "n")
+
+```
+
+- The slope is 580.313, showing a much steeper positive relationship compared to Money Supply. This implies that for every unit increase in the residual of Fed Funds Rate (after accounting for Money Supply), the dependent variable increases by approximately 580.313 units.
+- Fed Funds Rate has a much stronger impact on the dependent variable compared to Money Supply when controlling for the other variable. This suggests that changes in Fed Funds Rate might play a more dominant role in influencing consumption.

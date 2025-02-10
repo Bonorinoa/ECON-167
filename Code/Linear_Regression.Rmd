@@ -2,7 +2,6 @@
 title: "ECON 167 - Linear Regression"
 author: "Augusto Gonzalez-Bonorino"
 date: 'Sys.Date()'
-output: html_notebook
 ---
 
 ## Gauss-Markov Assumptions
@@ -20,6 +19,7 @@ set.seed(123)  # For reproducibility
 
 ## Theory
 The linearity assumption has two components:
+
 1. Linearity in parameters: The relationship between X and Y can be written as a linear function
 2. Linearity in disturbances: The error term enters the equation additively
 
@@ -109,6 +109,8 @@ Let's demonstrate the impact of multicollinearity:
 x1 <- rnorm(n)
 x2 <- rnorm(n)
 x3 <- x1 + x2  # Perfect linear combination
+y <- 2 + 3*x1 + 4*x2 + rnorm(n)
+
 data_mc <- data.frame(y, x1, x2, x3)
 model_mc <- lm(y ~ x1 + x2 + x3, data = data_mc)
 summary(model_mc)  # Note NA for x3 and a negative R^2
@@ -148,6 +150,7 @@ y_endo <- beta0 + beta1*x1_endo + epsilon
 # Generate exogenous case for comparison
 x1_exog <- rnorm(n)  # Independent x1
 epsilon_exog <- rnorm(n)  # Independent error
+
 y_exog <- beta0 + beta1*x1_exog + epsilon_exog
 
 # Fit both models
@@ -312,246 +315,6 @@ When assumptions are violated, we might need to consider:
 
 ### ----------------------------------------------- ###
 
-## Linear Regression
 
-```{r}
-# simulated example
-x <- rnorm(100)
-y <- 2*x + rnorm(100)
-
-regression_model <- lm(y ~ x)
-
-plot(x, y)
-abline(regression_model)
-title("Simple Linear Regression Example")
-mtext("y = 2x + error", side = 3, line = 0.2)
-```
-
-In the background, `lm()` is using OLS to estimate the coefficients of the model. The model is estimated as:
-
-$$
-y = \beta_0 + \beta_1 x + \epsilon
-$$
-
-where $\beta_0$ is the intercept and $\beta_1$ is the slope of the line. The error term $\epsilon$ is assumed to be normally distributed with mean 0 and constant variance.
-
-In theory, this would be the same estimates we get by solving the minimization problem in pen and paper. Recall that the OLS estimators, for univariate regression models, are:
-
-$$
-\hat{\beta_0} = \bar{y} - \hat{\beta_1} \bar{x}
-$$
-
-$$
-\hat{\beta_1} = \frac{\sum_{i=1}^{n} (x_i - \bar{x})(y_i - \bar{y})}{\sum_{i=1}^{n} (x_i - \bar{x})^2} = \frac{Cov(x, y)}{Var(x)}
-$$
-
-where $\bar{y}$ and $\bar{x}$ are the sample means of $y$ and $x$, respectively.
-
-```{r}
-# manually calculating the coefficients
-beta_1 <- cov(x, y) / var(x)
-beta_0 <- mean(y) - beta_1 * mean(x)
-
-# lm() coefficients
-coefs <- summary(regression_model)$coefficients
-
-cat("Manually calculated coefficients:\n")
-cat("Intercept: ", beta_0, "\n")
-cat("Slope: ", beta_1, "\n\n")
-
-cat("lm() coefficients:\n")
-cat("Intercept: ", coefs[1, 1], "\n")
-cat("Slope: ", coefs[2, 1], "\n")
-```
-
-There might be some performance difference stemming from how the `lm()` function computes the covariance and variance, specially for larger datasets or bigger models. That is, the actual algorithmic implementation might be more sophisticated than simply computing cov(x,y) and var(x) directly. Nevertheless, it is very important that you understand what is happenning under the hood. Different softwares (e.g., R packages or Stata) tend to do things differently, and it is important to understand the assumptions and limitations of the software you are using to make intelligent decisions.
-
-## Matrix Algebra
-
-```{r}
-# Different ways to create matrices
-A <- matrix(1:6, nrow = 2, ncol = 3)
-B <- matrix(c(1,2,3,4), nrow = 2) # 2x2 matrix
-C <- rbind(c(1,2,3), c(4,5,6))    # Binding rows
-D <- cbind(c(1,2), c(3,4))        # Binding columns
-I <- matrix(c(1,0,0,1), nrow = 2) # Identity matrix
-
-# Display matrices
-cat("Matrix A:\n")
-print(A)
-cat("\nMatrix B:\n")
-print(B)
-cat("\nIdentity Matrix:\n")
-print(I)
-
-# Matrix dimensions
-cat("\nDimensions of A:", dim(A))
-cat("\nNumber of rows:", nrow(A))
-cat("\nNumber of columns:", ncol(A))
-```
-
-```{r}
-# Matrix addition and subtraction
-cat("B + B:\n")
-print(B + B)
-cat("\nB - B:\n")
-print(B - B)
-
-# Matrix multiplication
-cat("\nB × B:\n")
-print(B %*% B)
-
-# Element-wise multiplication
-cat("\nElement-wise multiplication of B:\n")
-print(B * B)
-
-# Transpose
-cat("\nTranspose of B:\n")
-print(t(B))
-
-# Matrix inverse
-## This generic function solves the equation a %*% x = b for x, where b can be either a vector or a matrix.
-## In this case, we are solving B %*% x = I, where I is the identity matrix
-cat("\nInverse of B:\n")
-print(solve(B, I))
-
-# Verify B × B⁻¹ = I
-cat("\nB × B⁻¹ (should be identity matrix):\n")
-print(round(B %*% solve(B), 10))
-```
-
-### Matrix properties
-
-```{r}
-# Determinant
-det_B <- det(B)
-cat("Determinant of B:", det_B)
-
-# Eigenvalues and eigenvectors
-eigen_B <- eigen(B)
-cat("\n\nEigenvalues of B:\n")
-print(eigen_B$values)
-cat("\nEigenvectors of B:\n")
-print(eigen_B$vectors)
-
-# Condition number (useful for multicollinearity detection)
-cond_num <- kappa(B)
-cat("\nCondition number of B:", cond_num)
-
-```
-
-### Applications in Regression Analysis
-
-
-```{r}
-# Let's simulate data and implement OLS manually using matrix algebra.
-# Set seed for reproducibility
-set.seed(123)
-
-# Generate sample data
-n <- 100  # sample size
-X <- cbind(1, rnorm(n), rnorm(n))  # Two regressors plus intercept
-beta_true <- c(1, 2, -1)           # True parameters
-epsilon <- rnorm(n, 0, 0.5)        # Error term
-y <- X %*% beta_true + epsilon     # Generate dependent variable (Y = Xβ + ε)
-
-# Manual OLS implementation using matrix algebra
-beta_hat <- solve(t(X) %*% X) %*% t(X) %*% y # beta_hat = (X'X)^-1 X'y
-y_hat <- X %*% beta_hat
-residuals <- y - y_hat
-
-# Compare with lm()
-model_lm <- lm(y ~ X[,-1])  # exclude first column (intercept) because lm() adds it automatically
-
-# Display results
-cat("Manual OLS coefficients:\n")
-print(beta_hat)
-cat("\nlm() coefficients:\n")
-print(coef(model_lm))
-
-# Calculate R-squared manually
-TSS <- sum((y - mean(y))^2)
-RSS <- sum(residuals^2)
-R_squared_manual <- 1 - RSS/TSS
-
-cat("\nManual R-squared:", R_squared_manual)
-cat("\nlm() R-squared:", summary(model_lm)$r.squared)
-```
-
-```{r}
-# Create plotting data for first regressor
-plot_data <- data.frame(
-  x = X[,2],  # first regressor
-  y = y,
-  fitted = y_hat
-)
-
-# Sort for clean plotting
-plot_data <- plot_data[order(plot_data$x),]
-
-# Plot
-plot(plot_data$x, plot_data$y, 
-     main = "Regression Results",
-     xlab = "First Regressor",
-     ylab = "y",
-     pch = 16,
-     col = "grey50")
-lines(plot_data$x, plot_data$fitted, 
-      col = "red", 
-      lwd = 2)
-legend("topleft", 
-       legend = c("Observed", "Fitted"), 
-       pch = c(16, NA), 
-       lty = c(NA, 1),
-       col = c("grey50", "red"))
-```
-
-- There's a clear positive relationship between the first regressor and y
-- The fitted line shows considerable fluctuation rather than being smooth because this is a multiple regression - what we're seeing is a 2D projection of a 3D relationship
-- The scatter of points around the fitted line represents both the influence of our second regressor and the random error term
-- We can only plot in 2D or 3D. In practice, with multiple regression, we need to choose one regressor to plot against. This is why we use statistical methods to estimate the relationship.
-  - But you can always visualize partial regression plots to visualize the relationship between one regressor and the dependent variable, controlling for the other regressors.
-- Nevertheless, since here we only have two regressors we can try a 3D plot
-
-```{r}
-if (!require("plotly")) {
-    install.packages("plotly")
-}
-library(plotly)
-
-# Create the surface data
-x.pred <- seq(min(X[,2]), max(X[,2]), length.out = 30)
-y.pred <- seq(min(X[,3]), max(X[,3]), length.out = 30)
-xy <- expand.grid(x = x.pred, y = y.pred)
-z.pred <- cbind(1, xy$x, xy$y) %*% beta_hat
-z.pred <- matrix(z.pred, nrow = length(x.pred))
-
-# Create the 3D plot with adjusted orientation
-plot_ly() %>%
-  add_surface(x = x.pred, 
-             y = y.pred, 
-             z = z.pred,
-             opacity = 0.7,
-             colorscale = list(c(0, 1), c("rgb(200,200,255)", "rgb(0,0,255)")),
-             name = "Fitted Surface") %>%
-  add_trace(x = X[,2],
-           y = X[,3],
-           z = as.vector(y),
-           type = 'scatter3d',
-           mode = 'markers',
-           marker = list(size = 3,
-                        color = 'red',
-                        opacity = 0.8),
-           name = "Observed Data") %>%
-  layout(scene = list(
-    xaxis = list(title = "First Regressor", autorange = "reversed"),
-    yaxis = list(title = "Second Regressor"),
-    zaxis = list(title = "y"),
-    camera = list(
-      eye = list(x = -1.5, y = 1.5, z = 1.5)
-    )),
-    title = "Interactive 3D Visualization of Multiple Regression")
-
-```
 
   
