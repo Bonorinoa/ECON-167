@@ -1,0 +1,415 @@
+---
+title: "ECON 167 - Inference"
+author: "Augusto Gonzalez-Bonorino"
+date: 'Sys.Date()'
+---
+
+# Introduction
+
+This notebook demonstrates a complete cross-sectional econometric analysis using data from the World Values Survey (WVS) and country-level indicators from the World Bank (WDI). The aim is twofold: 
+According to economic development theory, human capital plays a big role in explaining growth trajectories of countries. Societies which place a high value in human capital (education, R&D, literacy, etc.) tend to be better at adapting to new technologies and therefore are better prepared to maintain productivity growth. One implication of this development is a decrease in fertility rates, because the opportunity costs (forgone salary, career ambitions, power or status, etc.) of having kids are much higher in developed countries. 
+
+Because it is a cross-sectional dataset, we can only make comparisons across country at a fixed period in time. Therefore, we cannot make any claims about the properties of our findings at other periods of time. Therefore, we are going to use this data to test the following if hypotheses held or not for the time period wave 7 was collected (2018-2022):
+
+  1. *Hypothesis 1*: Countries that place a higher value on science also invest more in education and R&D.
+  2. *Hypothesis 2*: Countries with higher GDP per capita (adjusted for purchasin power) will have lower fertility rates.
+  3. *Hypothesis 3*: Countries with higher GDP per capita (adjusted for purchasing power) will have higher levels of education and R&D.
+
+To complement the values data, we will fetch metrics of human capital, GDP, and fertility rate from the world bank. 
+
+Note that Q158-Q160 are about benefits of science and Q161-Q162t are about the bad things of science. If the average of answers to Q158-Q160 is high, then that country has a very positive outlook on science & tech. If the average of answers to Q161-Q162 is high, then that country is skeptical about science & tech. 
+
+# Data Description
+
+## World Values Survey (WVS) Data
+
+The WVS dataset contains responses to various social and political questions. For our analysis, we focus on the science & technology module (questions Q158 to Q163). The survey asks respondents to rate their agreement with statements such as:
+
+- **Q158:** "Science and technology are making our lives healthier, easier, and more comfortable."
+- **Q159:** "Because of science and technology, there will be more opportunities for the next generation."
+- **Q160:** "We depend too much on science and not enough on faith."
+- **Q161:** "One of the bad effects of science is that it breaks down people's ideas of right and wrong."
+- **Q162:** "It is not important for me to know about science in my daily life."
+- **Q163:** Overall, whether the world is better off or worse off because of science and technology (with 1 meaning “a lot worse” and 10 “a lot better”).
+
+For these questions, a 1 means that you “completely disagree” and a 10 means that you “completely agree.” A higher average on Q158–Q160 indicates a positive outlook, whereas a higher average on Q161–Q162 signals skepticism.
+
+
+```{r}
+wvs_data <- read.csv(file.choose())
+head(wvs_data)
+```
+
+```{r}
+# Questionnaire subsets for each topic
+social_values_norms <- paste0('Q', 1:45)
+happiness_wellbeing <- paste0('Q', 46:56)
+social_capital_trust <- paste0('Q', 57:105)
+economic_values <- paste0('Q', 106:111)
+corruption <- paste0('Q', 112:120)
+migration <- paste0('Q', 121:130)
+security <- paste0('Q', 131:151)
+postmaterialism <- paste0('Q', 152:157)
+science_technology <- paste0('Q', 158:163)
+religious_values <- paste0('Q', 164:175)
+ethical_values <- paste0('Q', 176:198)
+political_interest_participation <- paste0('Q', 199:234)
+political_culture_regimes <- paste0('Q', 235:259)
+demographic_variables <- paste0('Q', 260:290)
+
+country_codes <- 'B_COUNTRY_ALPHA'
+```
+
+```{r}
+# Aggregate responses by country for questions Q158-Q162 using base R aggregate
+wvs_science <- aggregate(cbind(Q158, Q159, Q160, Q161, Q162) ~ B_COUNTRY_ALPHA, 
+                         data = wvs_data, 
+                         FUN = function(x) mean(x, na.rm = TRUE))
+# Rename columns for clarity
+names(wvs_science) <- c("Country", "mean_Q158", "mean_Q159", "mean_Q160", "mean_Q161", "mean_Q162")
+
+# Compute indices:
+# A higher mean on Q158-Q160 indicates a positive outlook on science.
+# A higher mean on Q161-Q162 indicates a skeptical view.
+wvs_science$science_positive <- rowMeans(wvs_science[, c("mean_Q158", "mean_Q159", "mean_Q160")], na.rm = TRUE)
+wvs_science$science_skeptical <- rowMeans(wvs_science[, c("mean_Q161", "mean_Q162")], na.rm = TRUE)
+head(wvs_science)
+```
+
+
+## World Bank Indicators (WDI) Data
+
+We also fetch the following indicators for the year 2022:
+- **GDP per capita (PPP):** An indicator of economic prosperity.
+- **Education Spending:** Government expenditure on education as a percentage of GDP.
+- **Fertility Rate:** Births per woman.
+- **Tertiary Education Enrollment:** A proxy for human capital.
+- **R&D Expenditure:** Although many countries have missing data on this indicator, so we will not use it directly.
+
+
+```{r}
+library(WDI)
+
+# Fetch indicators for the year 2022
+wb_indicators <- WDI(
+  country = "all",
+  indicator = c(
+    "gdp_ppp" = "NY.GDP.PCAP.PP.KD",     # GDP per capita, PPP (constant 2017 international $)
+    "edu_spending" = "SE.XPD.TOTL.GD.ZS",  # Education expenditure (% of GDP)
+    "rd_spending" = "GB.XPD.RSDV.GD.ZS",   # R&D expenditure (% of GDP)
+    "fertility" = "SP.DYN.TFRT.IN",        # Fertility rate (births per woman)
+    "tertiary_edu" = "SE.TER.ENRR"         # Tertiary education enrollment rate
+  ),
+  start = 2022,
+  end = 2022
+)
+head(wb_indicators)
+
+```
+
+
+## Data Analysis
+
+```{r}
+# Merge the datasets by country code
+merged_data <- merge(wvs_science, wb_indicators, 
+                     by.x = "Country", by.y = "iso3c", 
+                     all.x = TRUE)
+
+# check for any missing values
+colMeans(is.na(merged_data))
+
+summary(merged_data[, c("gdp_ppp", "edu_spending", "fertility", "tertiary_edu")])
+```
+
+The variable for R&D is missing data for most countries, we can either drop it or try another metric to approximate this indicator of innovation or human capital. To keep this simple for now, let's simply drop it and rely on education metrics as proxies for human capital. And since we are dropping variables, let's get rid of anything else we don't need for our model.
+
+```{r}
+merged_data <- subset(merged_data, select = -c(rd_spending, iso2c, country, year))
+merged_data
+```
+
+
+For the remaining missing data points, since there are not many per variable, we can apply an imputation to estimate them from the other observations. A common choice is the *mice* package.
+
+```{r}
+# https://www.rdocumentation.org/packages/mice/versions/3.17.0/topics/mice
+library(mice)
+
+# Select the variables for imputation
+impute_vars <- merged_data[, c("gdp_ppp", "edu_spending", "fertility", "tertiary_edu")]
+
+# Apply multiple imputation using predictive mean matching
+imputation_model <- mice(impute_vars, method = "pmm", m = 5, maxit = 50, seed = 123, print = F)
+
+# Extract the completed dataset from the first imputation
+completed_data <- complete(imputation_model, 1)
+
+# Replace missing values with imputed values
+merged_data$gdp_ppp <- completed_data$gdp_ppp
+merged_data$edu_spending <- completed_data$edu_spending
+merged_data$fertility    <- completed_data$fertility
+merged_data$tertiary_edu <- completed_data$tertiary_edu
+
+# Adjust GDP per capita to be in thousands of dollars for ease of interpretation
+merged_data$gdp_ppp <- merged_data$gdp_ppp / 1000
+
+colMeans(is.na(merged_data))
+```
+
+```{r}
+summary_vars <- merged_data[, c("gdp_ppp", "edu_spending", "fertility", "tertiary_edu")]
+print("Summary Statistics for Key Variables (After Imputation):")
+summary(summary_vars)
+
+```
+
+
+```{r}
+# Plot 1: Tertiary Education vs GDP per capita
+plot(merged_data$tertiary_edu, merged_data$gdp_ppp,
+     xlab = "Tertiary Education Enrollment (%)", 
+     ylab = "GDP per capita (PPP, thousands USD)", 
+     main = "Tertiary Education vs GDP per capita", 
+     pch = 19)
+abline(lm(gdp_ppp ~ tertiary_edu, data = merged_data), col = "blue", lwd = 2)
+
+# Plot 2: Positive Science Outlook vs GDP per capita
+plot(merged_data$science_positive, merged_data$gdp_ppp,
+     xlab = "Positive Science Outlook (1-10)",
+     ylab = "GDP per capita (PPP, thousands USD)",
+     main = "Positive Science Outlook vs GDP per capita", 
+     pch = 19)
+abline(lm(gdp_ppp ~ science_positive, data = merged_data), col = "blue", lwd = 2)
+
+# Plot 3: Education Spending vs GDP per capita
+plot(merged_data$edu_spending, merged_data$gdp_ppp,
+     xlab = "Education Spending (% of GDP)",
+     ylab = "GDP per capita (PPP, thousands USD)",
+     main = "Education Spending vs GDP per capita", 
+     pch = 19)
+abline(lm(gdp_ppp ~ edu_spending, data = merged_data), col = "blue", lwd = 2)
+
+# Plot 4: Fertility Rate vs GDP per capita
+plot(merged_data$fertility, merged_data$gdp_ppp,
+     xlab = "Fertility Rate (births per woman)",
+     ylab = "GDP per capita (PPP, thousands USD)",
+     main = "Fertility Rate vs GDP per capita", 
+     pch = 19)
+abline(lm(gdp_ppp ~ fertility, data = merged_data), col = "blue", lwd = 2)
+
+```
+
+```{r}
+# This model tests whether countries with a more positive science outlook invest more in education, controlling for skepticism and GDP (logged).
+model1 <- lm(edu_spending ~ science_positive + science_skeptical + log(gdp_ppp), 
+             data = merged_data)
+summary(model1)
+
+```
+
+```{r}
+# This model examines whether higher GDP per capita is associated with lower fertility rates, while controlling for education metrics.
+model2 <- lm(fertility ~ log(gdp_ppp) + tertiary_edu + edu_spending, 
+             data = merged_data)
+summary(model2)
+
+```
+
+```{r}
+# This model tests whether higher GDP per capita is associated with higher tertiary education enrollment, and whether a positive science outlook plays an additional role.
+model3 <- lm(tertiary_edu ~ log(gdp_ppp) + science_positive + edu_spending, 
+             data = merged_data)
+summary(model3)
+
+```
+
+But, everything depends on the GMA holding. Otherwise we cannot guarantee the OLS estimates are unbiased and therefore the numbers we interpret might be incorrect. So, before any deeper analysis, let's look at some diagnostics. 
+
+```{r fig.height=8, fig.width=10}
+par(mfrow = c(2, 2))
+plot(model1, main = "Model 1 Diagnostics")
+par(mfrow = c(1,1))
+
+par(mfrow = c(2, 2))
+plot(model2, main = "Model 2 Diagnostics")
+par(mfrow = c(1,1))
+
+par(mfrow = c(2, 2))
+plot(model3, main = "Model 3 Diagnostics")
+par(mfrow = c(1,1))
+```
+
+### Formal tests
+
+- **Homoscedasticity**: We use the Breusch–Pagan test. Null Hypothesis (H₀): Residuals are homoscedastic (variance is constant) so we want a high p-value
+
+- **Normality of Residuals**: We use the Shapiro–Wilk test. Null Hypothesis (H₀): Residuals are normally distributed so we want a high p-value
+
+Note: Since autocorrelation is about dependences with "lags", it implies a time component, which cross-sectional data does not have. Autocorrelation is common in time-series data.
+
+```{r}
+# https://cran.r-project.org/web/packages/lmtest/lmtest.pdf
+library(lmtest)
+
+bp_test <- bptest(model1)
+print("Breusch-Pagan Test for Model 1:")
+print(bp_test)
+
+shapiro_test <- shapiro.test(residuals(model1))
+print("Shapiro-Wilk Test for Normality of Residuals (Model 1):")
+print(shapiro_test)
+
+```
+
+```{r}
+# we will use these tests routinely, so let's save them in a function for convenience.
+ols_tests <- function(model) {
+  bp_test <- bptest(model)$p.value # null is homoskedasticity
+  shapiro_test <- shapiro.test(residuals(model))$p.value # null is normal residuals
+  
+  return(c(bp_test, shapiro_test))
+}
+
+print("--- Model 1 ---\n")
+ols_tests(model1)
+
+print("\n--- Model 2 ---\n")
+ols_tests(model2)
+
+print("\n--- Model 3 ---\n")
+ols_tests(model3)
+
+  
+```
+
+Model 1 is pretty solid. But the other two seem to be suffering from heteroskedasticity (low BP p-value) and non-normally distributed residuals (low SW p-value). This suggests that any estimate, and thus interpretation, we make from these model will be biased. There are techniques to correct for these biases. These will be the focus of the remainder of the semester. 
+
+
+## Statistical Inference
+
+Since Model 1 appears to satisfy the Gauss–Markov assumptions, we proceed with inference. Recall that the null hypothesis for each coefficient is that it is equal to zero (i.e. the variable has no effect on education spending). We can assess this with the t‑statistics and p‑values provided in the model summary. In addition, we can compute confidence intervals to see the range of plausible coefficient values.
+
+
+```{r}
+# Display the model summary for Model 1
+summary(model1)
+
+# Compute and print the 95% confidence intervals for the coefficients
+conf_intervals <- confint(model1, level = 0.95)
+cat("95% Confidence Intervals for Model 1 Coefficients:\n")
+print(conf_intervals)
+
+```
+
+The output above tells us, for example, that if the 95% confidence interval for the coefficient on science_positive does not include zero, we can reject the null hypothesis at the 5% significance level. In this case, zero is included in all interval estimates. Hence, why we get very high p-values.
+
+Next, let's illustrate how we might use Model 1 for prediction. Suppose we want to predict education spending for a new observation. (Note that in the model, we use log(gdp_ppp) so in the new data you simply supply the original gdp_ppp value; the model formula will handle the log-transformation automatically.)
+
+```{r}
+# Example: Create a new observation
+# Suppose we have:
+#   - science_positive = 8
+#   - science_skeptical = 4
+#   - GDP per capita (PPP) = 30 (in thousands USD)
+new_obs <- data.frame(science_positive = 8,
+                      science_skeptical = 4,
+                      gdp_ppp = 30)
+
+# Predict education spending for this new observation along with a 95% confidence interval
+predicted_values <- predict(model1, newdata = new_obs, interval = "confidence", level = 0.95)
+
+cat("Predicted Education Spending and 95% Confidence Interval for the New Observation:\n")
+print(predicted_values)
+
+```
+
+## Statistical Inference
+
+In our analysis we estimate the following OLS model:
+
+$$
+\text{edu_spending}_i = \beta_0 + \beta_1 * \text{science_positive}_i + \beta_2 * \text{science_skeptical}_i + \beta_3 * \log(\text{gdp_ppp}_i) + \varepsilon_i,
+$$
+
+where the error term $\varepsilon_i$ is assumed to be independently and identically distributed with
+
+$$
+\varepsilon_i \sim N(0,\sigma^2).
+$$
+
+Under the Gauss–Markov assumptions, the OLS estimators $\hat{\beta}_j$ are the Best Linear Unbiased Estimators (BLUE). With the additional assumption of normality, the sampling distribution of each estimator is given by
+
+$$
+\hat{\beta}j \sim t_{n-k},
+$$
+
+where $n$ is the number of observations and $k$ is the number of estimated parameters.
+Hypothesis Testing
+For each coefficient, we test the null hypothesis
+
+$$
+H_0: \beta_j = 0
+$$
+
+against the alternative
+
+$$
+H_A: \beta_j \neq 0.
+$$
+The test statistic is computed as:
+
+$$
+t_j = \frac{\hat{\beta}_j - 0}{\text{SE}(\hat{\beta}_j)},
+$$
+
+where $\text{SE}(\hat{\beta}_j)$ is the standard error of the estimator. Under $H_0$, $t_j$ follows a t‑distribution with $n-k$ degrees of freedom. A low p‑value (typically below 0.05) leads us to reject $H_0$, suggesting that the coefficient is statistically significantly different from zero.
+
+A 95% confidence interval for each coefficient is given by:
+
+$$
+\hat{\beta}j \pm t_{0.025,, n-k} \times \text{SE}(\hat{\beta}j),
+$$
+
+where $t{0.025,, n-k}$ is the critical value from the t‑distribution corresponding to a two‑tailed test at the 5% significance level. This interval provides a range of values that, with 95% confidence, contains the true population parameter $\beta_j$.
+
+### Prediction
+
+When predicting education spending for a new observation, we use the estimated regression equation. The point prediction is computed by substituting the new data into the model. Additionally, a confidence interval for the prediction is generated to account for the uncertainty in both the parameter estimates and the inherent variability in the outcome.
+
+
+### Interpretation of Log-Linear Model Parameters
+
+In our model, one of the independent variables is $\log(\text{gdp_ppp})$. This transformation implies a log-linear relationship between GDP per capita and education spending. The interpretation of the coefficient $\beta_3$ on $\log(\text{gdp_ppp})$ is as follows:
+
+Interpretation of $\beta_3$:
+A 1% increase in GDP per capita is associated with an approximate change in education spending of $\frac{\beta_3}{100}$ units, holding all other factors constant.
+
+To understand this, consider that a small percentage change in GDP per capita, $\Delta \text{gdp_ppp}$, can be approximated as:
+
+$$
+\Delta \log(\text{gdp_ppp}) \approx \frac{\Delta \text{gdp_ppp}}{\text{gdp_ppp}}
+$$
+Thus, if GDP per capita increases by 1% (i.e., $\Delta \text{gdp_ppp} = 0.01 \times \text{gdp_ppp}$), the predicted change in education spending is:
+
+$$
+\Delta \text{edu_spending} \approx \beta_3 \times 0.01 = \frac{\beta_3}{100}
+$$
+Interpretation of Other Coefficients
+
+$\beta_1$ (science_positive):
+This coefficient represents the marginal change in education spending for a one-unit increase in the positive outlook on science, holding the other variables constant.
+
+$\beta_2$ (science_skeptical):
+Similarly, this coefficient represents the marginal change in education spending for a one-unit increase in the skeptical outlook on science, holding other variables constant.
+
+
+# Exercises
+
+1. There is one important error that I have overlooked. Find it for extra credit. What could we do to correct it?
+
+2. Find a new metric for R&D and add it to the dataset
+
+3. Run a regression analysis end-to-end using a different subset of questions from world values survey. Fetch additional data for WDI as needed.
+
+
