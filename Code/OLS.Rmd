@@ -53,6 +53,7 @@ print(round(B %*% B_inv, 10))
 # - Create a 4x1 vector with four values drawn from a random standard normal distribution.
 # - Multiply these two and print out the result using cat().
 
+
 ```
 
 
@@ -110,8 +111,10 @@ print(coef(simple_model)) # should be the same as the ones computed manually
 # Simulate a multiple regression with two regressors:
 set.seed(123)
 n <- 100
+
 # X includes an intercept column plus two random regressors
 X <- cbind(1, rnorm(n), rnorm(n))
+
 beta_true <- c(1, 2, -1)  # True coefficients: intercept, beta1, beta2
 epsilon <- rnorm(n, mean = 0, sd = 0.5)
 y_multi <- X %*% beta_true + epsilon  # Model: y = Xβ + error
@@ -130,6 +133,7 @@ print(beta_hat_manual)
 cat("\nCoefficients from lm():\n")
 print(coef(multi_model))
 
+
 # Calculate R-squared manually
 TSS <- sum((y_multi - mean(y_multi))^2)
 RSS <- sum(residuals_manual^2)
@@ -147,6 +151,7 @@ There might be some performance difference stemming from how the `lm()` function
 # - Simulate your Data Generating Process with an intercept and two regressors
 # - Estimate the three coefficients and the residuals with the OLS estimator manually
 # - Plot the residuals using plot() with a red horizontal line at 0 using abline() 
+
 
 ```
 
@@ -241,6 +246,12 @@ cat("\nCoefficients from lm() (FRED data):\n")
 print(coef(fred_model))
 
 ```
+
+```{r}
+summary(fred_model)
+```
+
+
 
 ```{r}
 # Residual vs. Fitted Plot for the FRED model

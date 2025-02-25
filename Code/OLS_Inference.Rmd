@@ -36,6 +36,7 @@ For these questions, a 1 means that you “completely disagree” and a 10 means
 
 
 ```{r}
+# WVS Data, Questionnaire, and Codebook -> https://www.worldvaluessurvey.org/WVSDocumentationWV7.jsp
 wvs_data <- read.csv(file.choose())
 head(wvs_data)
 ```
@@ -69,8 +70,8 @@ wvs_science <- aggregate(cbind(Q158, Q159, Q160, Q161, Q162) ~ B_COUNTRY_ALPHA,
 names(wvs_science) <- c("Country", "mean_Q158", "mean_Q159", "mean_Q160", "mean_Q161", "mean_Q162")
 
 # Compute indices:
-# A higher mean on Q158-Q160 indicates a positive outlook on science.
-# A higher mean on Q161-Q162 indicates a skeptical view.
+## A higher mean on Q158-Q160 indicates a positive outlook on science.
+## A higher mean on Q161-Q162 indicates a skeptical view.
 wvs_science$science_positive <- rowMeans(wvs_science[, c("mean_Q158", "mean_Q159", "mean_Q160")], na.rm = TRUE)
 wvs_science$science_skeptical <- rowMeans(wvs_science[, c("mean_Q161", "mean_Q162")], na.rm = TRUE)
 head(wvs_science)
