@@ -1,0 +1,162 @@
+---
+title: "Multicollinearity and Misspecification"
+author: "Grok 3 :P"
+date: 'Sys.Date()'
+---
+
+# Computational Experiment: Exploring Violations of Gauss-Markov Assumptions
+
+This notebook lets you explore four key violations of the Gauss-Markov assumptions using synthetic data:  
+1. Multicollinearity  
+2. Under-specification (Omitted Variable Bias)  
+3. Over-specification  
+4. Functional Form Misspecification  
+
+You’ll generate data, run regressions, and use tests and plots to detect these issues. Interpret the results using the hypotheses below—no hand-holding here!
+
+## Hypotheses for Each Test
+
+- **Multicollinearity**:  
+  - *VIF*: Variance Inflation Factor. VIF > 10 suggests multicollinearity inflates coefficient variance.  
+  - *Correlation Matrix*: Correlations > 0.8 or < -0.8 between regressors indicate multicollinearity.  
+  - *Condition Number*: > 30 suggests multicollinearity in the model matrix.  
+
+- **Under-specification (Omitted Variable Bias)**:  
+  - No direct test. High residuals or a big fit improvement when adding omitted variables suggest an issue.  
+
+- **Over-specification**:  
+  - Adding irrelevant variables doesn’t bias coefficients but inflates standard errors. Compare standard errors with the true model.  
+
+- **Functional Form Misspecification**:  
+  - *Ramsey RESET Test*: Significant p-value (< 0.05) suggests missing nonlinear terms.  
+  - *Residual Plots*: Patterns (e.g., curves) indicate the functional form is wrong.
+  
+```{r}
+# Load required packages
+library(lmtest)  # For Ramsey RESET test
+library(car)     # For VIF
+```
+
+*Data Generation*: `generate_data()` creates synthetic data with toggles for each violation. It’s flexible and keeps the noise manageable.
+
+```{r}
+# Generate synthetic data with optional violations
+generate_data <- function(n = 100, beta = c(1, 2, 3), multicol = FALSE, under_spec = FALSE, 
+                         over_spec = FALSE, nonlinear = FALSE) {
+  # Generate regressors
+  if (multicol) {
+    x1 <- rnorm(n)
+    x2 <- x1 + rnorm(n, sd = 0.1)  # High correlation with x1
+  } else {
+    x1 <- rnorm(n)
+    x2 <- rnorm(n)
+  }
+  
+  if (over_spec) {
+    x3 <- rnorm(n)  # Irrelevant variable
+  }
+  
+  # Generate response variable
+  if (nonlinear) {
+    y <- beta[1] + beta[2] * x1 + beta[3] * x1^2 + rnorm(n)
+  } else {
+    y <- beta[1] + beta[2] * x1 + beta[3] * x2 + rnorm(n)
+  }
+  
+  # Create data frame
+  data <- data.frame(y = y, x1 = x1, x2 = x2)
+  if (over_spec) data$x3 <- x3
+  if (under_spec) data <- data[, !names(data) %in% "x2"]
+  
+  return(data)
+}
+```
+
+*Experiment*: `run_experiment()` runs the regression, performs relevant tests, and generates plots. It’s modular—each violation gets its own checks.
+
+```{r}
+# Run regression and tests for a given scenario
+run_experiment <- function(data, multicol = FALSE, under_spec = FALSE, over_spec = FALSE, 
+                          nonlinear = FALSE, true_model = FALSE) {
+  # Define the regression model based on scenario
+  if (true_model) {
+    model <- lm(y ~ x1 + x2, data = data)
+  } else if (under_spec) {
+    model <- lm(y ~ x1, data = data)
+  } else if (over_spec) {
+    model <- lm(y ~ x1 + x2 + x3, data = data)
+  } else {
+    model <- lm(y ~ x1 + x2, data = data)
+  }
+  
+  # Print model summary
+  cat("\nModel Summary:\n")
+  print(summary(model))
+  
+  # Multicollinearity tests
+  if (multicol) {
+    cat("\nMulticollinearity Tests:\n")
+    cat("VIF:\n")
+    print(vif(model))
+    cat("Correlation Matrix:\n")
+    print(cor(data[, !names(data) %in% "y"]))
+    cat("Condition Number:", kappa(model.matrix(model)), "\n")
+    plot(data$x1, data$x2, main = "x1 vs x2", xlab = "x1", ylab = "x2")
+  }
+  
+  # Functional form misspecification tests
+  if (nonlinear) {
+    cat("\nFunctional Form Misspecification Tests:\n")
+    cat("Ramsey RESET Test:\n")
+    print(resettest(model, power = 2:3))
+    plot(fitted(model), residuals(model), main = "Residuals vs Fitted", 
+         xlab = "Fitted Values", ylab = "Residuals")
+    abline(h = 0, col = "red")
+  }
+  
+  # For under-specification: residual plot
+  if (under_spec) {
+    plot(fitted(model), residuals(model), main = "Residuals vs Fitted (Under-specified)", 
+         xlab = "Fitted Values", ylab = "Residuals")
+    abline(h = 0, col = "red")
+  }
+}
+```
+
+```{r}
+# Scenario 1: Multicollinearity
+cat("\n=== Multicollinearity Scenario ===\n")
+data_multicol <- generate_data(multicol = TRUE)
+run_experiment(data_multicol, multicol = TRUE)
+
+# Scenario 2: Under-specification
+cat("\n=== Under-specification Scenario ===\n")
+data_under <- generate_data(under_spec = TRUE)
+run_experiment(data_under, under_spec = TRUE)
+
+# Scenario 3: Over-specification
+cat("\n=== Over-specification Scenario ===\n")
+data_over <- generate_data(over_spec = TRUE)
+run_experiment(data_over, over_spec = TRUE)
+
+# Scenario 4: Functional Form Misspecification
+cat("\n=== Nonlinear Scenario ===\n")
+data_nonlinear <- generate_data(nonlinear = TRUE)
+run_experiment(data_nonlinear, nonlinear = TRUE)
+
+# Scenario 5: Correct Model (Baseline)
+cat("\n=== Correct Model Scenario ===\n")
+data_correct <- generate_data()
+run_experiment(data_correct, true_model = TRUE)
+```
+
+
+## Test it yourself
+
+- *Multicollinearity*: Check if VIFs are huge or if $x_1$ and $x_2$ look like a straight line in the scatter plot.
+
+- *Under-specification*: Look for patterns in the residual plot—random scatter is good, curves are bad.
+
+- *Over-specification*: Compare standard errors with the correct model. Bigger errors? You’ve got junk in there.
+
+- *Nonlinear*: RESET p-value < 0.05 or a curvy residual plot screams “wrong form!”
