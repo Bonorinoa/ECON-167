@@ -1,0 +1,43 @@
+---
+title: "Econ 167 - PS1 Answer Key"
+autor: "Augusto Gonzalez-Bonorino"
+date: 'Sys,Date()'
+---
+
+
+# 1. LLN
+
+```{r}
+
+sim_x <- function(n){
+  x <- rnorm(n, mean = 0, sd = 1)
+  return(mean(x))
+}
+sample_sizes <- c(10, 50, 100, 500, 1000, 5000)
+
+simulated_means <- sapply(sample_sizes, sim_x)
+
+plot(sample_sizes, simulated_means, type = "l", col = "blue", lwd = 2, xlab = "Sample Size", ylab = "Sample Mean", main = "Law of Large Numbers")
+```
+
+# 2. OLS
+
+```{r}
+x <- runif(200, 0, 10)
+X <- cbind(1, x)
+e <- rnorm(200, 0, 1)
+
+y <- 3 + 2*x + e
+
+ols <- solve(t(X) %*% X) %*% t(X) %*% y
+
+alpha_hat <- ols[1]
+beta_hat <- ols[2]
+
+plot(x, y, col = "blue", pch = 20, xlab = "x", ylab = "y", main = "OLS")
+abline(a = alpha_hat, b = beta_hat, col = "red", lwd = 2)
+
+cat("Intercept error: ", alpha_hat - 3, "\n")
+cat("Slope error: ", beta_hat - 2, "\n")
+```
+
